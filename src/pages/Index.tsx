@@ -323,7 +323,11 @@ const Index = () => {
           </TabsContent>
 
           <TabsContent value="ai" className="space-y-6">
-            <AIPredictionTab aiPrediction={aiPrediction} />
+            <AIPredictionTab 
+              aiPrediction={aiPrediction} 
+              exchanges={exchanges}
+              selectedCrypto={selectedCrypto}
+            />
           </TabsContent>
         </Tabs>
       </div>
