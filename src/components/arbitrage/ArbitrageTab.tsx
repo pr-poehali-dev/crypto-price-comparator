@@ -8,14 +8,16 @@ interface Exchange {
   fee: number;
   change24h: number;
   url?: string;
+  dataSource?: string;
 }
 
 interface ArbitrageTabProps {
   exchanges: Exchange[];
   selectedCrypto: string;
+  minProfitFilter: number;
 }
 
-export const ArbitrageTab = ({ exchanges, selectedCrypto }: ArbitrageTabProps) => {
+export const ArbitrageTab = ({ exchanges, selectedCrypto, minProfitFilter }: ArbitrageTabProps) => {
   const sortedExchanges = [...exchanges].sort((a, b) => a.price - b.price);
   const minPrice = sortedExchanges[0];
   const maxPrice = sortedExchanges[sortedExchanges.length - 1];
@@ -23,7 +25,7 @@ export const ArbitrageTab = ({ exchanges, selectedCrypto }: ArbitrageTabProps) =
 
   const opportunitiesAbove3 = sortedExchanges.filter((exchange) => {
     const potentialProfit = ((maxPrice.price - exchange.price) / exchange.price) * 100;
-    return potentialProfit >= 3.0;
+    return potentialProfit >= minProfitFilter;
   });
 
   return (
@@ -63,7 +65,7 @@ export const ArbitrageTab = ({ exchanges, selectedCrypto }: ArbitrageTabProps) =
         <div className="mb-4">
           <h3 className="text-base md:text-lg font-semibold mb-2 flex items-center gap-2">
             <Icon name="TrendingUp" size={20} className="text-accent" />
-            Возможности с выгодой от 3%
+            Возможности с выгодой от {minProfitFilter}%
           </h3>
         </div>
 
@@ -77,6 +79,7 @@ export const ArbitrageTab = ({ exchanges, selectedCrypto }: ArbitrageTabProps) =
                 <th className="text-right py-3 px-4 text-sm font-medium text-muted-foreground">Объем (млн)</th>
                 <th className="text-right py-3 px-4 text-sm font-medium text-muted-foreground">Комиссия</th>
                 <th className="text-right py-3 px-4 text-sm font-medium text-muted-foreground">Выгода</th>
+                <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Источник</th>
               </tr>
             </thead>
             <tbody>
@@ -84,7 +87,16 @@ export const ArbitrageTab = ({ exchanges, selectedCrypto }: ArbitrageTabProps) =
                 const potentialProfit = ((maxPrice.price - exchange.price) / exchange.price) * 100;
                 return (
                   <tr key={exchange.name} className="border-b border-border/50 hover:bg-muted/20 transition-colors">
-                    <td className="py-3 px-4 font-medium">{exchange.name}</td>
+                    <td className="py-3 px-4">
+                      <a 
+                        href={exchange.url || '#'} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="font-medium text-primary hover:underline cursor-pointer"
+                      >
+                        {exchange.name}
+                      </a>
+                    </td>
                     <td className="text-right py-3 px-4 font-mono">${exchange.price.toFixed(2)}</td>
                     <td className={`text-right py-3 px-4 ${exchange.change24h > 0 ? 'text-accent' : 'text-destructive'}`}>
                       {exchange.change24h > 0 ? '+' : ''}{exchange.change24h.toFixed(2)}%
@@ -94,14 +106,15 @@ export const ArbitrageTab = ({ exchanges, selectedCrypto }: ArbitrageTabProps) =
                     <td className="text-right py-3 px-4 font-bold text-accent">
                       +{potentialProfit.toFixed(2)}%
                     </td>
+                    <td className="py-3 px-4 text-xs text-muted-foreground">{exchange.dataSource || 'N/A'}</td>
                   </tr>
                 );
               })}
               {opportunitiesAbove3.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="py-8 text-center text-muted-foreground">
+                  <td colSpan={7} className="py-8 text-center text-muted-foreground">
                     <Icon name="Search" size={32} className="mx-auto mb-2 opacity-50" />
-                    Нет возможностей с выгодой от 3%
+                    Нет возможностей с выгодой от {minProfitFilter}%
                   </td>
                 </tr>
               )}
@@ -116,8 +129,16 @@ export const ArbitrageTab = ({ exchanges, selectedCrypto }: ArbitrageTabProps) =
               <div key={exchange.name} className="p-4 rounded-lg bg-muted/30 border border-border">
                 <div className="flex justify-between items-start mb-3">
                   <div>
-                    <div className="font-semibold text-base">{exchange.name}</div>
+                    <a 
+                      href={exchange.url || '#'} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="font-semibold text-base text-primary hover:underline cursor-pointer"
+                    >
+                      {exchange.name}
+                    </a>
                     <div className="text-lg font-mono font-bold mt-1">${exchange.price.toFixed(2)}</div>
+                    <div className="text-xs text-muted-foreground mt-1">{exchange.dataSource || 'N/A'}</div>
                   </div>
                   <div className="text-right">
                     <div className="text-xl font-bold text-accent">+{potentialProfit.toFixed(2)}%</div>
@@ -146,7 +167,7 @@ export const ArbitrageTab = ({ exchanges, selectedCrypto }: ArbitrageTabProps) =
           {opportunitiesAbove3.length === 0 && (
             <div className="py-12 text-center text-muted-foreground">
               <Icon name="Search" size={48} className="mx-auto mb-3 opacity-50" />
-              <div className="text-sm">Нет возможностей с выгодой от 3%</div>
+              <div className="text-sm">Нет возможностей с выгодой от {minProfitFilter}%</div>
             </div>
           )}
         </div>

@@ -19,6 +19,7 @@ interface Exchange {
   fee: number;
   change24h: number;
   url?: string;
+  dataSource?: string;
 }
 
 const Index = () => {
@@ -27,6 +28,7 @@ const Index = () => {
   const [selectedCrypto, setSelectedCrypto] = useState<string>('BTC');
   const [notificationsEnabled, setNotificationsEnabled] = useState<boolean>(false);
   const [minProfitThreshold, setMinProfitThreshold] = useState<string>('0.3');
+  const [minProfitFilter, setMinProfitFilter] = useState<string>('3.0');
   const [lastNotificationTime, setLastNotificationTime] = useState<number>(0);
   const [exchanges, setExchanges] = useState<Exchange[]>([
     { name: 'Binance', price: 95420, volume: 24.5, fee: 0.1, change24h: 2.34 },
@@ -207,8 +209,33 @@ const Index = () => {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="arbitrage" className="space-y-6">
-            <ArbitrageTab exchanges={exchanges} selectedCrypto={selectedCrypto} />
+          <TabsContent value="arbitrage" className="space-y-4 md:space-y-6">
+            <Card className="bg-card/50 backdrop-blur border-border">
+              <CardContent className="pt-4 md:pt-6 px-4 pb-4">
+                <div className="flex flex-col md:flex-row md:items-center gap-3 md:gap-4">
+                  <Icon name="Filter" size={20} className="text-accent hidden md:block" />
+                  <div className="flex-1">
+                    <Label htmlFor="profitFilter" className="text-sm md:text-base font-semibold">Фильтр возможностей</Label>
+                    <p className="text-xs md:text-sm text-muted-foreground">Показать площадки с выгодой от</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      id="profitFilter"
+                      type="number"
+                      step="0.5"
+                      min="0"
+                      max="20"
+                      value={minProfitFilter}
+                      onChange={(e) => setMinProfitFilter(e.target.value)}
+                      className="w-20 md:w-24 text-sm md:text-base"
+                      inputMode="decimal"
+                    />
+                    <span className="text-sm md:text-base font-medium">%</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <ArbitrageTab exchanges={exchanges} selectedCrypto={selectedCrypto} minProfitFilter={parseFloat(minProfitFilter) || 3.0} />
           </TabsContent>
 
           <TabsContent value="calculator" className="space-y-6">
