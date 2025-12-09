@@ -1,0 +1,16 @@
+{
+  "tests": [
+    {
+      "name": "Get crypto prices from exchanges",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "CORS preflight request",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    }
+  ]
+}

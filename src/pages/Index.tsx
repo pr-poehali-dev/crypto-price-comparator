@@ -4,6 +4,9 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { useToast } from '@/hooks/use-toast';
 import Icon from '@/components/ui/icon';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 
@@ -16,7 +19,11 @@ interface Exchange {
 }
 
 const Index = () => {
+  const { toast } = useToast();
   const [amount, setAmount] = useState<string>('1');
+  const [notificationsEnabled, setNotificationsEnabled] = useState<boolean>(false);
+  const [minProfitThreshold, setMinProfitThreshold] = useState<string>('0.3');
+  const [lastNotificationTime, setLastNotificationTime] = useState<number>(0);
   const [exchanges, setExchanges] = useState<Exchange[]>([
     { name: 'Binance', price: 95420, volume: 24.5, fee: 0.1, change24h: 2.34 },
     { name: 'Coinbase', price: 95680, volume: 18.2, fee: 0.5, change24h: 2.41 },
@@ -45,16 +52,51 @@ const Index = () => {
   ]);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setExchanges(prev => prev.map(ex => ({
-        ...ex,
-        price: ex.price + (Math.random() - 0.5) * 100,
-        change24h: ex.change24h + (Math.random() - 0.5) * 0.2,
-      })));
-    }, 3000);
+    const fetchRealPrices = async () => {
+      try {
+        const response = await fetch('https://functions.poehali.dev/ac977fcc-5718-4e2b-b050-2421e770d97e');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.exchanges && data.exchanges.length > 0) {
+            setExchanges(data.exchanges);
+          }
+        }
+      } catch (error) {
+        console.log('Using demo data:', error);
+      }
+    };
 
-    return () => clearInterval(interval);
+    fetchRealPrices();
+    const priceInterval = setInterval(fetchRealPrices, 15000);
+
+    return () => {
+      clearInterval(priceInterval);
+    };
   }, []);
+
+  useEffect(() => {
+    if (!notificationsEnabled) return;
+
+    const now = Date.now();
+    if (now - lastNotificationTime < 60000) return;
+
+    const sortedExchanges = [...exchanges].sort((a, b) => a.price - b.price);
+    const minPrice = sortedExchanges[0];
+    const maxPrice = sortedExchanges[sortedExchanges.length - 1];
+    const spread = maxPrice.price - minPrice.price;
+    const profitPercent = ((spread / minPrice.price) * 100);
+
+    const threshold = parseFloat(minProfitThreshold) || 0.3;
+
+    if (profitPercent >= threshold) {
+      toast({
+        title: "🚀 Выгодная возможность!",
+        description: `Спред ${profitPercent.toFixed(2)}% между ${minPrice.name} и ${maxPrice.name}. Потенциальная прибыль: $${spread.toFixed(2)}`,
+        duration: 5000,
+      });
+      setLastNotificationTime(now);
+    }
+  }, [exchanges, notificationsEnabled, minProfitThreshold, lastNotificationTime, toast]);
 
   const sortedExchanges = [...exchanges].sort((a, b) => a.price - b.price);
   const minPrice = sortedExchanges[0];
@@ -69,7 +111,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
       <div className="max-w-7xl mx-auto space-y-6">
-        <header className="flex items-center justify-between">
+        <header className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div>
             <h1 className="text-3xl md:text-4xl font-bold text-foreground flex items-center gap-3">
               <Icon name="TrendingUp" size={36} className="text-primary" />
@@ -77,7 +119,7 @@ const Index = () => {
             </h1>
             <p className="text-muted-foreground mt-1">Мониторинг арбитражных возможностей в реальном времени</p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-4">
             <div className="animate-pulse-glow">
               <Badge variant="outline" className="text-primary border-primary">
                 <Icon name="Radio" size={14} className="mr-1" />
@@ -86,6 +128,40 @@ const Index = () => {
             </div>
           </div>
         </header>
+
+        <Card className="bg-card/50 backdrop-blur border-border">
+          <CardContent className="pt-6">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+              <div className="flex items-center space-x-4">
+                <Icon name="Bell" size={24} className="text-primary" />
+                <div>
+                  <Label htmlFor="notifications" className="text-base font-semibold">Уведомления о возможностях</Label>
+                  <p className="text-sm text-muted-foreground">Получайте алерты при выгодных спредах</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="threshold" className="text-sm whitespace-nowrap">Мин. прибыль:</Label>
+                  <Input
+                    id="threshold"
+                    type="number"
+                    step="0.1"
+                    value={minProfitThreshold}
+                    onChange={(e) => setMinProfitThreshold(e.target.value)}
+                    className="w-20"
+                    disabled={!notificationsEnabled}
+                  />
+                  <span className="text-sm text-muted-foreground">%</span>
+                </div>
+                <Switch
+                  id="notifications"
+                  checked={notificationsEnabled}
+                  onCheckedChange={setNotificationsEnabled}
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         <Tabs defaultValue="arbitrage" className="w-full">
           <TabsList className="grid w-full grid-cols-4 mb-6">
