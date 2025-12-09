@@ -1,14 +1,16 @@
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import Icon from '@/components/ui/icon';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
+import { ArbitrageTab } from '@/components/arbitrage/ArbitrageTab';
+import { CalculatorTab } from '@/components/arbitrage/CalculatorTab';
+import { AnalyticsTab } from '@/components/arbitrage/AnalyticsTab';
+import { AIPredictionTab } from '@/components/arbitrage/AIPredictionTab';
 
 interface Exchange {
   name: string;
@@ -35,7 +37,7 @@ const Index = () => {
     { name: 'Bitfinex', price: 95750, volume: 8.9, fee: 0.2, change24h: 2.45 },
   ]);
 
-  const [priceHistory, setPriceHistory] = useState([
+  const [priceHistory] = useState([
     { time: '00:00', spread: 120, profit: 0.12 },
     { time: '04:00', spread: 180, profit: 0.18 },
     { time: '08:00', spread: 250, profit: 0.26 },
@@ -44,7 +46,7 @@ const Index = () => {
     { time: '20:00', spread: 460, profit: 0.48 },
   ]);
 
-  const [aiPrediction, setAiPrediction] = useState([
+  const [aiPrediction] = useState([
     { time: 'Сейчас', value: 95420 },
     { time: '+1ч', value: 95680 },
     { time: '+2ч', value: 95920 },
@@ -99,16 +101,6 @@ const Index = () => {
       setLastNotificationTime(now);
     }
   }, [exchanges, notificationsEnabled, minProfitThreshold, lastNotificationTime, toast]);
-
-  const sortedExchanges = [...exchanges].sort((a, b) => a.price - b.price);
-  const minPrice = sortedExchanges[0];
-  const maxPrice = sortedExchanges[sortedExchanges.length - 1];
-  const spread = maxPrice.price - minPrice.price;
-  const amountNum = parseFloat(amount) || 0;
-  const buyTotal = minPrice.price * amountNum * (1 + minPrice.fee / 100);
-  const sellTotal = maxPrice.price * amountNum * (1 - maxPrice.fee / 100);
-  const profit = sellTotal - buyTotal;
-  const profitPercent = ((profit / buyTotal) * 100).toFixed(2);
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
@@ -214,328 +206,26 @@ const Index = () => {
           </TabsList>
 
           <TabsContent value="arbitrage" className="space-y-6">
-            <Card className="bg-card/50 backdrop-blur border-border">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Icon name="Target" size={24} className="text-accent" />
-                  Лучшая возможность сейчас
-                </CardTitle>
-                <CardDescription>Актуальные спреды между биржами</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                  <div className="p-4 rounded-lg bg-accent/10 border border-accent/20">
-                    <div className="text-sm text-muted-foreground mb-1">Купить на</div>
-                    <div className="text-2xl font-bold text-accent">{minPrice.name}</div>
-                    <div className="text-lg mt-2">${minPrice.price.toFixed(2)}</div>
-                    <div className="text-xs text-muted-foreground mt-1">Комиссия: {minPrice.fee}%</div>
-                  </div>
-                  
-                  <div className="p-4 rounded-lg bg-primary/10 border border-primary/20 flex flex-col items-center justify-center">
-                    <Icon name="ArrowRight" size={32} className="text-primary mb-2" />
-                    <div className="text-sm text-muted-foreground">Спред</div>
-                    <div className="text-3xl font-bold text-primary">${spread.toFixed(2)}</div>
-                    <div className="text-sm text-primary/70 mt-1">{((spread / minPrice.price) * 100).toFixed(2)}%</div>
-                  </div>
-
-                  <div className="p-4 rounded-lg bg-destructive/10 border border-destructive/20">
-                    <div className="text-sm text-muted-foreground mb-1">Продать на</div>
-                    <div className="text-2xl font-bold text-destructive">{maxPrice.name}</div>
-                    <div className="text-lg mt-2">${maxPrice.price.toFixed(2)}</div>
-                    <div className="text-xs text-muted-foreground mt-1">Комиссия: {maxPrice.fee}%</div>
-                  </div>
-                </div>
-
-                <div className="mb-4">
-                  <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
-                    <Icon name="TrendingUp" size={20} className="text-accent" />
-                    Возможности с выгодой от 3%
-                  </h3>
-                </div>
-
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b border-border">
-                        <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Биржа</th>
-                        <th className="text-right py-3 px-4 text-sm font-medium text-muted-foreground">Цена ({selectedCrypto})</th>
-                        <th className="text-right py-3 px-4 text-sm font-medium text-muted-foreground">24ч %</th>
-                        <th className="text-right py-3 px-4 text-sm font-medium text-muted-foreground">Объем (млн)</th>
-                        <th className="text-right py-3 px-4 text-sm font-medium text-muted-foreground">Комиссия</th>
-                        <th className="text-right py-3 px-4 text-sm font-medium text-muted-foreground">Выгода</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {sortedExchanges
-                        .filter((exchange) => {
-                          const potentialProfit = ((maxPrice.price - exchange.price) / exchange.price) * 100;
-                          return potentialProfit >= 3.0;
-                        })
-                        .map((exchange) => {
-                          const potentialProfit = ((maxPrice.price - exchange.price) / exchange.price) * 100;
-                          return (
-                            <tr key={exchange.name} className="border-b border-border/50 hover:bg-muted/20 transition-colors">
-                              <td className="py-3 px-4 font-medium">{exchange.name}</td>
-                              <td className="text-right py-3 px-4 font-mono">${exchange.price.toFixed(2)}</td>
-                              <td className={`text-right py-3 px-4 ${exchange.change24h > 0 ? 'text-accent' : 'text-destructive'}`}>
-                                {exchange.change24h > 0 ? '+' : ''}{exchange.change24h.toFixed(2)}%
-                              </td>
-                              <td className="text-right py-3 px-4 text-muted-foreground">${exchange.volume}M</td>
-                              <td className="text-right py-3 px-4 text-muted-foreground">{exchange.fee}%</td>
-                              <td className="text-right py-3 px-4 font-bold text-accent">
-                                +{potentialProfit.toFixed(2)}%
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      {sortedExchanges.filter((exchange) => {
-                        const potentialProfit = ((maxPrice.price - exchange.price) / exchange.price) * 100;
-                        return potentialProfit >= 3.0;
-                      }).length === 0 && (
-                        <tr>
-                          <td colSpan={6} className="py-8 text-center text-muted-foreground">
-                            <Icon name="Search" size={32} className="mx-auto mb-2 opacity-50" />
-                            Нет возможностей с выгодой от 3%
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </CardContent>
-            </Card>
+            <ArbitrageTab exchanges={exchanges} selectedCrypto={selectedCrypto} />
           </TabsContent>
 
           <TabsContent value="calculator" className="space-y-6">
-            <Card className="bg-card/50 backdrop-blur border-border">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Icon name="Calculator" size={24} className="text-primary" />
-                  Калькулятор прибыли
-                </CardTitle>
-                <CardDescription>Расчет потенциальной прибыли с учетом комиссий</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Количество {selectedCrypto}</label>
-                  <Input 
-                    type="number" 
-                    value={amount} 
-                    onChange={(e) => setAmount(e.target.value)}
-                    placeholder="1.0"
-                    className="text-lg"
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="p-6 rounded-lg bg-accent/10 border border-accent/20">
-                    <div className="flex items-center gap-2 mb-4">
-                      <Icon name="ShoppingCart" size={20} className="text-accent" />
-                      <span className="font-medium">Покупка</span>
-                    </div>
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Биржа:</span>
-                        <span className="font-medium">{minPrice.name}</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Цена за {selectedCrypto}:</span>
-                        <span className="font-mono">${minPrice.price.toFixed(2)}</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Комиссия ({minPrice.fee}%):</span>
-                        <span className="font-mono">${(minPrice.price * amountNum * minPrice.fee / 100).toFixed(2)}</span>
-                      </div>
-                      <div className="border-t border-accent/20 pt-2 mt-2">
-                        <div className="flex justify-between">
-                          <span className="font-medium">Итого:</span>
-                          <span className="font-bold text-lg">${buyTotal.toFixed(2)}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="p-6 rounded-lg bg-destructive/10 border border-destructive/20">
-                    <div className="flex items-center gap-2 mb-4">
-                      <Icon name="DollarSign" size={20} className="text-destructive" />
-                      <span className="font-medium">Продажа</span>
-                    </div>
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Биржа:</span>
-                        <span className="font-medium">{maxPrice.name}</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Цена за {selectedCrypto}:</span>
-                        <span className="font-mono">${maxPrice.price.toFixed(2)}</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Комиссия ({maxPrice.fee}%):</span>
-                        <span className="font-mono">${(maxPrice.price * amountNum * maxPrice.fee / 100).toFixed(2)}</span>
-                      </div>
-                      <div className="border-t border-destructive/20 pt-2 mt-2">
-                        <div className="flex justify-between">
-                          <span className="font-medium">Итого:</span>
-                          <span className="font-bold text-lg">${sellTotal.toFixed(2)}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="p-8 rounded-lg bg-primary/20 border-2 border-primary">
-                  <div className="text-center">
-                    <div className="text-sm text-muted-foreground mb-2">Чистая прибыль</div>
-                    <div className="text-5xl font-bold text-primary mb-2">
-                      ${profit.toFixed(2)}
-                    </div>
-                    <div className="text-2xl text-primary/80">
-                      {profitPercent}%
-                    </div>
-                  </div>
-                </div>
-
-                <Button 
-                  className="w-full" 
-                  size="lg"
-                  onClick={() => {
-                    window.open(minPrice.url || 'https://www.binance.com', '_blank');
-                    setTimeout(() => {
-                      window.open(maxPrice.url || 'https://www.coinbase.com', '_blank');
-                    }, 500);
-                  }}
-                >
-                  <Icon name="Zap" size={20} className="mr-2" />
-                  Начать арбитраж
-                </Button>
-              </CardContent>
-            </Card>
+            <CalculatorTab 
+              exchanges={exchanges} 
+              selectedCrypto={selectedCrypto}
+              amount={amount}
+              setAmount={setAmount}
+            />
           </TabsContent>
 
           <TabsContent value="analytics" className="space-y-6">
-            <Card className="bg-card/50 backdrop-blur border-border">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Icon name="TrendingUp" size={24} className="text-primary" />
-                  История спредов
-                </CardTitle>
-                <CardDescription>Динамика арбитражных возможностей за последние 24 часа</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="h-[300px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={priceHistory}>
-                      <defs>
-                        <linearGradient id="colorSpread" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
-                          <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                      <XAxis dataKey="time" stroke="hsl(var(--muted-foreground))" />
-                      <YAxis stroke="hsl(var(--muted-foreground))" />
-                      <Tooltip 
-                        contentStyle={{ 
-                          backgroundColor: 'hsl(var(--card))', 
-                          border: '1px solid hsl(var(--border))',
-                          borderRadius: '8px'
-                        }}
-                      />
-                      <Area 
-                        type="monotone" 
-                        dataKey="spread" 
-                        stroke="hsl(var(--primary))" 
-                        strokeWidth={2}
-                        fill="url(#colorSpread)" 
-                      />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                </div>
-
-                <div className="grid grid-cols-3 gap-4 mt-6">
-                  <div className="text-center p-4 rounded-lg bg-muted/30">
-                    <div className="text-sm text-muted-foreground mb-1">Средний спред</div>
-                    <div className="text-2xl font-bold text-primary">$268</div>
-                  </div>
-                  <div className="text-center p-4 rounded-lg bg-muted/30">
-                    <div className="text-sm text-muted-foreground mb-1">Макс. прибыль</div>
-                    <div className="text-2xl font-bold text-accent">0.48%</div>
-                  </div>
-                  <div className="text-center p-4 rounded-lg bg-muted/30">
-                    <div className="text-sm text-muted-foreground mb-1">Возможностей</div>
-                    <div className="text-2xl font-bold">124</div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <AnalyticsTab priceHistory={priceHistory} />
           </TabsContent>
 
           <TabsContent value="ai" className="space-y-6">
-            <Card className="bg-card/50 backdrop-blur border-border">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Icon name="Brain" size={24} className="text-primary" />
-                  AI Прогноз цены BTC
-                </CardTitle>
-                <CardDescription>Предсказание на основе нейросети и исторических данных</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="h-[300px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={aiPrediction}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                      <XAxis dataKey="time" stroke="hsl(var(--muted-foreground))" />
-                      <YAxis stroke="hsl(var(--muted-foreground))" domain={['dataMin - 200', 'dataMax + 200']} />
-                      <Tooltip 
-                        contentStyle={{ 
-                          backgroundColor: 'hsl(var(--card))', 
-                          border: '1px solid hsl(var(--border))',
-                          borderRadius: '8px'
-                        }}
-                      />
-                      <Line 
-                        type="monotone" 
-                        dataKey="value" 
-                        stroke="hsl(var(--accent))" 
-                        strokeWidth={3}
-                        dot={{ fill: 'hsl(var(--accent))', r: 6 }}
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-
-                <div className="mt-6 p-6 rounded-lg bg-accent/10 border border-accent/20">
-                  <div className="flex items-start gap-4">
-                    <Icon name="Sparkles" size={32} className="text-accent flex-shrink-0" />
-                    <div>
-                      <h3 className="font-semibold text-lg mb-2">Рекомендация нейросети</h3>
-                      <p className="text-muted-foreground mb-4">
-                        На основе анализа паттернов последних 7 дней и текущей волатильности, 
-                        модель прогнозирует рост цены на 1.05% в ближайшие 12 часов. 
-                        Оптимальное время для арбитража: следующие 4 часа.
-                      </p>
-                      <div className="flex gap-4">
-                        <div>
-                          <div className="text-sm text-muted-foreground">Точность модели</div>
-                          <div className="text-xl font-bold text-accent">87.3%</div>
-                        </div>
-                        <div>
-                          <div className="text-sm text-muted-foreground">Уверенность</div>
-                          <div className="text-xl font-bold text-accent">Высокая</div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <AIPredictionTab aiPrediction={aiPrediction} />
           </TabsContent>
         </Tabs>
-
-        <footer className="text-center text-sm text-muted-foreground py-8 border-t border-border">
-          <p>CryptoArbitrage Pro — Автоматизированный поиск арбитражных возможностей</p>
-          <p className="mt-2">Данные обновляются в реальном времени • AI-прогнозы каждые 5 минут</p>
-        </footer>
       </div>
     </div>
   );
