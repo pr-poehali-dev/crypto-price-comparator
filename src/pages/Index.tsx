@@ -12,6 +12,7 @@ import { CalculatorTab } from '@/components/arbitrage/CalculatorTab';
 import { AnalyticsTab } from '@/components/arbitrage/AnalyticsTab';
 import { AIPredictionTab } from '@/components/arbitrage/AIPredictionTab';
 import { SpreadVisualization } from '@/components/arbitrage/SpreadVisualization';
+import { BestSchemeCard } from '@/components/arbitrage/BestSchemeCard';
 import { LoginPage } from '@/components/auth/LoginPage';
 
 interface Exchange {
@@ -84,24 +85,36 @@ const Index = () => {
   }, [selectedCrypto]);
 
   useEffect(() => {
-    if (!notificationsEnabled) return;
+    if (!notificationsEnabled || exchanges.length === 0) return;
 
     const now = Date.now();
     if (now - lastNotificationTime < 60000) return;
 
     const sortedExchanges = [...exchanges].sort((a, b) => a.price - b.price);
-    const minPrice = sortedExchanges[0];
-    const maxPrice = sortedExchanges[sortedExchanges.length - 1];
-    const spread = maxPrice.price - minPrice.price;
-    const profitPercent = ((spread / minPrice.price) * 100);
+    
+    const topSpreads = sortedExchanges.slice(0, 3).map((lowExchange) => {
+      const highExchanges = sortedExchanges.slice(-2);
+      return highExchanges.map((highExchange) => {
+        const spreadValue = highExchange.price - lowExchange.price;
+        const netProfit = spreadValue - (lowExchange.price * lowExchange.fee / 100) - (highExchange.price * highExchange.fee / 100);
+        const netProfitPct = (netProfit / lowExchange.price) * 100;
+
+        return {
+          buyFrom: lowExchange.name,
+          sellTo: highExchange.name,
+          netProfit,
+          netProfitPercent: netProfitPct,
+        };
+      });
+    }).flat().sort((a, b) => b.netProfitPercent - a.netProfitPercent)[0];
 
     const threshold = parseFloat(minProfitThreshold) || 0.3;
 
-    if (profitPercent >= threshold) {
+    if (topSpreads && topSpreads.netProfitPercent >= threshold) {
       toast({
-        title: "🚀 Выгодная возможность!",
-        description: `Спред ${profitPercent.toFixed(2)}% между ${minPrice.name} и ${maxPrice.name}. Потенциальная прибыль: $${spread.toFixed(2)}`,
-        duration: 5000,
+        title: "🎯 Лучшая схема найдена!",
+        description: `${topSpreads.buyFrom} → ${topSpreads.sellTo}: ${topSpreads.netProfitPercent.toFixed(2)}% чистой прибыли ($${topSpreads.netProfit.toFixed(2)})`,
+        duration: 7000,
       });
       setLastNotificationTime(now);
     }
@@ -131,6 +144,8 @@ const Index = () => {
             </div>
           </div>
         </header>
+
+        <BestSchemeCard exchanges={exchanges} selectedCrypto={selectedCrypto} />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
           <Card className="bg-card/50 backdrop-blur border-border">
@@ -172,8 +187,8 @@ const Index = () => {
                   <div className="flex items-center space-x-3">
                     <Icon name="Bell" size={20} className="text-primary hidden md:block" />
                     <div>
-                      <Label htmlFor="notifications" className="text-sm md:text-base font-semibold">Уведомления</Label>
-                      <p className="text-xs md:text-sm text-muted-foreground hidden md:block">Получайте алерты при выгодных спредах</p>
+                      <Label htmlFor="notifications" className="text-sm md:text-base font-semibold">Автопоиск схем</Label>
+                      <p className="text-xs md:text-sm text-muted-foreground hidden md:block">Автоматический поиск лучших арбитражных схем</p>
                     </div>
                   </div>
                   <Switch
