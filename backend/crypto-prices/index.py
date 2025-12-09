@@ -45,11 +45,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         fetch_htx,
         fetch_bybit,
         fetch_okx,
-        fetch_garantex,
         fetch_bestchange,
         fetch_cryptomus,
         fetch_exmo,
-        fetch_garantex_p2p,
         fetch_bybit_p2p
     ]
     
@@ -83,34 +81,6 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         'isBase64Encoded': False
     }
 
-def fetch_garantex(crypto: str) -> Optional[Dict[str, Any]]:
-    symbol_map = {
-        'BTC': 'btcrub', 'ETH': 'ethrub', 'USDT': 'usdtrub',
-        'SOL': 'solrub', 'XRP': 'xrprub', 'LTC': 'ltcrub',
-        'TRX': 'trxrub', 'DOGE': 'dogerub'
-    }
-    symbol = symbol_map.get(crypto)
-    if not symbol:
-        return None
-    
-    url = f'https://garantex.org/api/v2/depth?market={symbol}'
-    req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-    
-    with urllib.request.urlopen(req, timeout=3) as response:
-        data = json.loads(response.read().decode())
-        if data.get('asks') and len(data['asks']) > 0:
-            price_rub = float(data['asks'][0][0])
-            price_usd = price_rub / 95.0
-            return {
-                'name': 'Garantex',
-                'price': round(price_usd, 2),
-                'volume': 15.3,
-                'fee': 0.2,
-                'change24h': 1.85,
-                'url': 'https://garantex.org',
-                'dataSource': 'Garantex API (RUB)'
-            }
-    return None
 
 def fetch_binance(crypto: str) -> Optional[Dict[str, Any]]:
     symbol_map = {
@@ -453,33 +423,6 @@ def fetch_exmo(crypto: str) -> Optional[Dict[str, Any]]:
         pass
     return None
 
-def fetch_garantex_p2p(crypto: str) -> Optional[Dict[str, Any]]:
-    if crypto not in ['BTC', 'ETH', 'USDT', 'LTC', 'TRX', 'SOL', 'XRP']:
-        return None
-    
-    price_offsets = {
-        'BTC': 1.0387, 'ETH': 1.0365, 'USDT': 1.0218,
-        'LTC': 1.0342, 'TRX': 1.0298, 'SOL': 1.0356, 'XRP': 1.0315
-    }
-    
-    try:
-        ref_exchanges = [fetch_bybit(crypto), fetch_okx(crypto), fetch_kucoin(crypto)]
-        ref_price = next((ex['price'] for ex in ref_exchanges if ex), None)
-        
-        if ref_price:
-            return {
-                'name': 'Garantex P2P (Карты)',
-                'price': round(ref_price * price_offsets.get(crypto, 1.035), 2),
-                'volume': 22.4,
-                'fee': 0.8,
-                'change24h': 2.45,
-                'url': 'https://garantex.org',
-                'dataSource': 'Garantex P2P',
-                'paymentMethod': 'Карты Сбер/Тинькофф'
-            }
-    except:
-        pass
-    return None
 
 def fetch_bybit_p2p(crypto: str) -> Optional[Dict[str, Any]]:
     if crypto not in ['BTC', 'ETH', 'USDT', 'SOL', 'XRP', 'LTC', 'DOGE']:
