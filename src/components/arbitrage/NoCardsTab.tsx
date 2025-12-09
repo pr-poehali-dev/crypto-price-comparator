@@ -1,6 +1,9 @@
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
+import { SchemeDetailModal } from './SchemeDetailModal';
 
 interface Exchange {
   name: string;
@@ -18,6 +21,13 @@ interface NoCardsTabProps {
 }
 
 export const NoCardsTab = ({ exchanges, selectedCrypto }: NoCardsTabProps) => {
+  const [selectedScheme, setSelectedScheme] = useState<any>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const openSchemeDetails = (scheme: any) => {
+    setSelectedScheme(scheme);
+    setIsModalOpen(true);
+  };
   const cryptoExchanges = exchanges.filter(ex => 
     !ex.paymentMethod || !ex.paymentMethod.includes('Карт')
   );
@@ -194,7 +204,7 @@ export const NoCardsTab = ({ exchanges, selectedCrypto }: NoCardsTabProps) => {
                     </div>
                   </div>
                   
-                  <div className="flex flex-col items-end gap-1">
+                  <div className="flex flex-col items-end gap-2">
                     <div className={`text-2xl font-bold ${
                       scheme.netProfitPercent >= 0.5 ? 'text-green-500' : 
                       scheme.netProfitPercent >= 0.2 ? 'text-yellow-500' : 
@@ -205,6 +215,14 @@ export const NoCardsTab = ({ exchanges, selectedCrypto }: NoCardsTabProps) => {
                     <div className="text-sm text-muted-foreground">
                       ${Math.abs(scheme.netProfit).toFixed(2)} / {selectedCrypto}
                     </div>
+                    <Button 
+                      size="sm" 
+                      onClick={() => openSchemeDetails(scheme)}
+                      className="mt-1"
+                    >
+                      <Icon name="BookOpen" size={14} className="mr-2" />
+                      Инструкция
+                    </Button>
                   </div>
                 </div>
               </CardContent>
@@ -212,6 +230,13 @@ export const NoCardsTab = ({ exchanges, selectedCrypto }: NoCardsTabProps) => {
           ))}
         </div>
       )}
+
+      <SchemeDetailModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        scheme={selectedScheme}
+        crypto={selectedCrypto}
+      />
 
       <Card className="bg-blue-500/5 border-blue-500/20">
         <CardContent className="pt-4 pb-4">
