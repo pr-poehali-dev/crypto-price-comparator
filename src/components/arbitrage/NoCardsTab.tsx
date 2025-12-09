@@ -24,15 +24,13 @@ export const NoCardsTab = ({ exchanges, selectedCrypto }: NoCardsTabProps) => {
 
   const sortedByPrice = [...cryptoExchanges].sort((a, b) => a.price - b.price);
   
-  const calculateProfitSchemes = () => {
+  const calculateProfitSchemes = (minSpread: number = 2.0) => {
     const schemes = [];
     
-    for (let i = 0; i < Math.min(3, sortedByPrice.length); i++) {
+    for (let i = 0; i < sortedByPrice.length; i++) {
       const buyExchange = sortedByPrice[i];
       
-      for (let j = sortedByPrice.length - 1; j >= Math.max(sortedByPrice.length - 2, 0); j--) {
-        if (i >= j) continue;
-        
+      for (let j = sortedByPrice.length - 1; j > i; j--) {
         const sellExchange = sortedByPrice[j];
         const spreadValue = sellExchange.price - buyExchange.price;
         const buyFeeAmount = buyExchange.price * (buyExchange.fee / 100);
@@ -40,26 +38,28 @@ export const NoCardsTab = ({ exchanges, selectedCrypto }: NoCardsTabProps) => {
         const netProfit = spreadValue - buyFeeAmount - sellFeeAmount;
         const netProfitPercent = (netProfit / buyExchange.price) * 100;
         
-        schemes.push({
-          buyFrom: buyExchange.name,
-          buyPrice: buyExchange.price,
-          buyFee: buyExchange.fee,
-          sellTo: sellExchange.name,
-          sellPrice: sellExchange.price,
-          sellFee: sellExchange.fee,
-          spreadValue,
-          netProfit,
-          netProfitPercent,
-          buyUrl: buyExchange.url,
-          sellUrl: sellExchange.url,
-        });
+        if (netProfitPercent >= minSpread) {
+          schemes.push({
+            buyFrom: buyExchange.name,
+            buyPrice: buyExchange.price,
+            buyFee: buyExchange.fee,
+            sellTo: sellExchange.name,
+            sellPrice: sellExchange.price,
+            sellFee: sellExchange.fee,
+            spreadValue,
+            netProfit,
+            netProfitPercent,
+            buyUrl: buyExchange.url,
+            sellUrl: sellExchange.url,
+          });
+        }
       }
     }
     
-    return schemes.sort((a, b) => b.netProfitPercent - a.netProfitPercent).slice(0, 5);
+    return schemes.sort((a, b) => b.netProfitPercent - a.netProfitPercent).slice(0, 10);
   };
 
-  const profitSchemes = calculateProfitSchemes();
+  const profitSchemes = calculateProfitSchemes(2.0);
 
   return (
     <div className="space-y-4">
@@ -91,11 +91,29 @@ export const NoCardsTab = ({ exchanges, selectedCrypto }: NoCardsTabProps) => {
         </CardContent>
       </Card>
 
+      <Card className="bg-primary/5 border-primary/20">
+        <CardContent className="pt-4 pb-4">
+          <div className="flex items-center gap-3">
+            <Icon name="Target" size={24} className="text-primary" />
+            <div>
+              <p className="font-semibold text-lg">Найдено схем с прибылью ≥ 2%: {profitSchemes.length}</p>
+              <p className="text-sm text-muted-foreground">
+                {profitSchemes.length > 0 
+                  ? `Лучшая прибыль: ${profitSchemes[0].netProfitPercent.toFixed(2)}%`
+                  : 'Ожидание данных с бирж...'
+                }
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {profitSchemes.length === 0 ? (
         <Card>
           <CardContent className="pt-6 text-center text-muted-foreground">
-            <Icon name="AlertCircle" size={32} className="mx-auto mb-2 opacity-50" />
-            <p>Загрузка схем без карт...</p>
+            <Icon name="SearchX" size={32} className="mx-auto mb-2 opacity-50" />
+            <p className="font-semibold mb-1">Схемы с прибылью ≥ 2% не найдены</p>
+            <p className="text-sm">Попробуйте выбрать другую криптовалюту или подождите обновления цен</p>
           </CardContent>
         </Card>
       ) : (
