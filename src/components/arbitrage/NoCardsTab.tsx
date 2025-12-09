@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -23,6 +23,24 @@ interface NoCardsTabProps {
 export const NoCardsTab = ({ exchanges, selectedCrypto }: NoCardsTabProps) => {
   const [selectedScheme, setSelectedScheme] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [countdown, setCountdown] = useState(60);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 1) return 60;
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
+
+  const getCountdownColor = () => {
+    if (countdown > 40) return 'text-green-500';
+    if (countdown > 20) return 'text-yellow-500';
+    return 'text-red-500';
+  };
 
   const openSchemeDetails = (scheme: any) => {
     setSelectedScheme(scheme);
@@ -103,16 +121,25 @@ export const NoCardsTab = ({ exchanges, selectedCrypto }: NoCardsTabProps) => {
 
       <Card className="bg-primary/5 border-primary/20">
         <CardContent className="pt-4 pb-4">
-          <div className="flex items-center gap-3">
-            <Icon name="Target" size={24} className="text-primary" />
-            <div>
-              <p className="font-semibold text-lg">Найдено схем с прибылью ≥ 2%: {profitSchemes.length}</p>
-              <p className="text-sm text-muted-foreground">
-                {profitSchemes.length > 0 
-                  ? `Лучшая прибыль: ${profitSchemes[0].netProfitPercent.toFixed(2)}%`
-                  : 'Ожидание данных с бирж...'
-                }
-              </p>
+          <div className="flex items-center justify-between flex-wrap gap-3">
+            <div className="flex items-center gap-3">
+              <Icon name="Target" size={24} className="text-primary" />
+              <div>
+                <p className="font-semibold text-lg">Найдено схем с прибылью ≥ 2%: {profitSchemes.length}</p>
+                <p className="text-sm text-muted-foreground">
+                  {profitSchemes.length > 0 
+                    ? `Лучшая прибыль: ${profitSchemes[0].netProfitPercent.toFixed(2)}%`
+                    : 'Ожидание данных с бирж...'
+                  }
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Icon name="Clock" size={20} className={getCountdownColor()} />
+              <div className="text-right">
+                <p className="text-xs text-muted-foreground">Обновление через</p>
+                <p className={`text-xl font-bold ${getCountdownColor()}`}>{countdown}с</p>
+              </div>
             </div>
           </div>
         </CardContent>

@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import Icon from '@/components/ui/icon';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface Scheme {
   buyFrom: string;
@@ -29,8 +29,42 @@ interface SchemeDetailModalProps {
 
 export const SchemeDetailModal = ({ isOpen, onClose, scheme, crypto }: SchemeDetailModalProps) => {
   const [showBuyWidget, setShowBuyWidget] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(60);
+  const [isExpired, setIsExpired] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setTimeLeft(60);
+      setIsExpired(false);
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          setIsExpired(true);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [isOpen]);
 
   if (!scheme) return null;
+
+  const getTimerColor = () => {
+    if (timeLeft > 40) return 'text-green-500';
+    if (timeLeft > 20) return 'text-yellow-500';
+    return 'text-red-500';
+  };
+
+  const getTimerBgColor = () => {
+    if (timeLeft > 40) return 'bg-green-500/10 border-green-500/30';
+    if (timeLeft > 20) return 'bg-yellow-500/10 border-yellow-500/30';
+    return 'bg-red-500/10 border-red-500/30';
+  };
 
   const steps = [
     {
@@ -119,6 +153,40 @@ export const SchemeDetailModal = ({ isOpen, onClose, scheme, crypto }: SchemeDet
         </DialogHeader>
 
         <div className="space-y-4">
+          <Card className={`${getTimerBgColor()} transition-colors duration-300`}>
+            <CardContent className="pt-4">
+              <div className="flex items-center justify-between flex-wrap gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="relative">
+                    <Icon name="Timer" size={40} className={`${getTimerColor()} transition-colors duration-300`} />
+                    {isExpired && (
+                      <Icon name="AlertCircle" size={16} className="absolute -top-1 -right-1 text-red-500" />
+                    )}
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-1">
+                      {isExpired ? 'Данные устарели' : 'Цены актуальны ещё'}
+                    </p>
+                    <p className={`text-3xl font-bold ${getTimerColor()} transition-colors duration-300`}>
+                      {isExpired ? 'Обновите' : `${timeLeft} сек`}
+                    </p>
+                  </div>
+                </div>
+                {isExpired && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => window.location.reload()}
+                    className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
+                  >
+                    <Icon name="RefreshCw" size={16} className="mr-2" />
+                    Обновить цены
+                  </Button>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
           <Card className="bg-gradient-to-r from-green-500/10 to-emerald-500/10 border-green-500/30">
             <CardContent className="pt-4">
               <div className="flex items-center justify-between flex-wrap gap-3">
