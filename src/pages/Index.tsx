@@ -103,40 +103,40 @@ const Index = () => {
   }, [exchanges, notificationsEnabled, minProfitThreshold, lastNotificationTime, toast]);
 
   return (
-    <div className="min-h-screen bg-background p-4 md:p-8">
-      <div className="max-w-7xl mx-auto space-y-6">
-        <header className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+    <div className="min-h-screen bg-background p-3 md:p-8">
+      <div className="max-w-7xl mx-auto space-y-4 md:space-y-6">
+        <header className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 md:gap-4">
           <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-foreground flex items-center gap-3">
-              <Icon name="TrendingUp" size={36} className="text-primary" />
+            <h1 className="text-2xl md:text-4xl font-bold text-foreground flex items-center gap-2 md:gap-3">
+              <Icon name="TrendingUp" size={28} className="text-primary md:w-9 md:h-9" />
               CryptoArbitrage Pro
             </h1>
-            <p className="text-muted-foreground mt-1">Мониторинг арбитражных возможностей в реальном времени</p>
+            <p className="text-muted-foreground mt-1 text-sm md:text-base">Мониторинг арбитражных возможностей в реальном времени</p>
           </div>
           <div className="flex items-center gap-4">
             <div className="animate-pulse-glow">
-              <Badge variant="outline" className="text-primary border-primary">
-                <Icon name="Radio" size={14} className="mr-1" />
+              <Badge variant="outline" className="text-primary border-primary text-xs md:text-sm">
+                <Icon name="Radio" size={12} className="mr-1" />
                 LIVE
               </Badge>
             </div>
           </div>
         </header>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
           <Card className="bg-card/50 backdrop-blur border-border">
-            <CardContent className="pt-6">
-              <div className="flex items-center space-x-4">
-                <Icon name="Coins" size={24} className="text-primary" />
+            <CardContent className="pt-4 md:pt-6 px-4 pb-4">
+              <div className="flex flex-col md:flex-row md:items-center gap-3 md:gap-4">
+                <Icon name="Coins" size={20} className="text-primary hidden md:block" />
                 <div className="flex-1">
-                  <Label htmlFor="crypto" className="text-base font-semibold">Криптовалюта</Label>
-                  <p className="text-sm text-muted-foreground">Выберите монету для мониторинга</p>
+                  <Label htmlFor="crypto" className="text-sm md:text-base font-semibold">Криптовалюта</Label>
+                  <p className="text-xs md:text-sm text-muted-foreground">Выберите монету для мониторинга</p>
                 </div>
                 <select
                   id="crypto"
                   value={selectedCrypto}
                   onChange={(e) => setSelectedCrypto(e.target.value)}
-                  className="px-4 py-2 bg-background border border-border rounded-md font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full md:w-auto px-3 md:px-4 py-2 bg-background border border-border rounded-md font-semibold text-sm md:text-base text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                 >
                   <option value="BTC">Bitcoin (BTC)</option>
                   <option value="ETH">Ethereum (ETH)</option>
@@ -151,28 +151,15 @@ const Index = () => {
           </Card>
 
           <Card className="bg-card/50 backdrop-blur border-border">
-            <CardContent className="pt-6">
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex items-center space-x-4">
-                  <Icon name="Bell" size={24} className="text-primary" />
-                  <div>
-                    <Label htmlFor="notifications" className="text-base font-semibold">Уведомления о возможностях</Label>
-                    <p className="text-sm text-muted-foreground">Получайте алерты при выгодных спредах</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-2">
-                    <Label htmlFor="threshold" className="text-sm whitespace-nowrap">Мин. прибыль:</Label>
-                    <Input
-                      id="threshold"
-                      type="number"
-                      step="0.1"
-                      value={minProfitThreshold}
-                      onChange={(e) => setMinProfitThreshold(e.target.value)}
-                      className="w-20"
-                      disabled={!notificationsEnabled}
-                    />
-                    <span className="text-sm text-muted-foreground">%</span>
+            <CardContent className="pt-4 md:pt-6 px-4 pb-4">
+              <div className="flex flex-col gap-3">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center space-x-3">
+                    <Icon name="Bell" size={20} className="text-primary hidden md:block" />
+                    <div>
+                      <Label htmlFor="notifications" className="text-sm md:text-base font-semibold">Уведомления</Label>
+                      <p className="text-xs md:text-sm text-muted-foreground hidden md:block">Получайте алерты при выгодных спредах</p>
+                    </div>
                   </div>
                   <Switch
                     id="notifications"
@@ -180,28 +167,43 @@ const Index = () => {
                     onCheckedChange={setNotificationsEnabled}
                   />
                 </div>
+                {notificationsEnabled && (
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="threshold" className="text-xs md:text-sm whitespace-nowrap">Мин. прибыль:</Label>
+                    <Input
+                      id="threshold"
+                      type="number"
+                      step="0.1"
+                      value={minProfitThreshold}
+                      onChange={(e) => setMinProfitThreshold(e.target.value)}
+                      className="w-16 md:w-20 text-sm"
+                      inputMode="decimal"
+                    />
+                    <span className="text-xs md:text-sm text-muted-foreground">%</span>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
         </div>
 
         <Tabs defaultValue="arbitrage" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 mb-6">
-            <TabsTrigger value="arbitrage">
-              <Icon name="ArrowLeftRight" size={16} className="mr-2" />
-              Арбитраж
+          <TabsList className="grid w-full grid-cols-4 mb-4 md:mb-6 h-auto">
+            <TabsTrigger value="arbitrage" className="flex-col md:flex-row gap-1 md:gap-2 py-2 md:py-2.5 text-xs md:text-sm">
+              <Icon name="ArrowLeftRight" size={14} className="md:mr-0" />
+              <span className="hidden md:inline">Арбитраж</span>
             </TabsTrigger>
-            <TabsTrigger value="calculator">
-              <Icon name="Calculator" size={16} className="mr-2" />
-              Калькулятор
+            <TabsTrigger value="calculator" className="flex-col md:flex-row gap-1 md:gap-2 py-2 md:py-2.5 text-xs md:text-sm">
+              <Icon name="Calculator" size={14} className="md:mr-0" />
+              <span className="hidden md:inline">Калькулятор</span>
             </TabsTrigger>
-            <TabsTrigger value="analytics">
-              <Icon name="LineChart" size={16} className="mr-2" />
-              Аналитика
+            <TabsTrigger value="analytics" className="flex-col md:flex-row gap-1 md:gap-2 py-2 md:py-2.5 text-xs md:text-sm">
+              <Icon name="LineChart" size={14} className="md:mr-0" />
+              <span className="hidden md:inline">Аналитика</span>
             </TabsTrigger>
-            <TabsTrigger value="ai">
-              <Icon name="Brain" size={16} className="mr-2" />
-              AI Прогноз
+            <TabsTrigger value="ai" className="flex-col md:flex-row gap-1 md:gap-2 py-2 md:py-2.5 text-xs md:text-sm">
+              <Icon name="Brain" size={14} className="md:mr-0" />
+              <span className="hidden md:inline">AI Прогноз</span>
             </TabsTrigger>
           </TabsList>
 
