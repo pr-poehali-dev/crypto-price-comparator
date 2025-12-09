@@ -24,6 +24,27 @@ export const ArbitrageTab = ({ exchanges, selectedCrypto, minProfitFilter }: Arb
   const [buyModalOpen, setBuyModalOpen] = useState(false);
   const [selectedExchange, setSelectedExchange] = useState<Exchange | null>(null);
 
+  if (exchanges.length === 0) {
+    return (
+      <Card className="bg-card/50 backdrop-blur border-border">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-xl md:text-2xl">
+            <Icon name="Target" size={24} className="text-accent" />
+            Лучшая возможность сейчас
+          </CardTitle>
+          <CardDescription className="text-sm">Актуальные спреды между биржами</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <Icon name="RefreshCw" size={48} className="text-muted-foreground mb-4 animate-spin" />
+            <h3 className="text-lg font-semibold text-foreground mb-2">Загрузка актуальных цен...</h3>
+            <p className="text-sm text-muted-foreground">Получаем данные с бирж в реальном времени</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   const sortedExchanges = [...exchanges].sort((a, b) => a.price - b.price);
   const minPrice = sortedExchanges[0];
   const maxPrice = sortedExchanges[sortedExchanges.length - 1];
