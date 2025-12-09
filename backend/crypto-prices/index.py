@@ -54,7 +54,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         for future in as_completed(future_to_exchange):
             try:
-                result = future.result()
+                result = future.result(timeout=3)
                 if result:
                     exchanges.append(result)
             except Exception as e:
@@ -72,12 +72,16 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             {'name': 'BestChange', 'price': base_price * 1.0089, 'volume': 2.9, 'fee': 0.5, 'change24h': 2.52, 'url': 'https://www.bestchange.ru', 'dataSource': 'Расчетная цена (обменники РФ)'},
         ]
         exchanges.extend(additional_exchanges)
+    else:
+        print(f'WARNING: No exchanges fetched for {crypto}')
     
     return {
         'statusCode': 200,
         'headers': {
             'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*'
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Cache-Control, Pragma'
         },
         'body': json.dumps({
             'exchanges': exchanges,
