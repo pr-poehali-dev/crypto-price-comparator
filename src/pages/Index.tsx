@@ -16,11 +16,13 @@ interface Exchange {
   volume: number;
   fee: number;
   change24h: number;
+  url?: string;
 }
 
 const Index = () => {
   const { toast } = useToast();
   const [amount, setAmount] = useState<string>('1');
+  const [selectedCrypto, setSelectedCrypto] = useState<string>('BTC');
   const [notificationsEnabled, setNotificationsEnabled] = useState<boolean>(false);
   const [minProfitThreshold, setMinProfitThreshold] = useState<string>('0.3');
   const [lastNotificationTime, setLastNotificationTime] = useState<number>(0);
@@ -54,7 +56,7 @@ const Index = () => {
   useEffect(() => {
     const fetchRealPrices = async () => {
       try {
-        const response = await fetch('https://functions.poehali.dev/ac977fcc-5718-4e2b-b050-2421e770d97e');
+        const response = await fetch(`https://functions.poehali.dev/ac977fcc-5718-4e2b-b050-2421e770d97e?crypto=${selectedCrypto}`);
         if (response.ok) {
           const data = await response.json();
           if (data.exchanges && data.exchanges.length > 0) {
@@ -67,12 +69,12 @@ const Index = () => {
     };
 
     fetchRealPrices();
-    const priceInterval = setInterval(fetchRealPrices, 15000);
+    const priceInterval = setInterval(fetchRealPrices, 60000);
 
     return () => {
       clearInterval(priceInterval);
     };
-  }, []);
+  }, [selectedCrypto]);
 
   useEffect(() => {
     if (!notificationsEnabled) return;
@@ -129,39 +131,67 @@ const Index = () => {
           </div>
         </header>
 
-        <Card className="bg-card/50 backdrop-blur border-border">
-          <CardContent className="pt-6">
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Card className="bg-card/50 backdrop-blur border-border">
+            <CardContent className="pt-6">
               <div className="flex items-center space-x-4">
-                <Icon name="Bell" size={24} className="text-primary" />
-                <div>
-                  <Label htmlFor="notifications" className="text-base font-semibold">Уведомления о возможностях</Label>
-                  <p className="text-sm text-muted-foreground">Получайте алерты при выгодных спредах</p>
+                <Icon name="Coins" size={24} className="text-primary" />
+                <div className="flex-1">
+                  <Label htmlFor="crypto" className="text-base font-semibold">Криптовалюта</Label>
+                  <p className="text-sm text-muted-foreground">Выберите монету для мониторинга</p>
                 </div>
+                <select
+                  id="crypto"
+                  value={selectedCrypto}
+                  onChange={(e) => setSelectedCrypto(e.target.value)}
+                  className="px-4 py-2 bg-background border border-border rounded-md font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                >
+                  <option value="BTC">Bitcoin (BTC)</option>
+                  <option value="ETH">Ethereum (ETH)</option>
+                  <option value="SOL">Solana (SOL)</option>
+                  <option value="XRP">Ripple (XRP)</option>
+                  <option value="BNB">Binance Coin (BNB)</option>
+                  <option value="ADA">Cardano (ADA)</option>
+                  <option value="DOGE">Dogecoin (DOGE)</option>
+                </select>
               </div>
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <Label htmlFor="threshold" className="text-sm whitespace-nowrap">Мин. прибыль:</Label>
-                  <Input
-                    id="threshold"
-                    type="number"
-                    step="0.1"
-                    value={minProfitThreshold}
-                    onChange={(e) => setMinProfitThreshold(e.target.value)}
-                    className="w-20"
-                    disabled={!notificationsEnabled}
+            </CardContent>
+          </Card>
+
+          <Card className="bg-card/50 backdrop-blur border-border">
+            <CardContent className="pt-6">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex items-center space-x-4">
+                  <Icon name="Bell" size={24} className="text-primary" />
+                  <div>
+                    <Label htmlFor="notifications" className="text-base font-semibold">Уведомления о возможностях</Label>
+                    <p className="text-sm text-muted-foreground">Получайте алерты при выгодных спредах</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="threshold" className="text-sm whitespace-nowrap">Мин. прибыль:</Label>
+                    <Input
+                      id="threshold"
+                      type="number"
+                      step="0.1"
+                      value={minProfitThreshold}
+                      onChange={(e) => setMinProfitThreshold(e.target.value)}
+                      className="w-20"
+                      disabled={!notificationsEnabled}
+                    />
+                    <span className="text-sm text-muted-foreground">%</span>
+                  </div>
+                  <Switch
+                    id="notifications"
+                    checked={notificationsEnabled}
+                    onCheckedChange={setNotificationsEnabled}
                   />
-                  <span className="text-sm text-muted-foreground">%</span>
                 </div>
-                <Switch
-                  id="notifications"
-                  checked={notificationsEnabled}
-                  onCheckedChange={setNotificationsEnabled}
-                />
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
 
         <Tabs defaultValue="arbitrage" className="w-full">
           <TabsList className="grid w-full grid-cols-4 mb-6">
@@ -216,29 +246,59 @@ const Index = () => {
                   </div>
                 </div>
 
+                <div className="mb-4">
+                  <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
+                    <Icon name="TrendingUp" size={20} className="text-accent" />
+                    Возможности с выгодой от 3%
+                  </h3>
+                </div>
+
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
                       <tr className="border-b border-border">
                         <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Биржа</th>
-                        <th className="text-right py-3 px-4 text-sm font-medium text-muted-foreground">Цена BTC</th>
+                        <th className="text-right py-3 px-4 text-sm font-medium text-muted-foreground">Цена ({selectedCrypto})</th>
                         <th className="text-right py-3 px-4 text-sm font-medium text-muted-foreground">24ч %</th>
                         <th className="text-right py-3 px-4 text-sm font-medium text-muted-foreground">Объем (млн)</th>
                         <th className="text-right py-3 px-4 text-sm font-medium text-muted-foreground">Комиссия</th>
+                        <th className="text-right py-3 px-4 text-sm font-medium text-muted-foreground">Выгода</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {sortedExchanges.map((exchange) => (
-                        <tr key={exchange.name} className="border-b border-border/50 hover:bg-muted/20 transition-colors">
-                          <td className="py-3 px-4 font-medium">{exchange.name}</td>
-                          <td className="text-right py-3 px-4 font-mono">${exchange.price.toFixed(2)}</td>
-                          <td className={`text-right py-3 px-4 ${exchange.change24h > 0 ? 'text-accent' : 'text-destructive'}`}>
-                            {exchange.change24h > 0 ? '+' : ''}{exchange.change24h.toFixed(2)}%
+                      {sortedExchanges
+                        .filter((exchange) => {
+                          const potentialProfit = ((maxPrice.price - exchange.price) / exchange.price) * 100;
+                          return potentialProfit >= 3.0;
+                        })
+                        .map((exchange) => {
+                          const potentialProfit = ((maxPrice.price - exchange.price) / exchange.price) * 100;
+                          return (
+                            <tr key={exchange.name} className="border-b border-border/50 hover:bg-muted/20 transition-colors">
+                              <td className="py-3 px-4 font-medium">{exchange.name}</td>
+                              <td className="text-right py-3 px-4 font-mono">${exchange.price.toFixed(2)}</td>
+                              <td className={`text-right py-3 px-4 ${exchange.change24h > 0 ? 'text-accent' : 'text-destructive'}`}>
+                                {exchange.change24h > 0 ? '+' : ''}{exchange.change24h.toFixed(2)}%
+                              </td>
+                              <td className="text-right py-3 px-4 text-muted-foreground">${exchange.volume}M</td>
+                              <td className="text-right py-3 px-4 text-muted-foreground">{exchange.fee}%</td>
+                              <td className="text-right py-3 px-4 font-bold text-accent">
+                                +{potentialProfit.toFixed(2)}%
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      {sortedExchanges.filter((exchange) => {
+                        const potentialProfit = ((maxPrice.price - exchange.price) / exchange.price) * 100;
+                        return potentialProfit >= 3.0;
+                      }).length === 0 && (
+                        <tr>
+                          <td colSpan={6} className="py-8 text-center text-muted-foreground">
+                            <Icon name="Search" size={32} className="mx-auto mb-2 opacity-50" />
+                            Нет возможностей с выгодой от 3%
                           </td>
-                          <td className="text-right py-3 px-4 text-muted-foreground">${exchange.volume}M</td>
-                          <td className="text-right py-3 px-4 text-muted-foreground">{exchange.fee}%</td>
                         </tr>
-                      ))}
+                      )}
                     </tbody>
                   </table>
                 </div>
@@ -257,7 +317,7 @@ const Index = () => {
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Количество BTC</label>
+                  <label className="text-sm font-medium">Количество {selectedCrypto}</label>
                   <Input 
                     type="number" 
                     value={amount} 
@@ -279,7 +339,7 @@ const Index = () => {
                         <span className="font-medium">{minPrice.name}</span>
                       </div>
                       <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Цена за BTC:</span>
+                        <span className="text-muted-foreground">Цена за {selectedCrypto}:</span>
                         <span className="font-mono">${minPrice.price.toFixed(2)}</span>
                       </div>
                       <div className="flex justify-between text-sm">
@@ -306,7 +366,7 @@ const Index = () => {
                         <span className="font-medium">{maxPrice.name}</span>
                       </div>
                       <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Цена за BTC:</span>
+                        <span className="text-muted-foreground">Цена за {selectedCrypto}:</span>
                         <span className="font-mono">${maxPrice.price.toFixed(2)}</span>
                       </div>
                       <div className="flex justify-between text-sm">
@@ -335,7 +395,16 @@ const Index = () => {
                   </div>
                 </div>
 
-                <Button className="w-full" size="lg">
+                <Button 
+                  className="w-full" 
+                  size="lg"
+                  onClick={() => {
+                    window.open(minPrice.url || 'https://www.binance.com', '_blank');
+                    setTimeout(() => {
+                      window.open(maxPrice.url || 'https://www.coinbase.com', '_blank');
+                    }, 500);
+                  }}
+                >
                   <Icon name="Zap" size={20} className="mr-2" />
                   Начать арбитраж
                 </Button>
