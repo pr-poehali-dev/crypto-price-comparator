@@ -230,14 +230,6 @@ export const SchemeDetailModal = ({ isOpen, onClose, scheme, crypto }: SchemeDet
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => window.open(`https://garantex.org/trading/${crypto.toLowerCase()}rub`, '_blank')}
-                      >
-                        <Icon name="Banknote" size={16} className="mr-2" />
-                        Garantex
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
                         onClick={() => window.open(`https://www.bestchange.ru/?from=${crypto.toLowerCase()}&to=sberrub`, '_blank')}
                       >
                         <Icon name="ArrowRightLeft" size={16} className="mr-2" />
