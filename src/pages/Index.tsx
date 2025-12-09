@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -140,7 +142,13 @@ const Index = () => {
             </h1>
             <p className="text-muted-foreground mt-1 text-sm md:text-base">Мониторинг арбитражных возможностей в реальном времени</p>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 md:gap-4">
+            <Link to="/login">
+              <Button variant="outline" size="sm">
+                <Icon name="Settings" size={16} className="mr-2" />
+                Админ
+              </Button>
+            </Link>
             {isLoadingPrices ? (
               <Badge variant="outline" className="text-accent border-accent text-xs md:text-sm">
                 <Icon name="RefreshCw" size={12} className="mr-1 animate-spin" />

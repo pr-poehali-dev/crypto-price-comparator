@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -35,8 +36,10 @@ interface Session {
 
 const USERS_API = 'https://functions.poehali.dev/c7982c7b-49dd-47aa-8acf-96814a731b34';
 const SESSIONS_API = 'https://functions.poehali.dev/ca8a9e5c-1c6d-4b11-88e4-c740f3f6c840';
+const AUTH_API = 'https://functions.poehali.dev/6d6d395c-ce79-4019-a7e4-409eb5297447';
 
 export default function AdminPanel() {
+  const navigate = useNavigate();
   const [users, setUsers] = useState<User[]>([]);
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(true);
@@ -51,9 +54,37 @@ export default function AdminPanel() {
   });
 
   useEffect(() => {
-    loadUsers();
-    loadSessions();
+    checkAuth();
   }, []);
+
+  const checkAuth = async () => {
+    const sessionToken = localStorage.getItem('sessionToken');
+    
+    if (!sessionToken) {
+      navigate('/login');
+      return;
+    }
+
+    try {
+      const response = await fetch(AUTH_API, {
+        method: 'GET',
+        headers: { 'X-Session-Token': sessionToken }
+      });
+
+      if (!response.ok) {
+        localStorage.removeItem('sessionToken');
+        localStorage.removeItem('user');
+        navigate('/login');
+        return;
+      }
+
+      loadUsers();
+      loadSessions();
+    } catch (error) {
+      console.error('Auth check failed:', error);
+      navigate('/login');
+    }
+  };
 
   const loadUsers = async () => {
     try {
@@ -126,6 +157,29 @@ export default function AdminPanel() {
     );
   }
 
+  const handleLogout = async () => {
+    const sessionToken = localStorage.getItem('sessionToken');
+    
+    if (sessionToken) {
+      try {
+        await fetch(AUTH_API, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Session-Token': sessionToken
+          },
+          body: JSON.stringify({ action: 'logout' })
+        });
+      } catch (error) {
+        console.error('Logout failed:', error);
+      }
+    }
+    
+    localStorage.removeItem('sessionToken');
+    localStorage.removeItem('user');
+    navigate('/login');
+  };
+
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
       <div className="max-w-7xl mx-auto space-y-6">
@@ -134,10 +188,16 @@ export default function AdminPanel() {
             <h1 className="text-3xl md:text-4xl font-bold">Админ-панель</h1>
             <p className="text-muted-foreground mt-2">Управление пользователями и мониторинг активности</p>
           </div>
-          <Button onClick={() => setCreateModalOpen(true)}>
-            <Icon name="UserPlus" size={20} className="mr-2" />
-            Создать пользователя
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={handleLogout}>
+              <Icon name="LogOut" size={20} className="mr-2" />
+              Выход
+            </Button>
+            <Button onClick={() => setCreateModalOpen(true)}>
+              <Icon name="UserPlus" size={20} className="mr-2" />
+              Создать пользователя
+            </Button>
+          </div>
         </div>
 
         <Card>
