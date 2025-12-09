@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import Icon from '@/components/ui/icon';
 import { ArbitrageTab } from '@/components/arbitrage/ArbitrageTab';
+import { NoCardsTab } from '@/components/arbitrage/NoCardsTab';
 import { CalculatorTab } from '@/components/arbitrage/CalculatorTab';
 import { AnalyticsTab } from '@/components/arbitrage/AnalyticsTab';
 import { AIPredictionTab } from '@/components/arbitrage/AIPredictionTab';
@@ -244,10 +245,14 @@ const Index = () => {
         </div>
 
         <Tabs defaultValue="arbitrage" className="w-full">
-          <TabsList className="grid w-full grid-cols-5 mb-4 md:mb-6 h-auto">
+          <TabsList className="grid w-full grid-cols-6 mb-4 md:mb-6 h-auto">
             <TabsTrigger value="arbitrage" className="flex-col md:flex-row gap-1 md:gap-2 py-2 md:py-2.5 text-xs md:text-sm">
               <Icon name="ArrowLeftRight" size={14} className="md:mr-0" />
               <span className="hidden md:inline">Арбитраж</span>
+            </TabsTrigger>
+            <TabsTrigger value="no-cards" className="flex-col md:flex-row gap-1 md:gap-2 py-2 md:py-2.5 text-xs md:text-sm">
+              <Icon name="Wallet" size={14} className="md:mr-0" />
+              <span className="hidden md:inline">Без карт</span>
             </TabsTrigger>
             <TabsTrigger value="spreads" className="flex-col md:flex-row gap-1 md:gap-2 py-2 md:py-2.5 text-xs md:text-sm">
               <Icon name="BarChart3" size={14} className="md:mr-0" />
@@ -294,6 +299,10 @@ const Index = () => {
               </CardContent>
             </Card>
             <ArbitrageTab exchanges={exchanges} selectedCrypto={selectedCrypto} minProfitFilter={parseFloat(minProfitFilter) || 3.0} />
+          </TabsContent>
+
+          <TabsContent value="no-cards" className="space-y-6">
+            <NoCardsTab exchanges={exchanges} selectedCrypto={selectedCrypto} />
           </TabsContent>
 
           <TabsContent value="spreads" className="space-y-6">
