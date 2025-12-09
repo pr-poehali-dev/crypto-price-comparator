@@ -44,10 +44,19 @@ export const SpreadVisualization = ({ exchanges, selectedCrypto }: SpreadVisuali
   const topSpreads = sortedExchanges.slice(0, 5).map((lowExchange) => {
     const highExchanges = sortedExchanges.slice(-3);
     return highExchanges.map((highExchange) => {
+      const minDeposit = 50;
+      const withdrawalFee = 2.5;
       const spreadValue = highExchange.price - lowExchange.price;
       const spreadPct = ((spreadValue / lowExchange.price) * 100).toFixed(2);
       const netProfit = spreadValue - (lowExchange.price * lowExchange.fee / 100) - (highExchange.price * highExchange.fee / 100);
       const netProfitPct = ((netProfit / lowExchange.price) * 100).toFixed(2);
+      
+      const cryptoAmount = minDeposit / lowExchange.price;
+      const totalBuyCost = minDeposit + (minDeposit * lowExchange.fee / 100);
+      const sellRevenue = cryptoAmount * highExchange.price;
+      const totalSellFee = sellRevenue * (highExchange.fee / 100);
+      const netProfitForMinDeposit = sellRevenue - totalBuyCost - totalSellFee - withdrawalFee;
+      const isBeginnerFriendly = netProfitForMinDeposit >= 1.0 && netProfitForMinDeposit <= 3.0;
 
       return {
         buyFrom: lowExchange.name,
@@ -60,18 +69,20 @@ export const SpreadVisualization = ({ exchanges, selectedCrypto }: SpreadVisuali
         sellUrl: highExchange.url,
         buyPrice: lowExchange.price,
         sellPrice: highExchange.price,
+        minDepositProfit: netProfitForMinDeposit,
+        isBeginnerFriendly,
       };
     });
-  }).flat().sort((a, b) => b.netProfitPercent - a.netProfitPercent).slice(0, 10);
+  }).flat().sort((a, b) => b.netProfitPercent - a.netProfitPercent).slice(0, 15);
 
   return (
     <Card className="bg-card/50 backdrop-blur border-border">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-xl md:text-2xl">
           <Icon name="BarChart3" size={24} className="text-accent" />
-          Топ-10 схем арбитража
+          Топ-15 схем арбитража
         </CardTitle>
-        <CardDescription className="text-sm">Самые выгодные комбинации бирж с учетом комиссий</CardDescription>
+        <CardDescription className="text-sm">Самые выгодные комбинации бирж с учетом комиссий. Минимальный депозит от $50</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="mb-6 p-4 md:p-6 rounded-lg bg-gradient-to-r from-primary/20 to-accent/20 border border-primary/30">
@@ -107,6 +118,7 @@ export const SpreadVisualization = ({ exchanges, selectedCrypto }: SpreadVisuali
                 <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Продать на</th>
                 <th className="text-right py-3 px-4 text-sm font-medium text-muted-foreground">Спред</th>
                 <th className="text-right py-3 px-4 text-sm font-medium text-muted-foreground">Чистая прибыль</th>
+                <th className="text-right py-3 px-4 text-sm font-medium text-muted-foreground">С $50</th>
                 <th className="text-center py-3 px-4 text-sm font-medium text-muted-foreground">Действие</th>
               </tr>
             </thead>
@@ -126,6 +138,16 @@ export const SpreadVisualization = ({ exchanges, selectedCrypto }: SpreadVisuali
                   <td className="text-right py-3 px-4">
                     <div className="font-bold text-primary">${item.netProfit.toFixed(2)}</div>
                     <div className="text-sm text-primary/80">{item.netProfitPercent}%</div>
+                  </td>
+                  <td className="text-right py-3 px-4">
+                    <div className={`font-semibold ${
+                      item.minDepositProfit > 0 ? 'text-green-500' : 'text-red-500'
+                    }`}>
+                      {item.minDepositProfit > 0 ? '+' : ''}${item.minDepositProfit.toFixed(2)}
+                    </div>
+                    {item.isBeginnerFriendly && (
+                      <div className="text-xs text-purple-500 font-medium">Новичкам</div>
+                    )}
                   </td>
                   <td className="text-center py-3 px-4">
                     <button
@@ -149,11 +171,17 @@ export const SpreadVisualization = ({ exchanges, selectedCrypto }: SpreadVisuali
           {topSpreads.map((item, index) => (
             <div key={index} className="p-4 rounded-lg bg-muted/30 border border-border">
               <div className="flex items-start justify-between mb-3">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-xs font-bold">
                     {index + 1}
                   </div>
                   <div className="text-sm font-bold text-primary">{item.netProfitPercent}%</div>
+                  {item.isBeginnerFriendly && (
+                    <div className="px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-500 text-xs font-medium border border-purple-500/30">
+                      <Icon name="GraduationCap" size={10} className="inline mr-1" />
+                      Новичкам
+                    </div>
+                  )}
                 </div>
                 <button
                   onClick={() => {
@@ -176,14 +204,22 @@ export const SpreadVisualization = ({ exchanges, selectedCrypto }: SpreadVisuali
                   <div className="font-semibold text-destructive">{item.sellTo}</div>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-2 mt-3 pt-3 border-t border-border">
+              <div className="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-border">
                 <div>
                   <div className="text-xs text-muted-foreground">Спред</div>
                   <div className="font-mono text-sm">${item.spread.toFixed(2)}</div>
                 </div>
-                <div className="text-right">
+                <div className="text-center">
                   <div className="text-xs text-muted-foreground">Прибыль</div>
                   <div className="font-bold text-sm text-primary">${item.netProfit.toFixed(2)}</div>
+                </div>
+                <div className="text-right">
+                  <div className="text-xs text-muted-foreground">С $50</div>
+                  <div className={`font-semibold text-sm ${
+                    item.minDepositProfit > 0 ? 'text-green-500' : 'text-red-500'
+                  }`}>
+                    {item.minDepositProfit > 0 ? '+' : ''}${item.minDepositProfit.toFixed(2)}
+                  </div>
                 </div>
               </div>
             </div>

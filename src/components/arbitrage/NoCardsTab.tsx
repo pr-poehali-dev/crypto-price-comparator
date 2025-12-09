@@ -54,8 +54,6 @@ export const NoCardsTab = ({ exchanges, selectedCrypto }: NoCardsTabProps) => {
   
   const calculateProfitSchemes = (minSpread: number = 2.0) => {
     const schemes = [];
-    const minDeposit = 50;
-    const withdrawalFee = 2.5;
     
     for (let i = 0; i < sortedByPrice.length; i++) {
       const buyExchange = sortedByPrice[i];
@@ -68,13 +66,7 @@ export const NoCardsTab = ({ exchanges, selectedCrypto }: NoCardsTabProps) => {
         const netProfit = spreadValue - buyFeeAmount - sellFeeAmount;
         const netProfitPercent = (netProfit / buyExchange.price) * 100;
         
-        const cryptoAmount = minDeposit / buyExchange.price;
-        const totalBuyCost = minDeposit + (minDeposit * buyExchange.fee / 100);
-        const sellRevenue = cryptoAmount * sellExchange.price;
-        const totalSellFee = sellRevenue * (sellExchange.fee / 100);
-        const netProfitForMinDeposit = sellRevenue - totalBuyCost - totalSellFee - withdrawalFee;
-        
-        if (netProfitPercent >= minSpread && netProfitForMinDeposit > 0.5) {
+        if (netProfitPercent >= minSpread) {
           schemes.push({
             buyFrom: buyExchange.name,
             buyPrice: buyExchange.price,
@@ -87,13 +79,12 @@ export const NoCardsTab = ({ exchanges, selectedCrypto }: NoCardsTabProps) => {
             netProfitPercent,
             buyUrl: buyExchange.url,
             sellUrl: sellExchange.url,
-            minDepositProfit: netProfitForMinDeposit,
           });
         }
       }
     }
     
-    return schemes.sort((a, b) => b.netProfitPercent - a.netProfitPercent).slice(0, 20);
+    return schemes.sort((a, b) => b.netProfitPercent - a.netProfitPercent).slice(0, 15);
   };
 
   const profitSchemes = calculateProfitSchemes(2.0);
@@ -107,7 +98,7 @@ export const NoCardsTab = ({ exchanges, selectedCrypto }: NoCardsTabProps) => {
             <CardTitle className="text-lg">Связки без банковских карт</CardTitle>
           </div>
           <p className="text-sm text-muted-foreground">
-            Арбитраж через криптокошельки: биржа → биржа, P2P-переводы. Минимальный депозит от $50
+            Арбитраж через криптокошельки: биржа → биржа, P2P-переводы
           </p>
         </CardHeader>
         <CardContent>
@@ -123,10 +114,6 @@ export const NoCardsTab = ({ exchanges, selectedCrypto }: NoCardsTabProps) => {
             <div className="flex items-center gap-2 text-sm">
               <Icon name="Zap" size={16} className="text-green-500" />
               <span>Быстрый вывод через P2P на СБП/наличные</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm">
-              <Icon name="DollarSign" size={16} className="text-green-500" />
-              <span>Прибыльные связки даже с депозитом $50</span>
             </div>
           </div>
         </CardContent>
@@ -192,12 +179,7 @@ export const NoCardsTab = ({ exchanges, selectedCrypto }: NoCardsTabProps) => {
                           HOT
                         </Badge>
                       )}
-                      {scheme.minDepositProfit >= 1.0 && scheme.minDepositProfit <= 3.0 && (
-                        <Badge variant="outline" className="bg-purple-500/10 text-purple-500 border-purple-500">
-                          <Icon name="GraduationCap" size={12} className="mr-1" />
-                          Для новичков
-                        </Badge>
-                      )}
+
                       <span className="font-semibold text-lg">
                         #{index + 1} Схема
                       </span>
@@ -247,8 +229,6 @@ export const NoCardsTab = ({ exchanges, selectedCrypto }: NoCardsTabProps) => {
                       <span>Спред: ${scheme.spreadValue.toFixed(2)}</span>
                       <span>•</span>
                       <span>Комиссии: {scheme.buyFee}% + {scheme.sellFee}%</span>
-                      <span>•</span>
-                      <span className="text-green-600 font-medium">С $50: +${scheme.minDepositProfit.toFixed(2)}</span>
                     </div>
                   </div>
                   
