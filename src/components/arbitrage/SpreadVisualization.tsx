@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
+import { SchemeModal } from './SchemeModal';
 
 interface Exchange {
   name: string;
@@ -17,6 +19,18 @@ interface SpreadVisualizationProps {
 }
 
 export const SpreadVisualization = ({ exchanges, selectedCrypto }: SpreadVisualizationProps) => {
+  const [schemeModalOpen, setSchemeModalOpen] = useState(false);
+  const [selectedScheme, setSelectedScheme] = useState<{
+    buyFrom: string;
+    sellTo: string;
+    buyPrice: number;
+    sellPrice: number;
+    buyUrl: string;
+    sellUrl: string;
+    netProfit: number;
+    netProfitPercent: number;
+  } | null>(null);
+
   if (exchanges.length === 0) {
     return null;
   }
@@ -44,6 +58,8 @@ export const SpreadVisualization = ({ exchanges, selectedCrypto }: SpreadVisuali
         netProfitPercent: parseFloat(netProfitPct),
         buyUrl: lowExchange.url,
         sellUrl: highExchange.url,
+        buyPrice: lowExchange.price,
+        sellPrice: highExchange.price,
       };
     });
   }).flat().sort((a, b) => b.netProfitPercent - a.netProfitPercent).slice(0, 10);
@@ -114,15 +130,13 @@ export const SpreadVisualization = ({ exchanges, selectedCrypto }: SpreadVisuali
                   <td className="text-center py-3 px-4">
                     <button
                       onClick={() => {
-                        window.open(item.buyUrl || '#', '_blank');
-                        setTimeout(() => {
-                          window.open(item.sellUrl || '#', '_blank');
-                        }, 500);
+                        setSelectedScheme(item);
+                        setSchemeModalOpen(true);
                       }}
                       className="px-3 py-1 bg-primary text-primary-foreground rounded-md text-xs font-medium hover:bg-primary/90 transition-colors"
                     >
-                      <Icon name="ExternalLink" size={14} className="inline mr-1" />
-                      Открыть
+                      <Icon name="Rocket" size={14} className="inline mr-1" />
+                      Схема
                     </button>
                   </td>
                 </tr>
@@ -143,14 +157,12 @@ export const SpreadVisualization = ({ exchanges, selectedCrypto }: SpreadVisuali
                 </div>
                 <button
                   onClick={() => {
-                    window.open(item.buyUrl || '#', '_blank');
-                    setTimeout(() => {
-                      window.open(item.sellUrl || '#', '_blank');
-                    }, 500);
+                    setSelectedScheme(item);
+                    setSchemeModalOpen(true);
                   }}
                   className="px-3 py-1 bg-primary text-primary-foreground rounded-md text-xs font-medium"
                 >
-                  Открыть
+                  Схема
                 </button>
               </div>
               <div className="flex items-center gap-2 mb-2">
@@ -178,6 +190,22 @@ export const SpreadVisualization = ({ exchanges, selectedCrypto }: SpreadVisuali
           ))}
         </div>
       </CardContent>
+
+      {selectedScheme && (
+        <SchemeModal
+          isOpen={schemeModalOpen}
+          onClose={() => setSchemeModalOpen(false)}
+          buyExchange={selectedScheme.buyFrom}
+          sellExchange={selectedScheme.sellTo}
+          buyPrice={selectedScheme.buyPrice}
+          sellPrice={selectedScheme.sellPrice}
+          buyUrl={selectedScheme.buyUrl || ''}
+          sellUrl={selectedScheme.sellUrl || ''}
+          crypto={selectedCrypto}
+          netProfit={selectedScheme.netProfit}
+          netProfitPercent={selectedScheme.netProfitPercent}
+        />
+      )}
     </Card>
   );
 };

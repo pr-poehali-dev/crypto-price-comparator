@@ -2,6 +2,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { useEffect, useState } from 'react';
+import { SchemeModal } from './SchemeModal';
 
 interface Exchange {
   name: string;
@@ -33,6 +34,7 @@ interface BestScheme {
 export const BestSchemeCard = ({ exchanges, selectedCrypto }: BestSchemeCardProps) => {
   const [bestScheme, setBestScheme] = useState<BestScheme | null>(null);
   const [isNew, setIsNew] = useState(false);
+  const [schemeModalOpen, setSchemeModalOpen] = useState(false);
 
   useEffect(() => {
     if (exchanges.length === 0) return;
@@ -167,16 +169,27 @@ export const BestSchemeCard = ({ exchanges, selectedCrypto }: BestSchemeCardProp
         <Button 
           className="w-full" 
           size="lg"
-          onClick={() => {
-            window.open(bestScheme.buyUrl || '#', '_blank');
-            setTimeout(() => {
-              window.open(bestScheme.sellUrl || '#', '_blank');
-            }, 500);
-          }}
+          onClick={() => setSchemeModalOpen(true)}
         >
-          <Icon name="ExternalLink" size={20} className="mr-2" />
+          <Icon name="Rocket" size={20} className="mr-2" />
           Запустить схему прямо сейчас
         </Button>
+
+        {bestScheme && (
+          <SchemeModal
+            isOpen={schemeModalOpen}
+            onClose={() => setSchemeModalOpen(false)}
+            buyExchange={bestScheme.buyFrom}
+            sellExchange={bestScheme.sellTo}
+            buyPrice={bestScheme.buyPrice}
+            sellPrice={bestScheme.sellPrice}
+            buyUrl={bestScheme.buyUrl || ''}
+            sellUrl={bestScheme.sellUrl || ''}
+            crypto={selectedCrypto}
+            netProfit={bestScheme.netProfit}
+            netProfitPercent={bestScheme.netProfitPercent}
+          />
+        )}
       </CardContent>
     </Card>
   );
