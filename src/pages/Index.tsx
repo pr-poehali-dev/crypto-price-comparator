@@ -34,14 +34,8 @@ const Index = () => {
   const [minProfitThreshold, setMinProfitThreshold] = useState<string>('0.3');
   const [minProfitFilter, setMinProfitFilter] = useState<string>('0.1');
   const [lastNotificationTime, setLastNotificationTime] = useState<number>(0);
-  const [exchanges, setExchanges] = useState<Exchange[]>([
-    { name: 'Binance', price: 95420, volume: 24.5, fee: 0.1, change24h: 2.34 },
-    { name: 'Coinbase', price: 95680, volume: 18.2, fee: 0.5, change24h: 2.41 },
-    { name: 'Kraken', price: 95350, volume: 12.8, fee: 0.26, change24h: 2.28 },
-    { name: 'Bybit', price: 95580, volume: 21.3, fee: 0.1, change24h: 2.38 },
-    { name: 'OKX', price: 95290, volume: 19.7, fee: 0.08, change24h: 2.25 },
-    { name: 'Bitfinex', price: 95750, volume: 8.9, fee: 0.2, change24h: 2.45 },
-  ]);
+  const [exchanges, setExchanges] = useState<Exchange[]>([]);
+  const [isLoadingPrices, setIsLoadingPrices] = useState<boolean>(true);
 
   const [priceHistory] = useState([
     { time: '00:00', spread: 120, profit: 0.12 },
@@ -63,16 +57,27 @@ const Index = () => {
 
   useEffect(() => {
     const fetchRealPrices = async () => {
+      setIsLoadingPrices(true);
       try {
-        const response = await fetch(`https://functions.poehali.dev/ac977fcc-5718-4e2b-b050-2421e770d97e?crypto=${selectedCrypto}`);
+        const response = await fetch(`https://functions.poehali.dev/ac977fcc-5718-4e2b-b050-2421e770d97e?crypto=${selectedCrypto}`, {
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache'
+          }
+        });
         if (response.ok) {
           const data = await response.json();
           if (data.exchanges && data.exchanges.length > 0) {
             setExchanges(data.exchanges);
+            console.log(`✅ Загружено ${data.exchanges.length} бирж для ${selectedCrypto}`);
           }
+        } else {
+          console.error('API response error:', response.status);
         }
       } catch (error) {
-        console.log('Using demo data:', error);
+        console.error('Failed to fetch prices:', error);
+      } finally {
+        setIsLoadingPrices(false);
       }
     };
 
@@ -136,12 +141,19 @@ const Index = () => {
             <p className="text-muted-foreground mt-1 text-sm md:text-base">Мониторинг арбитражных возможностей в реальном времени</p>
           </div>
           <div className="flex items-center gap-4">
-            <div className="animate-pulse-glow">
-              <Badge variant="outline" className="text-primary border-primary text-xs md:text-sm">
-                <Icon name="Radio" size={12} className="mr-1" />
-                LIVE
+            {isLoadingPrices ? (
+              <Badge variant="outline" className="text-accent border-accent text-xs md:text-sm">
+                <Icon name="RefreshCw" size={12} className="mr-1 animate-spin" />
+                Обновление...
               </Badge>
-            </div>
+            ) : (
+              <div className="animate-pulse-glow">
+                <Badge variant="outline" className="text-primary border-primary text-xs md:text-sm">
+                  <Icon name="Radio" size={12} className="mr-1" />
+                  LIVE
+                </Badge>
+              </div>
+            )}
           </div>
         </header>
 

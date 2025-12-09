@@ -74,6 +74,20 @@ export const BestSchemeCard = ({ exchanges, selectedCrypto }: BestSchemeCardProp
     }
   }, [exchanges, bestScheme]);
 
+  if (exchanges.length === 0) {
+    return (
+      <Card className="bg-gradient-to-br from-muted/50 to-muted/30 backdrop-blur border-border">
+        <CardContent className="pt-6 px-4 pb-6">
+          <div className="flex flex-col items-center justify-center py-8 text-center">
+            <Icon name="RefreshCw" size={48} className="text-muted-foreground mb-4 animate-spin" />
+            <h3 className="text-lg font-semibold text-foreground mb-2">Загрузка актуальных цен...</h3>
+            <p className="text-sm text-muted-foreground">Получаем данные с бирж в реальном времени</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   if (!bestScheme) {
     return null;
   }
