@@ -109,6 +109,7 @@ export const AIPredictionTab = ({ aiPrediction, exchanges, selectedCrypto }: AIP
   }, [exchanges, selectedCrypto]);
 
   return (
+    <>
     <Card className="bg-card/50 backdrop-blur border-border">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
@@ -361,5 +362,6 @@ export const AIPredictionTab = ({ aiPrediction, exchanges, selectedCrypto }: AIP
         </div>
       </CardContent>
     </Card>
+    </>
   );
 };
