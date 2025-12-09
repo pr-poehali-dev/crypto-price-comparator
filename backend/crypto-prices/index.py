@@ -50,7 +50,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         for future in as_completed(future_to_exchange):
             try:
-                result = future.result(timeout=3)
+                result = future.result(timeout=2)
                 if result:
                     exchanges.append(result)
             except Exception as e:
