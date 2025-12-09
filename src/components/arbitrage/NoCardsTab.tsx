@@ -192,6 +192,12 @@ export const NoCardsTab = ({ exchanges, selectedCrypto }: NoCardsTabProps) => {
                           HOT
                         </Badge>
                       )}
+                      {scheme.minDepositProfit >= 1.0 && scheme.minDepositProfit <= 3.0 && (
+                        <Badge variant="outline" className="bg-purple-500/10 text-purple-500 border-purple-500">
+                          <Icon name="GraduationCap" size={12} className="mr-1" />
+                          Для новичков
+                        </Badge>
+                      )}
                       <span className="font-semibold text-lg">
                         #{index + 1} Схема
                       </span>
