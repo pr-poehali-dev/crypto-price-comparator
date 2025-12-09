@@ -1,7 +1,9 @@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
+import { useState } from 'react';
 
 interface SchemeModalProps {
   isOpen: boolean;
@@ -30,52 +32,17 @@ export const SchemeModal = ({
   netProfit,
   netProfitPercent,
 }: SchemeModalProps) => {
-  const isFiatScheme = sellExchange.includes('(RUB)') || sellExchange.includes('(EUR)') || sellExchange.includes('(USD)');
+  const [investAmount, setInvestAmount] = useState<number>(1000);
 
-  const steps = isFiatScheme ? [
-    {
-      icon: 'Wallet',
-      title: 'Регистрация на бирже',
-      description: `Зарегистрируйтесь на ${buyExchange} и пройдите верификацию (KYC)`,
-      action: 'Перейти на биржу',
-      url: buyUrl,
-    },
-    {
-      icon: 'CreditCard',
-      title: 'Пополнение счета',
-      description: `Пополните баланс USDT через карту или P2P (минимум $100)`,
-      action: 'Инструкция по пополнению',
-      url: `${buyUrl}/fiat/deposit`,
-    },
-    {
-      icon: 'ShoppingCart',
-      title: 'Покупка криптовалюты',
-      description: `Купите ${crypto} по цене $${buyPrice.toFixed(2)} на спотовом рынке`,
-      action: 'Открыть торговлю',
-      url: `${buyUrl}/trade/${crypto}_USDT`,
-    },
-    {
-      icon: 'Send',
-      title: 'Вывод на P2P платформу',
-      description: `Переведите ${crypto} на ${sellExchange} (обычно 10-30 минут)`,
-      action: 'Адреса для вывода',
-      url: sellUrl,
-    },
-    {
-      icon: 'Banknote',
-      title: 'Продажа через P2P',
-      description: `Продайте ${crypto} по цене $${sellPrice.toFixed(2)} за рубли на карту`,
-      action: 'Открыть P2P',
-      url: sellUrl,
-    },
-    {
-      icon: 'TrendingUp',
-      title: 'Получение прибыли',
-      description: `Чистая прибыль: $${netProfit.toFixed(2)} (${netProfitPercent.toFixed(2)}%) на 1 ${crypto}`,
-      action: 'Рассчитать доход',
-      url: null,
-    },
-  ] : [
+  const cryptoAmount = investAmount / buyPrice;
+  const sellRevenue = cryptoAmount * sellPrice;
+  const buyFee = investAmount * (0.1 / 100);
+  const sellFee = sellRevenue * (0.1 / 100);
+  const transferFee = 2;
+  const totalProfit = sellRevenue - investAmount - buyFee - sellFee - transferFee;
+  const totalProfitPercent = (totalProfit / investAmount) * 100;
+
+  const steps = [
     {
       icon: 'Wallet',
       title: 'Регистрация на биржах',
@@ -107,7 +74,7 @@ export const SchemeModal = ({
     {
       icon: 'TrendingUp',
       title: 'Получение прибыли',
-      description: `Чистая прибыль: $${netProfit.toFixed(2)} (${netProfitPercent.toFixed(2)}%)`,
+      description: `Чистая прибыль: $${totalProfit.toFixed(2)} (${totalProfitPercent.toFixed(2)}%)`,
       action: 'Повторить цикл',
       url: null,
     },
@@ -183,6 +150,57 @@ export const SchemeModal = ({
             </Card>
           ))}
 
+          <Card className="bg-primary/10 border-primary/30">
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-3 mb-4">
+                <Icon name="Calculator" size={24} className="text-primary" />
+                <h4 className="font-semibold text-lg">Калькулятор прибыли</h4>
+              </div>
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm text-muted-foreground mb-2 block">
+                    Сумма инвестиции (USD)
+                  </label>
+                  <Input
+                    type="number"
+                    value={investAmount}
+                    onChange={(e) => setInvestAmount(Number(e.target.value))}
+                    min="100"
+                    step="100"
+                    className="text-lg font-semibold"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4 p-4 bg-muted/30 rounded-lg">
+                  <div>
+                    <div className="text-xs text-muted-foreground">Покупка {crypto}</div>
+                    <div className="font-mono text-sm">{cryptoAmount.toFixed(6)} {crypto}</div>
+                    <div className="text-xs text-muted-foreground mt-1">Комиссия: ${buyFee.toFixed(2)}</div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-muted-foreground">Продажа {crypto}</div>
+                    <div className="font-mono text-sm">${sellRevenue.toFixed(2)}</div>
+                    <div className="text-xs text-muted-foreground mt-1">Комиссия: ${sellFee.toFixed(2)}</div>
+                  </div>
+                </div>
+                <div className="p-4 bg-primary/20 rounded-lg border-2 border-primary/50">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-sm text-muted-foreground">Чистая прибыль</div>
+                      <div className="text-3xl font-bold text-primary">${totalProfit.toFixed(2)}</div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-sm text-muted-foreground">Процент</div>
+                      <div className="text-3xl font-bold text-primary">{totalProfitPercent.toFixed(2)}%</div>
+                    </div>
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-3">
+                    * Учтены комиссии бирж (0.1%) и перевод (~$2)
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           <Card className="bg-accent/10 border-accent/30">
             <CardContent className="pt-6">
               <div className="flex items-start gap-3">
@@ -194,7 +212,6 @@ export const SchemeModal = ({
                     <li>• Время перевода между биржами: 10-60 минут (цена может измениться)</li>
                     <li>• Минимальная сумма для арбитража: $100-500 (зависит от комиссий)</li>
                     <li>• Проверяйте лимиты на вывод и ликвидность на биржах</li>
-                    <li>• Для P2P схем требуется верификация личности (паспорт)</li>
                   </ul>
                 </div>
               </div>
