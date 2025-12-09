@@ -32,7 +32,7 @@ const Index = () => {
   const [selectedCrypto, setSelectedCrypto] = useState<string>('BTC');
   const [notificationsEnabled, setNotificationsEnabled] = useState<boolean>(false);
   const [minProfitThreshold, setMinProfitThreshold] = useState<string>('0.3');
-  const [minProfitFilter, setMinProfitFilter] = useState<string>('3.0');
+  const [minProfitFilter, setMinProfitFilter] = useState<string>('0.1');
   const [lastNotificationTime, setLastNotificationTime] = useState<number>(0);
   const [exchanges, setExchanges] = useState<Exchange[]>([
     { name: 'Binance', price: 95420, volume: 24.5, fee: 0.1, change24h: 2.34 },
@@ -175,6 +175,12 @@ const Index = () => {
                   <option value="LINK">Chainlink (LINK)</option>
                   <option value="UNI">Uniswap (UNI)</option>
                   <option value="LTC">Litecoin (LTC)</option>
+                  <option value="TRX">Tron (TRX)</option>
+                  <option value="ATOM">Cosmos (ATOM)</option>
+                  <option value="XLM">Stellar (XLM)</option>
+                  <option value="ETC">Ethereum Classic (ETC)</option>
+                  <option value="FIL">Filecoin (FIL)</option>
+                  <option value="SHIB">Shiba Inu (SHIB)</option>
                 </select>
               </div>
             </CardContent>

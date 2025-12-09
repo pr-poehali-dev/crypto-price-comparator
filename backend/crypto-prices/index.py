@@ -119,7 +119,13 @@ def fetch_binance(crypto: str) -> Optional[Dict[str, Any]]:
         'MATIC': 'MATICUSDT',
         'LINK': 'LINKUSDT',
         'UNI': 'UNIUSDT',
-        'LTC': 'LTCUSDT'
+        'LTC': 'LTCUSDT',
+        'TRX': 'TRXUSDT',
+        'ATOM': 'ATOMUSDT',
+        'XLM': 'XLMUSDT',
+        'ETC': 'ETCUSDT',
+        'FIL': 'FILUSDT',
+        'SHIB': 'SHIBUSDT'
     }
     
     symbol = symbol_map.get(crypto)
@@ -175,7 +181,12 @@ def fetch_kraken(crypto: str) -> Optional[Dict[str, Any]]:
         'MATIC': 'MATICUSD',
         'LINK': 'LINKUSD',
         'UNI': 'UNIUSD',
-        'LTC': 'LTCUSD'
+        'LTC': 'LTCUSD',
+        'TRX': 'TRXUSD',
+        'ATOM': 'ATOMUSD',
+        'XLM': 'XLMUSD',
+        'ETC': 'ETCUSD',
+        'FIL': 'FILUSD'
     }
     
     pair = symbol_map.get(crypto)
@@ -214,7 +225,13 @@ def fetch_kucoin(crypto: str) -> Optional[Dict[str, Any]]:
         'MATIC': 'MATIC-USDT',
         'LINK': 'LINK-USDT',
         'UNI': 'UNI-USDT',
-        'LTC': 'LTC-USDT'
+        'LTC': 'LTC-USDT',
+        'TRX': 'TRX-USDT',
+        'ATOM': 'ATOM-USDT',
+        'XLM': 'XLM-USDT',
+        'ETC': 'ETC-USDT',
+        'FIL': 'FIL-USDT',
+        'SHIB': 'SHIB-USDT'
     }
     
     symbol = symbol_map.get(crypto)
@@ -254,7 +271,13 @@ def fetch_gate(crypto: str) -> Optional[Dict[str, Any]]:
         'MATIC': 'MATIC_USDT',
         'LINK': 'LINK_USDT',
         'UNI': 'UNI_USDT',
-        'LTC': 'LTC_USDT'
+        'LTC': 'LTC_USDT',
+        'TRX': 'TRX_USDT',
+        'ATOM': 'ATOM_USDT',
+        'XLM': 'XLM_USDT',
+        'ETC': 'ETC_USDT',
+        'FIL': 'FIL_USDT',
+        'SHIB': 'SHIB_USDT'
     }
     
     symbol = symbol_map.get(crypto)

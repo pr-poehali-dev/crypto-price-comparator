@@ -1,5 +1,8 @@
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
+import { QuickBuyModal } from '@/components/trading/QuickBuyModal';
 
 interface Exchange {
   name: string;
@@ -18,10 +21,18 @@ interface ArbitrageTabProps {
 }
 
 export const ArbitrageTab = ({ exchanges, selectedCrypto, minProfitFilter }: ArbitrageTabProps) => {
+  const [buyModalOpen, setBuyModalOpen] = useState(false);
+  const [selectedExchange, setSelectedExchange] = useState<Exchange | null>(null);
+
   const sortedExchanges = [...exchanges].sort((a, b) => a.price - b.price);
   const minPrice = sortedExchanges[0];
   const maxPrice = sortedExchanges[sortedExchanges.length - 1];
   const spread = maxPrice.price - minPrice.price;
+
+  const handleBuyClick = (exchange: Exchange) => {
+    setSelectedExchange(exchange);
+    setBuyModalOpen(true);
+  };
 
   const opportunitiesAbove3 = sortedExchanges.filter((exchange) => {
     const potentialProfit = ((maxPrice.price - exchange.price) / exchange.price) * 100;
@@ -80,6 +91,7 @@ export const ArbitrageTab = ({ exchanges, selectedCrypto, minProfitFilter }: Arb
                 <th className="text-right py-3 px-4 text-sm font-medium text-muted-foreground">Комиссия</th>
                 <th className="text-right py-3 px-4 text-sm font-medium text-muted-foreground">Выгода</th>
                 <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Источник</th>
+                <th className="text-center py-3 px-4 text-sm font-medium text-muted-foreground">Действие</th>
               </tr>
             </thead>
             <tbody>
@@ -107,12 +119,22 @@ export const ArbitrageTab = ({ exchanges, selectedCrypto, minProfitFilter }: Arb
                       +{potentialProfit.toFixed(2)}%
                     </td>
                     <td className="py-3 px-4 text-xs text-muted-foreground">{exchange.dataSource || 'N/A'}</td>
+                    <td className="text-center py-3 px-4">
+                      <Button 
+                        size="sm" 
+                        onClick={() => handleBuyClick(exchange)}
+                        className="text-xs"
+                      >
+                        <Icon name="ShoppingCart" size={14} className="mr-1" />
+                        Купить
+                      </Button>
+                    </td>
                   </tr>
                 );
               })}
               {opportunitiesAbove3.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="py-8 text-center text-muted-foreground">
+                  <td colSpan={8} className="py-8 text-center text-muted-foreground">
                     <Icon name="Search" size={32} className="mx-auto mb-2 opacity-50" />
                     Нет возможностей с выгодой от {minProfitFilter}%
                   </td>
@@ -145,7 +167,7 @@ export const ArbitrageTab = ({ exchanges, selectedCrypto, minProfitFilter }: Arb
                     <div className="text-xs text-muted-foreground mt-1">выгода</div>
                   </div>
                 </div>
-                <div className="grid grid-cols-3 gap-2 text-xs">
+                <div className="grid grid-cols-3 gap-2 text-xs mb-3">
                   <div>
                     <div className="text-muted-foreground">24ч</div>
                     <div className={exchange.change24h > 0 ? 'text-accent font-medium' : 'text-destructive font-medium'}>
@@ -161,6 +183,14 @@ export const ArbitrageTab = ({ exchanges, selectedCrypto, minProfitFilter }: Arb
                     <div className="font-medium">{exchange.fee}%</div>
                   </div>
                 </div>
+                <Button 
+                  size="sm" 
+                  onClick={() => handleBuyClick(exchange)}
+                  className="w-full text-sm"
+                >
+                  <Icon name="ShoppingCart" size={16} className="mr-2" />
+                  Купить на {exchange.name}
+                </Button>
               </div>
             );
           })}
@@ -171,6 +201,17 @@ export const ArbitrageTab = ({ exchanges, selectedCrypto, minProfitFilter }: Arb
             </div>
           )}
         </div>
+
+        {selectedExchange && (
+          <QuickBuyModal
+            isOpen={buyModalOpen}
+            onClose={() => setBuyModalOpen(false)}
+            exchangeName={selectedExchange.name}
+            exchangeUrl={selectedExchange.url || ''}
+            crypto={selectedCrypto}
+            price={selectedExchange.price}
+          />
+        )}
       </CardContent>
     </Card>
   );
