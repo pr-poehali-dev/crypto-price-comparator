@@ -56,7 +56,7 @@ export const NoCardsTab = ({ exchanges, selectedCrypto }: NoCardsTabProps) => {
       }
     }
     
-    return schemes.sort((a, b) => b.netProfitPercent - a.netProfitPercent).slice(0, 10);
+    return schemes.sort((a, b) => b.netProfitPercent - a.netProfitPercent).slice(0, 15);
   };
 
   const profitSchemes = calculateProfitSchemes(2.0);
@@ -130,16 +130,27 @@ export const NoCardsTab = ({ exchanges, selectedCrypto }: NoCardsTabProps) => {
               <CardContent className="pt-4 pb-4">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
                   <div className="flex-1 space-y-2">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       {index === 0 && (
                         <Badge className="bg-green-500 text-white">
                           <Icon name="TrendingUp" size={12} className="mr-1" />
                           TOP
                         </Badge>
                       )}
+                      {index < 3 && index > 0 && (
+                        <Badge className="bg-blue-500 text-white">
+                          HOT
+                        </Badge>
+                      )}
                       <span className="font-semibold text-lg">
                         #{index + 1} Схема
                       </span>
+                      {scheme.netProfitPercent >= 2.5 && (
+                        <Badge variant="outline" className="bg-amber-500/10 text-amber-500 border-amber-500">
+                          <Icon name="Flame" size={12} className="mr-1" />
+                          Высокий спред
+                        </Badge>
+                      )}
                     </div>
                     
                     <div className="flex flex-col md:flex-row md:items-center gap-2 text-sm">
