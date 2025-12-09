@@ -122,12 +122,13 @@ export const SchemeDetailModal = ({ isOpen, onClose, scheme, crypto }: SchemeDet
   ];
 
   const calculateProfit = (amount: number) => {
+    const withdrawalFee = 2.5;
     const buyAmount = amount / scheme.buyPrice;
     const buyCost = amount;
     const buyFeeAmount = buyCost * (scheme.buyFee / 100);
     const sellRevenue = buyAmount * scheme.sellPrice;
     const sellFeeAmount = sellRevenue * (scheme.sellFee / 100);
-    const netProfit = sellRevenue - buyCost - buyFeeAmount - sellFeeAmount;
+    const netProfit = sellRevenue - buyCost - buyFeeAmount - sellFeeAmount - withdrawalFee;
     
     return {
       buyAmount: buyAmount.toFixed(6),
@@ -135,12 +136,13 @@ export const SchemeDetailModal = ({ isOpen, onClose, scheme, crypto }: SchemeDet
       buyFee: buyFeeAmount.toFixed(2),
       sellRevenue: sellRevenue.toFixed(2),
       sellFee: sellFeeAmount.toFixed(2),
+      withdrawalFee: withdrawalFee.toFixed(2),
       netProfit: netProfit.toFixed(2),
       netProfitPercent: ((netProfit / buyCost) * 100).toFixed(2)
     };
   };
 
-  const exampleAmounts = [100, 500, 1000, 5000];
+  const exampleAmounts = [50, 100, 500, 1000];
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -337,6 +339,10 @@ export const SchemeDetailModal = ({ isOpen, onClose, scheme, crypto }: SchemeDet
                           <span>Комиссия продажи:</span>
                           <span>${calc.sellFee}</span>
                         </div>
+                        <div className="flex justify-between text-muted-foreground">
+                          <span>Комиссия вывода:</span>
+                          <span>${calc.withdrawalFee}</span>
+                        </div>
                         <Separator />
                         <div className="flex justify-between font-semibold text-green-500">
                           <span>Чистая прибыль:</span>
@@ -358,7 +364,8 @@ export const SchemeDetailModal = ({ isOpen, onClose, scheme, crypto }: SchemeDet
                   <p className="font-semibold">⚠️ Важные моменты:</p>
                   <ul className="list-disc list-inside space-y-1 text-muted-foreground">
                     <li>Цены меняются в реальном времени - проверяйте актуальность перед сделкой</li>
-                    <li>Учитывайте комиссии за вывод криптовалюты (~$1-5)</li>
+                    <li>Комиссия вывода ~$2.5 уже учтена в расчётах</li>
+                    <li>Минимальный депозит для прибыльной связки: $50</li>
                     <li>P2P сделки могут занять от 10 до 30 минут</li>
                     <li>Используйте двухфакторную аутентификацию на всех биржах</li>
                     <li>Не храните большие суммы на биржах - выводите на холодные кошельки</li>
