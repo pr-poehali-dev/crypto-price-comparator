@@ -11,6 +11,7 @@ import { ArbitrageTab } from '@/components/arbitrage/ArbitrageTab';
 import { CalculatorTab } from '@/components/arbitrage/CalculatorTab';
 import { AnalyticsTab } from '@/components/arbitrage/AnalyticsTab';
 import { AIPredictionTab } from '@/components/arbitrage/AIPredictionTab';
+import { SpreadVisualization } from '@/components/arbitrage/SpreadVisualization';
 import { LoginPage } from '@/components/auth/LoginPage';
 
 interface Exchange {
@@ -153,6 +154,12 @@ const Index = () => {
                   <option value="BNB">Binance Coin (BNB)</option>
                   <option value="ADA">Cardano (ADA)</option>
                   <option value="DOGE">Dogecoin (DOGE)</option>
+                  <option value="AVAX">Avalanche (AVAX)</option>
+                  <option value="DOT">Polkadot (DOT)</option>
+                  <option value="MATIC">Polygon (MATIC)</option>
+                  <option value="LINK">Chainlink (LINK)</option>
+                  <option value="UNI">Uniswap (UNI)</option>
+                  <option value="LTC">Litecoin (LTC)</option>
                 </select>
               </div>
             </CardContent>
@@ -196,10 +203,14 @@ const Index = () => {
         </div>
 
         <Tabs defaultValue="arbitrage" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 mb-4 md:mb-6 h-auto">
+          <TabsList className="grid w-full grid-cols-5 mb-4 md:mb-6 h-auto">
             <TabsTrigger value="arbitrage" className="flex-col md:flex-row gap-1 md:gap-2 py-2 md:py-2.5 text-xs md:text-sm">
               <Icon name="ArrowLeftRight" size={14} className="md:mr-0" />
               <span className="hidden md:inline">Арбитраж</span>
+            </TabsTrigger>
+            <TabsTrigger value="spreads" className="flex-col md:flex-row gap-1 md:gap-2 py-2 md:py-2.5 text-xs md:text-sm">
+              <Icon name="BarChart3" size={14} className="md:mr-0" />
+              <span className="hidden md:inline">Схемы</span>
             </TabsTrigger>
             <TabsTrigger value="calculator" className="flex-col md:flex-row gap-1 md:gap-2 py-2 md:py-2.5 text-xs md:text-sm">
               <Icon name="Calculator" size={14} className="md:mr-0" />
@@ -242,6 +253,10 @@ const Index = () => {
               </CardContent>
             </Card>
             <ArbitrageTab exchanges={exchanges} selectedCrypto={selectedCrypto} minProfitFilter={parseFloat(minProfitFilter) || 3.0} />
+          </TabsContent>
+
+          <TabsContent value="spreads" className="space-y-6">
+            <SpreadVisualization exchanges={exchanges} selectedCrypto={selectedCrypto} />
           </TabsContent>
 
           <TabsContent value="calculator" className="space-y-6">

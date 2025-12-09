@@ -84,6 +84,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             {'name': 'Bitget', 'price': base_price * 1.0028, 'volume': 12.8, 'fee': 0.1, 'change24h': 2.51, 'url': 'https://www.bitget.com', 'dataSource': 'Расчетная цена (на основе Binance)'},
             {'name': 'MEXC', 'price': base_price * 1.0041, 'volume': 9.2, 'fee': 0.0, 'change24h': 2.48, 'url': 'https://www.mexc.com', 'dataSource': 'Расчетная цена (на основе Binance)'},
             {'name': 'Gemini', 'price': base_price * 1.0022, 'volume': 6.7, 'fee': 0.35, 'change24h': 2.39, 'url': 'https://www.gemini.com', 'dataSource': 'Расчетная цена (на основе Binance)'},
+            {'name': 'HTX', 'price': base_price * 1.0038, 'volume': 14.1, 'fee': 0.2, 'change24h': 2.44, 'url': 'https://www.htx.com', 'dataSource': 'Расчетная цена (на основе Binance)'},
+            {'name': 'Crypto.com', 'price': base_price * 0.9978, 'volume': 10.5, 'fee': 0.4, 'change24h': 2.31, 'url': 'https://crypto.com', 'dataSource': 'Расчетная цена (на основе Binance)'},
+            {'name': 'Bitrue', 'price': base_price * 1.0051, 'volume': 7.3, 'fee': 0.1, 'change24h': 2.52, 'url': 'https://www.bitrue.com', 'dataSource': 'Расчетная цена (на основе Binance)'},
         ]
         exchanges.extend(additional_exchanges)
     
@@ -110,7 +113,13 @@ def fetch_binance(crypto: str) -> Optional[Dict[str, Any]]:
         'XRP': 'XRPUSDT',
         'BNB': 'BNBUSDT',
         'ADA': 'ADAUSDT',
-        'DOGE': 'DOGEUSDT'
+        'DOGE': 'DOGEUSDT',
+        'AVAX': 'AVAXUSDT',
+        'DOT': 'DOTUSDT',
+        'MATIC': 'MATICUSDT',
+        'LINK': 'LINKUSDT',
+        'UNI': 'UNIUSDT',
+        'LTC': 'LTCUSDT'
     }
     
     symbol = symbol_map.get(crypto)
@@ -160,7 +169,13 @@ def fetch_kraken(crypto: str) -> Optional[Dict[str, Any]]:
         'SOL': 'SOLUSD',
         'XRP': 'XRPUSD',
         'ADA': 'ADAUSD',
-        'DOGE': 'DOGEUSD'
+        'DOGE': 'DOGEUSD',
+        'AVAX': 'AVAXUSD',
+        'DOT': 'DOTUSD',
+        'MATIC': 'MATICUSD',
+        'LINK': 'LINKUSD',
+        'UNI': 'UNIUSD',
+        'LTC': 'LTCUSD'
     }
     
     pair = symbol_map.get(crypto)
@@ -193,7 +208,13 @@ def fetch_kucoin(crypto: str) -> Optional[Dict[str, Any]]:
         'XRP': 'XRP-USDT',
         'BNB': 'BNB-USDT',
         'ADA': 'ADA-USDT',
-        'DOGE': 'DOGE-USDT'
+        'DOGE': 'DOGE-USDT',
+        'AVAX': 'AVAX-USDT',
+        'DOT': 'DOT-USDT',
+        'MATIC': 'MATIC-USDT',
+        'LINK': 'LINK-USDT',
+        'UNI': 'UNI-USDT',
+        'LTC': 'LTC-USDT'
     }
     
     symbol = symbol_map.get(crypto)
@@ -227,7 +248,13 @@ def fetch_gate(crypto: str) -> Optional[Dict[str, Any]]:
         'XRP': 'XRP_USDT',
         'BNB': 'BNB_USDT',
         'ADA': 'ADA_USDT',
-        'DOGE': 'DOGE_USDT'
+        'DOGE': 'DOGE_USDT',
+        'AVAX': 'AVAX_USDT',
+        'DOT': 'DOT_USDT',
+        'MATIC': 'MATIC_USDT',
+        'LINK': 'LINK_USDT',
+        'UNI': 'UNI_USDT',
+        'LTC': 'LTC_USDT'
     }
     
     symbol = symbol_map.get(crypto)
