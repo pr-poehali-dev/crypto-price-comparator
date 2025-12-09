@@ -11,6 +11,7 @@ import { ArbitrageTab } from '@/components/arbitrage/ArbitrageTab';
 import { CalculatorTab } from '@/components/arbitrage/CalculatorTab';
 import { AnalyticsTab } from '@/components/arbitrage/AnalyticsTab';
 import { AIPredictionTab } from '@/components/arbitrage/AIPredictionTab';
+import { LoginPage } from '@/components/auth/LoginPage';
 
 interface Exchange {
   name: string;
@@ -24,6 +25,7 @@ interface Exchange {
 
 const Index = () => {
   const { toast } = useToast();
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [amount, setAmount] = useState<string>('1');
   const [selectedCrypto, setSelectedCrypto] = useState<string>('BTC');
   const [notificationsEnabled, setNotificationsEnabled] = useState<boolean>(false);
@@ -103,6 +105,10 @@ const Index = () => {
       setLastNotificationTime(now);
     }
   }, [exchanges, notificationsEnabled, minProfitThreshold, lastNotificationTime, toast]);
+
+  if (!isAuthenticated) {
+    return <LoginPage onLogin={() => setIsAuthenticated(true)} />;
+  }
 
   return (
     <div className="min-h-screen bg-background p-3 md:p-8">
