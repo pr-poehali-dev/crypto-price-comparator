@@ -50,7 +50,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         for future in as_completed(future_to_exchange):
             try:
-                result = future.result(timeout=2)
+                result = future.result(timeout=3)
                 if result:
                     exchanges.append(result)
             except Exception as e:
@@ -59,20 +59,21 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     if exchanges:
         base_price = exchanges[0]['price']
         additional_exchanges = [
-            {'name': 'Garantex', 'price': base_price * 1.0045, 'volume': 5.2, 'fee': 0.2, 'change24h': 2.35, 'url': 'https://garantex.org', 'dataSource': 'Расчетная (РФ биржа)'},
-            {'name': 'Exmo', 'price': base_price * 1.0062, 'volume': 4.8, 'fee': 0.3, 'change24h': 2.41, 'url': 'https://exmo.com', 'dataSource': 'Расчетная (РФ биржа)'},
-            {'name': 'WhiteBIT', 'price': base_price * 0.9988, 'volume': 8.4, 'fee': 0.1, 'change24h': 2.29, 'url': 'https://whitebit.com', 'dataSource': 'Расчетная (работает в РФ)'},
-            {'name': 'Currency.com', 'price': base_price * 1.0033, 'volume': 6.1, 'fee': 0.25, 'change24h': 2.37, 'url': 'https://currency.com', 'dataSource': 'Расчетная (работает в РФ)'},
-            {'name': 'BitStamp', 'price': base_price * 1.0019, 'volume': 11.3, 'fee': 0.15, 'change24h': 2.43, 'url': 'https://www.bitstamp.net', 'dataSource': 'Расчетная (работает в РФ)'},
-            {'name': 'Bitpapa', 'price': base_price * 1.0071, 'volume': 3.6, 'fee': 0.35, 'change24h': 2.48, 'url': 'https://bitpapa.com', 'dataSource': 'Расчетная (P2P РФ)'},
-            {'name': 'BestChange', 'price': base_price * 1.0089, 'volume': 2.9, 'fee': 0.5, 'change24h': 2.52, 'url': 'https://www.bestchange.ru', 'dataSource': 'Расчетная (обменники РФ)'},
-            {'name': 'ByBit', 'price': base_price * 1.0015, 'volume': 21.3, 'fee': 0.1, 'change24h': 2.38, 'url': 'https://www.bybit.com', 'dataSource': 'Расчетная (работает в РФ)'},
-            {'name': 'OKX', 'price': base_price * 0.9985, 'volume': 19.7, 'fee': 0.08, 'change24h': 2.25, 'url': 'https://www.okx.com', 'dataSource': 'Расчетная (работает в РФ)'},
-            {'name': 'Bitget', 'price': base_price * 1.0028, 'volume': 12.8, 'fee': 0.1, 'change24h': 2.51, 'url': 'https://www.bitget.com', 'dataSource': 'Расчетная (работает в РФ)'},
-            {'name': 'Huobi', 'price': base_price * 0.9992, 'volume': 15.4, 'fee': 0.2, 'change24h': 2.33, 'url': 'https://www.huobi.com', 'dataSource': 'Расчетная (работает в РФ)'},
+            {'name': 'Garantex', 'price': base_price * 1.0045, 'volume': 5.2, 'fee': 0.2, 'change24h': 2.35, 'url': 'https://garantex.org', 'dataSource': 'Расчет (РФ биржа)'},
+            {'name': 'Exmo', 'price': base_price * 1.0062, 'volume': 4.8, 'fee': 0.3, 'change24h': 2.41, 'url': 'https://exmo.com', 'dataSource': 'Расчет (РФ биржа)'},
+            {'name': 'WhiteBIT', 'price': base_price * 0.9988, 'volume': 8.4, 'fee': 0.1, 'change24h': 2.29, 'url': 'https://whitebit.com', 'dataSource': 'Расчет (РФ)'},
+            {'name': 'Currency.com', 'price': base_price * 1.0033, 'volume': 6.1, 'fee': 0.25, 'change24h': 2.37, 'url': 'https://currency.com', 'dataSource': 'Расчет (РФ)'},
+            {'name': 'BitStamp', 'price': base_price * 1.0019, 'volume': 11.3, 'fee': 0.15, 'change24h': 2.43, 'url': 'https://www.bitstamp.net', 'dataSource': 'Расчет (РФ)'},
+            {'name': 'Bitpapa', 'price': base_price * 1.0071, 'volume': 3.6, 'fee': 0.35, 'change24h': 2.48, 'url': 'https://bitpapa.com', 'dataSource': 'Расчет (P2P)'},
+            {'name': 'BestChange', 'price': base_price * 1.0089, 'volume': 2.9, 'fee': 0.5, 'change24h': 2.52, 'url': 'https://www.bestchange.ru', 'dataSource': 'Расчет (обменники)'},
+            {'name': 'ByBit', 'price': base_price * 1.0015, 'volume': 21.3, 'fee': 0.1, 'change24h': 2.38, 'url': 'https://www.bybit.com', 'dataSource': 'Расчет (РФ)'},
+            {'name': 'OKX', 'price': base_price * 0.9985, 'volume': 19.7, 'fee': 0.08, 'change24h': 2.25, 'url': 'https://www.okx.com', 'dataSource': 'Расчет (РФ)'},
+            {'name': 'Bitget', 'price': base_price * 1.0028, 'volume': 12.8, 'fee': 0.1, 'change24h': 2.51, 'url': 'https://www.bitget.com', 'dataSource': 'Расчет (РФ)'},
+            {'name': 'Huobi', 'price': base_price * 0.9992, 'volume': 15.4, 'fee': 0.2, 'change24h': 2.33, 'url': 'https://www.huobi.com', 'dataSource': 'Расчет (РФ)'},
         ]
         exchanges.extend(additional_exchanges)
-    else:
+    
+    if not exchanges:
         print(f'WARNING: No exchanges fetched for {crypto}')
     
     return {
