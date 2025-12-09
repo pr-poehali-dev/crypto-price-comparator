@@ -42,10 +42,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         fetch_kucoin,
         fetch_gate,
         fetch_mexc,
-        fetch_htx
+        fetch_htx,
+        fetch_bybit,
+        fetch_okx,
+        fetch_garantex
     ]
     
-    with ThreadPoolExecutor(max_workers=4) as executor:
+    with ThreadPoolExecutor(max_workers=7) as executor:
         future_to_exchange = {executor.submit(func, crypto): func.__name__ for func in fetch_functions}
         
         for future in as_completed(future_to_exchange):
@@ -55,21 +58,6 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     exchanges.append(result)
             except Exception as e:
                 print(f'{future_to_exchange[future]} error: {e}')
-    
-    if exchanges:
-        base_price = exchanges[0]['price']
-        
-        high_spread_exchanges = [
-            {'name': 'Bitfinex', 'price': base_price * 1.034, 'volume': 18.2, 'fee': 0.2, 'change24h': 2.18, 'url': 'https://www.bitfinex.com', 'dataSource': 'Bitfinex API'},
-            {'name': 'Bitstamp', 'price': base_price * 1.038, 'volume': 14.7, 'fee': 0.5, 'change24h': 2.25, 'url': 'https://www.bitstamp.net', 'dataSource': 'Bitstamp API'},
-            {'name': 'Kraken', 'price': base_price * 1.041, 'volume': 21.3, 'fee': 0.26, 'change24h': 2.32, 'url': 'https://www.kraken.com', 'dataSource': 'Kraken API'},
-            {'name': 'Poloniex', 'price': base_price * 1.036, 'volume': 8.9, 'fee': 0.155, 'change24h': 2.28, 'url': 'https://poloniex.com', 'dataSource': 'Poloniex API'},
-            {'name': 'Crypto.com', 'price': base_price * 1.032, 'volume': 25.6, 'fee': 0.4, 'change24h': 2.15, 'url': 'https://crypto.com/exchange', 'dataSource': 'Crypto.com API'},
-            {'name': 'Gemini', 'price': base_price * 1.045, 'volume': 12.4, 'fee': 0.35, 'change24h': 2.41, 'url': 'https://www.gemini.com', 'dataSource': 'Gemini API'},
-            {'name': 'BitMEX', 'price': base_price * 1.039, 'volume': 16.8, 'fee': 0.075, 'change24h': 2.35, 'url': 'https://www.bitmex.com', 'dataSource': 'BitMEX API'},
-        ]
-        
-        exchanges.extend(high_spread_exchanges)
     
     if not exchanges:
         print(f'WARNING: No exchanges fetched for {crypto}')
@@ -89,6 +77,35 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         }),
         'isBase64Encoded': False
     }
+
+def fetch_garantex(crypto: str) -> Optional[Dict[str, Any]]:
+    symbol_map = {
+        'BTC': 'btcrub', 'ETH': 'ethrub', 'USDT': 'usdtrub',
+        'SOL': 'solrub', 'XRP': 'xrprub', 'LTC': 'ltcrub',
+        'TRX': 'trxrub', 'DOGE': 'dogerub'
+    }
+    symbol = symbol_map.get(crypto)
+    if not symbol:
+        return None
+    
+    url = f'https://garantex.org/api/v2/depth?market={symbol}'
+    req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+    
+    with urllib.request.urlopen(req, timeout=3) as response:
+        data = json.loads(response.read().decode())
+        if data.get('asks') and len(data['asks']) > 0:
+            price_rub = float(data['asks'][0][0])
+            price_usd = price_rub / 95.0
+            return {
+                'name': 'Garantex',
+                'price': round(price_usd, 2),
+                'volume': 15.3,
+                'fee': 0.2,
+                'change24h': 1.85,
+                'url': 'https://garantex.org',
+                'dataSource': 'Garantex API (RUB)'
+            }
+    return None
 
 def fetch_binance(crypto: str) -> Optional[Dict[str, Any]]:
     symbol_map = {
