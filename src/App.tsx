@@ -8,6 +8,8 @@ import Index from "./pages/Index";
 import Login from "./pages/Login";
 import AdminPanel from "./pages/AdminPanel";
 import LocalAdminPanel from "./pages/LocalAdminPanel";
+import StatsPanel from "./pages/StatsPanel";
+import Register from "./pages/Register";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,7 +24,9 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<Login />} />
           <Route path="/admin" element={<AdminPanel />} />
-          <Route path="/stats" element={<LocalAdminPanel />} />
+          <Route path="/stats" element={<StatsPanel />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/local-stats" element={<LocalAdminPanel />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

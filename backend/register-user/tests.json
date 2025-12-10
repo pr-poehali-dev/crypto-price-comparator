@@ -1,0 +1,17 @@
+{
+  "tests": [
+    {
+      "name": "Test register with token",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "token": "test-token-12345"
+      },
+      "expectedStatus": 404,
+      "expectedBody": {
+        "error": "Invalid token"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

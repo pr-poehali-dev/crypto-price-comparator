@@ -1,0 +1,23 @@
+{
+  "tests": [
+    {
+      "name": "Test create token",
+      "method": "POST",
+      "path": "/",
+      "headers": {
+        "X-Admin-Auth": "magome:28122007"
+      },
+      "body": {
+        "login": "testuser",
+        "password": "testpass123"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true,
+        "token": "string",
+        "login": "testuser"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

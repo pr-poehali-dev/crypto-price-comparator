@@ -1,0 +1,16 @@
+{
+  "tests": [
+    {
+      "name": "Test schemes update",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true,
+        "new_schemes": "number",
+        "deleted_schemes": "number"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

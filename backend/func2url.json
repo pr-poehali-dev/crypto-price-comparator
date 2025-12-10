@@ -1,4 +1,7 @@
 {
+  "token-management": "https://functions.poehali.dev/ce69afd3-021e-4761-9e5b-df896ff09470",
+  "update-schemes": "https://functions.poehali.dev/e6aad3a0-ee00-44a7-b76a-abd8dccde072",
+  "register-user": "https://functions.poehali.dev/02e7a4df-5d7e-4fec-b1ec-db8dfbc2264c",
   "auth": "https://functions.poehali.dev/6d6d395c-ce79-4019-a7e4-409eb5297447",
   "sessions": "https://functions.poehali.dev/ca8a9e5c-1c6d-4b11-88e4-c740f3f6c840",
   "users": "https://functions.poehali.dev/c7982c7b-49dd-47aa-8acf-96814a731b34",
