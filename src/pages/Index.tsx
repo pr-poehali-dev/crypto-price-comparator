@@ -19,6 +19,7 @@ import { SpreadVisualization } from '@/components/arbitrage/SpreadVisualization'
 import { BestSchemeCard } from '@/components/arbitrage/BestSchemeCard';
 import { LoginPage } from '@/components/auth/LoginPage';
 import { initSession } from '@/lib/analytics';
+import { startCronScheduler } from '@/lib/cronScheduler';
 
 interface Exchange {
   name: string;
@@ -62,6 +63,7 @@ const Index = () => {
 
   useEffect(() => {
     initSession();
+    startCronScheduler();
   }, []);
 
   useEffect(() => {
