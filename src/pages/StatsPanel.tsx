@@ -10,6 +10,7 @@ import { StatsLoginForm } from '@/components/stats/StatsLoginForm';
 import { StatsOverview } from '@/components/stats/StatsOverview';
 import { TokenManagement } from '@/components/stats/TokenManagement';
 import { ActiveSessions } from '@/components/stats/ActiveSessions';
+import { DirectAccountCreation } from '@/components/stats/DirectAccountCreation';
 
 interface Token {
   token: string;
@@ -38,6 +39,7 @@ interface Session {
 const TOKEN_API = 'https://functions.poehali.dev/ce69afd3-021e-4761-9e5b-df896ff09470';
 const SESSIONS_API = 'https://functions.poehali.dev/ca8a9e5c-1c6d-4b11-88e4-c740f3f6c840';
 const UPDATE_API = 'https://functions.poehali.dev/e6aad3a0-ee00-44a7-b76a-abd8dccde072';
+const CREATE_ACCOUNT_API = 'https://functions.poehali.dev/76822941-3815-4621-940e-c15a704b8226';
 
 export default function StatsPanel() {
   const navigate = useNavigate();
@@ -191,6 +193,41 @@ export default function StatsPanel() {
     toast({ title: 'Ссылка скопирована!' });
   };
 
+  const handleCreateDirectAccount = async (login: string, password: string) => {
+    try {
+      const response = await fetch(CREATE_ACCOUNT_API, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Admin-Auth': 'magome:28122007'
+        },
+        body: JSON.stringify({ login, password })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast({
+          title: 'Аккаунт создан!',
+          description: `Логин: ${login}`
+        });
+      } else {
+        toast({
+          title: 'Ошибка',
+          description: data.error || 'Не удалось создать аккаунт',
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      console.error('Failed to create account:', error);
+      toast({
+        title: 'Ошибка',
+        description: 'Ошибка сети',
+        variant: 'destructive'
+      });
+    }
+  };
+
   const onlineCount = sessions.filter(s => !s.loggedOutAt && 
     new Date(s.loggedInAt).getTime() > Date.now() - 300000).length;
 
@@ -242,6 +279,8 @@ export default function StatsPanel() {
             onUpdateSchemes={handleUpdateSchemes}
           />
         </div>
+
+        <DirectAccountCreation onCreateAccount={handleCreateDirectAccount} />
       </div>
 
       <Dialog open={createModalOpen} onOpenChange={setCreateModalOpen}>
