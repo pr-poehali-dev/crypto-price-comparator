@@ -27,11 +27,14 @@ interface Account {
 interface AccountsListProps {
   accounts: Account[];
   onDeleteAccount?: (accountId: number) => void;
+  onChangePassword?: (accountId: number, newPassword: string) => void;
 }
 
-export function AccountsList({ accounts, onDeleteAccount }: AccountsListProps) {
+export function AccountsList({ accounts, onDeleteAccount, onChangePassword }: AccountsListProps) {
   const [expandedId, setExpandedId] = useState<number | null>(null);
   const [visiblePasswords, setVisiblePasswords] = useState<Set<number>>(new Set());
+  const [editingPasswordId, setEditingPasswordId] = useState<number | null>(null);
+  const [newPassword, setNewPassword] = useState<string>('');
 
   const togglePasswordVisibility = (accountId: number) => {
     setVisiblePasswords(prev => {
@@ -49,6 +52,24 @@ export function AccountsList({ accounts, onDeleteAccount }: AccountsListProps) {
     if (confirm(`Вы уверены, что хотите удалить аккаунт "${account.login}"? Это действие необратимо.`)) {
       onDeleteAccount?.(account.id);
     }
+  };
+
+  const startEditPassword = (account: Account) => {
+    setEditingPasswordId(account.id);
+    setNewPassword(account.password);
+  };
+
+  const savePassword = (accountId: number) => {
+    if (newPassword.trim()) {
+      onChangePassword?.(accountId, newPassword);
+      setEditingPasswordId(null);
+      setNewPassword('');
+    }
+  };
+
+  const cancelEdit = () => {
+    setEditingPasswordId(null);
+    setNewPassword('');
   };
 
   return (
@@ -75,18 +96,56 @@ export function AccountsList({ accounts, onDeleteAccount }: AccountsListProps) {
                       <div className="flex items-center gap-1">
                         <Icon name="Lock" size={12} />
                         Пароль: 
-                        <span className="font-mono ml-1">
-                          {visiblePasswords.has(account.id) ? account.password : '••••••••'}
-                        </span>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            togglePasswordVisibility(account.id);
-                          }}
-                          className="ml-1 hover:text-foreground transition-colors"
-                        >
-                          <Icon name={visiblePasswords.has(account.id) ? 'EyeOff' : 'Eye'} size={12} />
-                        </button>
+                        {editingPasswordId === account.id ? (
+                          <div className="flex items-center gap-1 ml-1" onClick={(e) => e.stopPropagation()}>
+                            <input
+                              type="text"
+                              value={newPassword}
+                              onChange={(e) => setNewPassword(e.target.value)}
+                              className="font-mono text-xs px-1 py-0.5 border rounded w-24 bg-background text-foreground"
+                              autoFocus
+                            />
+                            <button
+                              onClick={() => savePassword(account.id)}
+                              className="hover:text-green-500 transition-colors"
+                              title="Сохранить"
+                            >
+                              <Icon name="Check" size={12} />
+                            </button>
+                            <button
+                              onClick={cancelEdit}
+                              className="hover:text-red-500 transition-colors"
+                              title="Отменить"
+                            >
+                              <Icon name="X" size={12} />
+                            </button>
+                          </div>
+                        ) : (
+                          <>
+                            <span className="font-mono ml-1">
+                              {visiblePasswords.has(account.id) ? account.password : '••••••••'}
+                            </span>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                togglePasswordVisibility(account.id);
+                              }}
+                              className="ml-1 hover:text-foreground transition-colors"
+                            >
+                              <Icon name={visiblePasswords.has(account.id) ? 'EyeOff' : 'Eye'} size={12} />
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                startEditPassword(account);
+                              }}
+                              className="ml-1 hover:text-foreground transition-colors"
+                              title="Изменить пароль"
+                            >
+                              <Icon name="Edit2" size={12} />
+                            </button>
+                          </>
+                        )}
                       </div>
                       <div className="flex items-center gap-1">
                         <Icon name="Calendar" size={12} />

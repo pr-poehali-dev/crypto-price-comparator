@@ -14,14 +14,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'statusCode': 200,
             'headers': {
                 'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'GET, DELETE, OPTIONS',
+                'Access-Control-Allow-Methods': 'GET, PUT, DELETE, OPTIONS',
                 'Access-Control-Allow-Headers': 'Content-Type, X-Admin-Auth',
                 'Access-Control-Max-Age': '86400'
             },
             'body': ''
         }
     
-    if method not in ['GET', 'DELETE']:
+    if method not in ['GET', 'PUT', 'DELETE']:
         return {
             'statusCode': 405,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
@@ -43,6 +43,61 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     dsn = os.environ.get('DATABASE_URL')
     conn = psycopg2.connect(dsn)
     cur = conn.cursor()
+    
+    # PUT method - изменение пароля аккаунта
+    if method == 'PUT':
+        body = json.loads(event.get('body', '{}'))
+        account_id = body.get('id')
+        new_password = body.get('password')
+        
+        if not account_id or not new_password:
+            cur.close()
+            conn.close()
+            return {
+                'statusCode': 400,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'isBase64Encoded': False,
+                'body': json.dumps({'error': 'Account ID and new password required'})
+            }
+        
+        # Проверяем существование
+        cur.execute(
+            "SELECT login FROM t_p37207906_crypto_price_compara.platform_users WHERE id = %s",
+            (account_id,)
+        )
+        account = cur.fetchone()
+        
+        if not account:
+            cur.close()
+            conn.close()
+            return {
+                'statusCode': 404,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'isBase64Encoded': False,
+                'body': json.dumps({'error': 'Account not found'})
+            }
+        
+        login = account[0]
+        
+        # Обновляем пароль
+        cur.execute(
+            "UPDATE t_p37207906_crypto_price_compara.platform_users SET password = %s WHERE id = %s",
+            (new_password, account_id)
+        )
+        
+        conn.commit()
+        cur.close()
+        conn.close()
+        
+        return {
+            'statusCode': 200,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'isBase64Encoded': False,
+            'body': json.dumps({
+                'message': f'Пароль для аккаунта {login} изменен',
+                'account': {'id': int(account_id), 'login': login}
+            })
+        }
     
     # DELETE method - удаление аккаунта
     if method == 'DELETE':

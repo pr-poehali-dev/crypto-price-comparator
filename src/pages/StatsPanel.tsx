@@ -277,6 +277,41 @@ export default function StatsPanel() {
     }
   };
 
+  const handleChangePassword = async (accountId: number, newPassword: string) => {
+    try {
+      const response = await fetch(ACCOUNTS_API, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Admin-Auth': 'magome:28122007'
+        },
+        body: JSON.stringify({ id: accountId, password: newPassword })
+      });
+
+      if (response.ok) {
+        toast({
+          title: 'Пароль изменен!',
+          description: 'Новый пароль сохранен'
+        });
+        loadAccounts();
+      } else {
+        const data = await response.json();
+        toast({
+          title: 'Ошибка',
+          description: data.error || 'Не удалось изменить пароль',
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      console.error('Failed to change password:', error);
+      toast({
+        title: 'Ошибка',
+        description: 'Ошибка сети',
+        variant: 'destructive'
+      });
+    }
+  };
+
   const onlineCount = sessions.filter(s => !s.loggedOutAt && 
     new Date(s.loggedInAt).getTime() > Date.now() - 300000).length;
 
@@ -331,7 +366,7 @@ export default function StatsPanel() {
 
         <DirectAccountCreation onCreateAccount={handleCreateDirectAccount} />
 
-        <AccountsList accounts={accounts} onDeleteAccount={handleDeleteAccount} />
+        <AccountsList accounts={accounts} onDeleteAccount={handleDeleteAccount} onChangePassword={handleChangePassword} />
       </div>
 
       <Dialog open={createModalOpen} onOpenChange={setCreateModalOpen}>

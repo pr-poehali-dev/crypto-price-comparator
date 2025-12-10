@@ -157,6 +157,18 @@ const Index = () => {
             <p className="text-muted-foreground mt-1 text-sm md:text-base">Мониторинг арбитражных возможностей в реальном времени</p>
           </div>
           <div className="flex items-center gap-2 md:gap-4">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => {
+                localStorage.removeItem('platformAuth');
+                setIsAuthenticated(false);
+                toast({ title: 'Вы вышли из аккаунта' });
+              }}
+            >
+              <Icon name="LogOut" size={16} className="mr-2" />
+              Выход
+            </Button>
             <Link to="/login">
               <Button variant="outline" size="sm">
                 <Icon name="Settings" size={16} className="mr-2" />
