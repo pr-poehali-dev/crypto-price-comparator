@@ -1,0 +1,38 @@
+{
+  "tests": [
+    {
+      "name": "Test AI assistant response",
+      "method": "POST",
+      "path": "/",
+      "headers": {
+        "X-Admin-Auth": "magome:28122007"
+      },
+      "body": {
+        "message": "Как создать токен?",
+        "history": []
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "reply": "string",
+        "usage": {
+          "prompt_tokens": "number",
+          "completion_tokens": "number",
+          "total_tokens": "number"
+        }
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Test unauthorized access",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "message": "test"
+      },
+      "expectedStatus": 401,
+      "expectedBody": {
+        "error": "Unauthorized"
+      }
+    }
+  ]
+}
