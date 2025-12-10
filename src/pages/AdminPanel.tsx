@@ -55,6 +55,14 @@ export default function AdminPanel() {
 
   useEffect(() => {
     checkAuth();
+    
+    // Автообновление каждые 5 минут
+    const intervalId = setInterval(() => {
+      loadUsers();
+      loadSessions();
+    }, 5 * 60 * 1000);
+    
+    return () => clearInterval(intervalId);
   }, []);
 
   const checkAuth = async () => {
@@ -137,6 +145,29 @@ export default function AdminPanel() {
       loadUsers();
     } catch (error) {
       console.error('Failed to update user:', error);
+    }
+  };
+
+  const handleDeleteUser = async (user: User) => {
+    if (!confirm(`Вы уверены, что хотите удалить пользователя ${user.email}? Это действие необратимо и удалит все его аккаунты, токены и сессии.`)) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`${USERS_API}?id=${user.id}`, {
+        method: 'DELETE'
+      });
+      
+      if (response.ok) {
+        loadUsers();
+        loadSessions();
+      } else {
+        const error = await response.json();
+        alert(`Ошибка: ${error.error || 'Не удалось удалить пользователя'}`);
+      }
+    } catch (error) {
+      console.error('Failed to delete user:', error);
+      alert('Произошла ошибка при удалении пользователя');
     }
   };
 
@@ -260,6 +291,14 @@ export default function AdminPanel() {
                           onClick={() => handleToggleActive(user)}
                         >
                           {user.isActive ? 'Отключить' : 'Включить'}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          onClick={() => handleDeleteUser(user)}
+                        >
+                          <Icon name="Trash2" size={14} className="mr-1" />
+                          Удалить
                         </Button>
                       </td>
                     </tr>

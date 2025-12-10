@@ -40,7 +40,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         elif method == 'PUT':
             return update_user(conn, event)
         elif method == 'DELETE':
-            return deactivate_user(conn, event)
+            return delete_user(conn, event)
         else:
             return error_response(405, 'Method not allowed')
     finally:
@@ -189,8 +189,8 @@ def update_user(conn, event: Dict[str, Any]) -> Dict[str, Any]:
         
         return success_response({'user': user, 'message': 'User updated successfully'})
 
-def deactivate_user(conn, event: Dict[str, Any]) -> Dict[str, Any]:
-    '''Деактивировать пользователя'''
+def delete_user(conn, event: Dict[str, Any]) -> Dict[str, Any]:
+    '''Полностью удалить пользователя и все его аккаунты'''
     params = event.get('queryStringParameters', {}) or {}
     user_id = params.get('id')
     
@@ -198,20 +198,36 @@ def deactivate_user(conn, event: Dict[str, Any]) -> Dict[str, Any]:
         return error_response(400, 'User ID required')
     
     with conn.cursor() as cur:
-        cur.execute('''
-            UPDATE users 
-            SET is_active = FALSE, updated_at = CURRENT_TIMESTAMP
-            WHERE id = %s
-            RETURNING id, email
-        ''', (user_id,))
-        row = cur.fetchone()
+        # Проверяем существование пользователя
+        cur.execute('SELECT id, email FROM users WHERE id = %s', (user_id,))
+        user = cur.fetchone()
         
-        if not row:
+        if not user:
             return error_response(404, 'User not found')
+        
+        user_email = user[1]
+        
+        # Удаляем все токены пользователя
+        cur.execute('DELETE FROM tokens WHERE user_id = %s', (user_id,))
+        
+        # Удаляем все аккаунты пользователя
+        cur.execute('DELETE FROM accounts WHERE user_id = %s', (user_id,))
+        
+        # Удаляем все сессии пользователя
+        cur.execute('DELETE FROM sessions WHERE user_id = %s', (user_id,))
+        
+        # Удаляем самого пользователя
+        cur.execute('DELETE FROM users WHERE id = %s', (user_id,))
         
         conn.commit()
         
-        return success_response({'message': f'User {row[1]} deactivated successfully'})
+        return success_response({
+            'message': f'Пользователь {user_email} и все его данные удалены',
+            'deleted': {
+                'userId': int(user_id),
+                'email': user_email
+            }
+        })
 
 def success_response(data: Dict[str, Any], status_code: int = 200) -> Dict[str, Any]:
     return {
