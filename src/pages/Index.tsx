@@ -64,6 +64,11 @@ const Index = () => {
   useEffect(() => {
     initSession();
     startCronScheduler();
+    
+    const auth = localStorage.getItem('platformAuth');
+    if (auth) {
+      setIsAuthenticated(true);
+    }
   }, []);
 
   useEffect(() => {

@@ -1,0 +1,18 @@
+{
+  "tests": [
+    {
+      "name": "Test invalid login",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "login": "nonexistent",
+        "password": "wrong"
+      },
+      "expectedStatus": 401,
+      "expectedBody": {
+        "error": "Invalid login or password"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

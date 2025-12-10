@@ -45,7 +45,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     conn = psycopg2.connect(dsn)
     cur = conn.cursor()
     
-    cur.execute("SELECT login, password, used FROM tokens WHERE token = %s", (token,))
+    cur.execute("SELECT login, password, used FROM t_p37207906_crypto_price_compara.tokens WHERE token = %s", (token,))
     token_row = cur.fetchone()
     
     if not token_row:
@@ -72,12 +72,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     try:
         cur.execute(
-            "INSERT INTO users (login, password, token_used) VALUES (%s, %s, %s)",
+            "INSERT INTO t_p37207906_crypto_price_compara.platform_users (login, password, token_used) VALUES (%s, %s, %s)",
             (login, password, token)
         )
         
         cur.execute(
-            "UPDATE tokens SET used = TRUE, used_at = %s WHERE token = %s",
+            "UPDATE t_p37207906_crypto_price_compara.tokens SET used = TRUE, used_at = %s WHERE token = %s",
             (datetime.now(), token)
         )
         
