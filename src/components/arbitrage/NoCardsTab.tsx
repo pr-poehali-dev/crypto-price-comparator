@@ -47,7 +47,7 @@ export const NoCardsTab = ({ exchanges, selectedCrypto }: NoCardsTabProps) => {
     setIsModalOpen(true);
   };
   const cryptoExchanges = exchanges.filter(ex => 
-    !ex.paymentMethod || !ex.paymentMethod.includes('Карт')
+    ex.name !== 'BestChange P2P' && (!ex.paymentMethod || !ex.paymentMethod.includes('Карт'))
   );
 
   const sortedByPrice = [...cryptoExchanges].sort((a, b) => a.price - b.price);

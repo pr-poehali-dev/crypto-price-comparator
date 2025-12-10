@@ -39,7 +39,8 @@ export const BestSchemeCard = ({ exchanges, selectedCrypto }: BestSchemeCardProp
   useEffect(() => {
     if (exchanges.length === 0) return;
 
-    const sortedExchanges = [...exchanges].sort((a, b) => a.price - b.price);
+    const filteredExchanges = exchanges.filter(ex => ex.name !== 'BestChange P2P');
+    const sortedExchanges = [...filteredExchanges].sort((a, b) => a.price - b.price);
     
     const topSpreads = sortedExchanges.slice(0, 5).map((lowExchange) => {
       const highExchanges = sortedExchanges.slice(-3);

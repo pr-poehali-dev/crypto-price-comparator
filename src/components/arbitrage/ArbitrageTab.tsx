@@ -56,6 +56,7 @@ export const ArbitrageTab = ({ exchanges, selectedCrypto, minProfitFilter }: Arb
   };
 
   const opportunitiesAbove3 = sortedExchanges.filter((exchange) => {
+    if (exchange.name === 'BestChange P2P') return false;
     const potentialProfit = ((maxPrice.price - exchange.price) / exchange.price) * 100;
     return potentialProfit >= minProfitFilter;
   });
