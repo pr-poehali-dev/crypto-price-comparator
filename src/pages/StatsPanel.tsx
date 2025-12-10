@@ -11,6 +11,7 @@ import { StatsOverview } from '@/components/stats/StatsOverview';
 import { TokenManagement } from '@/components/stats/TokenManagement';
 import { ActiveSessions } from '@/components/stats/ActiveSessions';
 import { DirectAccountCreation } from '@/components/stats/DirectAccountCreation';
+import { AccountsList } from '@/components/stats/AccountsList';
 
 interface Token {
   token: string;
@@ -40,6 +41,7 @@ const TOKEN_API = 'https://functions.poehali.dev/ce69afd3-021e-4761-9e5b-df896ff
 const SESSIONS_API = 'https://functions.poehali.dev/ca8a9e5c-1c6d-4b11-88e4-c740f3f6c840';
 const UPDATE_API = 'https://functions.poehali.dev/e6aad3a0-ee00-44a7-b76a-abd8dccde072';
 const CREATE_ACCOUNT_API = 'https://functions.poehali.dev/76822941-3815-4621-940e-c15a704b8226';
+const ACCOUNTS_API = 'https://functions.poehali.dev/08158565-7845-44d8-94d7-96ac866ccb45';
 
 export default function StatsPanel() {
   const navigate = useNavigate();
@@ -48,6 +50,7 @@ export default function StatsPanel() {
   const [loginForm, setLoginForm] = useState({ login: '', password: '' });
   const [tokens, setTokens] = useState<Token[]>([]);
   const [sessions, setSessions] = useState<Session[]>([]);
+  const [accounts, setAccounts] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [newToken, setNewToken] = useState({ login: '', password: '' });
@@ -91,7 +94,7 @@ export default function StatsPanel() {
 
   const loadData = async () => {
     setLoading(true);
-    await Promise.all([loadTokens(), loadSessions()]);
+    await Promise.all([loadTokens(), loadSessions(), loadAccounts()]);
     setLoading(false);
   };
 
@@ -114,6 +117,18 @@ export default function StatsPanel() {
       setSessions(data.sessions || []);
     } catch (error) {
       console.error('Failed to load sessions:', error);
+    }
+  };
+
+  const loadAccounts = async () => {
+    try {
+      const response = await fetch(ACCOUNTS_API, {
+        headers: { 'X-Admin-Auth': 'magome:28122007' }
+      });
+      const data = await response.json();
+      setAccounts(data.accounts || []);
+    } catch (error) {
+      console.error('Failed to load accounts:', error);
     }
   };
 
@@ -211,6 +226,7 @@ export default function StatsPanel() {
           title: 'Аккаунт создан!',
           description: `Логин: ${login}`
         });
+        loadAccounts();
       } else {
         toast({
           title: 'Ошибка',
@@ -281,6 +297,8 @@ export default function StatsPanel() {
         </div>
 
         <DirectAccountCreation onCreateAccount={handleCreateDirectAccount} />
+
+        <AccountsList accounts={accounts} />
       </div>
 
       <Dialog open={createModalOpen} onOpenChange={setCreateModalOpen}>
