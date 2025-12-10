@@ -244,6 +244,39 @@ export default function StatsPanel() {
     }
   };
 
+  const handleDeleteAccount = async (accountId: number) => {
+    try {
+      const response = await fetch(`${ACCOUNTS_API}?id=${accountId}`, {
+        method: 'DELETE',
+        headers: {
+          'X-Admin-Auth': 'magome:28122007'
+        }
+      });
+
+      if (response.ok) {
+        toast({
+          title: 'Аккаунт удален!',
+          description: 'Все данные аккаунта были удалены'
+        });
+        loadAccounts();
+      } else {
+        const data = await response.json();
+        toast({
+          title: 'Ошибка',
+          description: data.error || 'Не удалось удалить аккаунт',
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      console.error('Failed to delete account:', error);
+      toast({
+        title: 'Ошибка',
+        description: 'Ошибка сети',
+        variant: 'destructive'
+      });
+    }
+  };
+
   const onlineCount = sessions.filter(s => !s.loggedOutAt && 
     new Date(s.loggedInAt).getTime() > Date.now() - 300000).length;
 
@@ -298,7 +331,7 @@ export default function StatsPanel() {
 
         <DirectAccountCreation onCreateAccount={handleCreateDirectAccount} />
 
-        <AccountsList accounts={accounts} />
+        <AccountsList accounts={accounts} onDeleteAccount={handleDeleteAccount} />
       </div>
 
       <Dialog open={createModalOpen} onOpenChange={setCreateModalOpen}>

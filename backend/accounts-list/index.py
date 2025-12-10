@@ -14,14 +14,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'statusCode': 200,
             'headers': {
                 'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'GET, OPTIONS',
+                'Access-Control-Allow-Methods': 'GET, DELETE, OPTIONS',
                 'Access-Control-Allow-Headers': 'Content-Type, X-Admin-Auth',
                 'Access-Control-Max-Age': '86400'
             },
             'body': ''
         }
     
-    if method != 'GET':
+    if method not in ['GET', 'DELETE']:
         return {
             'statusCode': 405,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
@@ -44,10 +44,71 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     conn = psycopg2.connect(dsn)
     cur = conn.cursor()
     
+    # DELETE method - удаление аккаунта
+    if method == 'DELETE':
+        params = event.get('queryStringParameters', {}) or {}
+        account_id = params.get('id')
+        
+        if not account_id:
+            cur.close()
+            conn.close()
+            return {
+                'statusCode': 400,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'isBase64Encoded': False,
+                'body': json.dumps({'error': 'Account ID required'})
+            }
+        
+        # Проверяем существование
+        cur.execute(
+            "SELECT login FROM t_p37207906_crypto_price_compara.platform_users WHERE id = %s",
+            (account_id,)
+        )
+        account = cur.fetchone()
+        
+        if not account:
+            cur.close()
+            conn.close()
+            return {
+                'statusCode': 404,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'isBase64Encoded': False,
+                'body': json.dumps({'error': 'Account not found'})
+            }
+        
+        login = account[0]
+        
+        # Удаляем сессии
+        cur.execute(
+            "DELETE FROM t_p37207906_crypto_price_compara.user_sessions WHERE user_id = %s",
+            (account_id,)
+        )
+        
+        # Удаляем сам аккаунт
+        cur.execute(
+            "DELETE FROM t_p37207906_crypto_price_compara.platform_users WHERE id = %s",
+            (account_id,)
+        )
+        
+        conn.commit()
+        cur.close()
+        conn.close()
+        
+        return {
+            'statusCode': 200,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'isBase64Encoded': False,
+            'body': json.dumps({
+                'message': f'Аккаунт {login} удален',
+                'deleted': {'id': int(account_id), 'login': login}
+            })
+        }
+    
     cur.execute("""
         SELECT 
             id, 
-            login, 
+            login,
+            password,
             registered_at, 
             last_login, 
             token_used, 
@@ -58,7 +119,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     accounts = []
     for row in cur.fetchall():
-        account_id, login, registered_at, last_login, token_used, is_active = row
+        account_id, login, password, registered_at, last_login, token_used, is_active = row
         
         cur.execute("""
             SELECT 
@@ -88,6 +149,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         accounts.append({
             'id': account_id,
             'login': login,
+            'password': password,
             'registered_at': registered_at.isoformat() if registered_at else None,
             'last_login': last_login.isoformat() if last_login else None,
             'token_used': token_used,

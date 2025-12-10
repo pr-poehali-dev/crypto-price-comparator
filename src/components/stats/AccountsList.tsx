@@ -15,6 +15,7 @@ interface Session {
 interface Account {
   id: number;
   login: string;
+  password: string;
   registered_at: string;
   last_login: string | null;
   token_used: string | null;
@@ -25,10 +26,30 @@ interface Account {
 
 interface AccountsListProps {
   accounts: Account[];
+  onDeleteAccount?: (accountId: number) => void;
 }
 
-export function AccountsList({ accounts }: AccountsListProps) {
+export function AccountsList({ accounts, onDeleteAccount }: AccountsListProps) {
   const [expandedId, setExpandedId] = useState<number | null>(null);
+  const [visiblePasswords, setVisiblePasswords] = useState<Set<number>>(new Set());
+
+  const togglePasswordVisibility = (accountId: number) => {
+    setVisiblePasswords(prev => {
+      const next = new Set(prev);
+      if (next.has(accountId)) {
+        next.delete(accountId);
+      } else {
+        next.add(accountId);
+      }
+      return next;
+    });
+  };
+
+  const handleDelete = (account: Account) => {
+    if (confirm(`Вы уверены, что хотите удалить аккаунт "${account.login}"? Это действие необратимо.`)) {
+      onDeleteAccount?.(account.id);
+    }
+  };
 
   return (
     <Card>
@@ -52,6 +73,22 @@ export function AccountsList({ accounts }: AccountsListProps) {
                     <div className="font-medium text-lg">{account.login}</div>
                     <div className="text-xs text-muted-foreground space-y-1 mt-1">
                       <div className="flex items-center gap-1">
+                        <Icon name="Lock" size={12} />
+                        Пароль: 
+                        <span className="font-mono ml-1">
+                          {visiblePasswords.has(account.id) ? account.password : '••••••••'}
+                        </span>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            togglePasswordVisibility(account.id);
+                          }}
+                          className="ml-1 hover:text-foreground transition-colors"
+                        >
+                          <Icon name={visiblePasswords.has(account.id) ? 'EyeOff' : 'Eye'} size={12} />
+                        </button>
+                      </div>
+                      <div className="flex items-center gap-1">
                         <Icon name="Calendar" size={12} />
                         Регистрация: {new Date(account.registered_at).toLocaleString('ru')}
                       </div>
@@ -70,6 +107,16 @@ export function AccountsList({ accounts }: AccountsListProps) {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(account);
+                      }}
+                      className="p-1.5 hover:bg-destructive/20 rounded transition-colors text-destructive"
+                      title="Удалить аккаунт"
+                    >
+                      <Icon name="Trash2" size={16} />
+                    </button>
                     <Badge variant={account.is_active ? 'default' : 'secondary'}>
                       {account.is_active ? 'Активен' : 'Неактивен'}
                     </Badge>
