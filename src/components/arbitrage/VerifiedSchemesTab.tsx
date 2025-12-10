@@ -33,6 +33,7 @@ interface VerifiedScheme {
   isVerified: boolean;
   verificationStatus: 'testing' | 'verified' | 'failed';
   lastChecked: Date;
+  isSmallDeposit?: boolean;
 }
 
 interface VerifiedSchemesTabProps {
@@ -77,6 +78,8 @@ export const VerifiedSchemesTab = ({ exchanges, selectedCrypto }: VerifiedScheme
         const netProfit = spreadValue - (buyExchange.price * buyExchange.fee / 100) - (sellExchange.price * sellExchange.fee / 100);
         const netProfitPercent = (netProfit / buyExchange.price) * 100;
         
+        const isSmallDeposit = netProfitPercent >= 3.0 && netProfitPercent <= 8.0;
+        
         if (netProfitPercent >= 0.3) {
           potentialSchemes.push({
             id: `${buyExchange.name}-${sellExchange.name}-${Date.now()}`,
@@ -94,7 +97,8 @@ export const VerifiedSchemesTab = ({ exchanges, selectedCrypto }: VerifiedScheme
             hasCards: !!(buyExchange.paymentMethod?.includes('Карт') || sellExchange.paymentMethod?.includes('Карт')),
             isVerified: false,
             verificationStatus: 'testing',
-            lastChecked: new Date()
+            lastChecked: new Date(),
+            isSmallDeposit
           });
         }
       }
@@ -129,6 +133,7 @@ export const VerifiedSchemesTab = ({ exchanges, selectedCrypto }: VerifiedScheme
   const verifiedCount = schemes.filter(s => s.isVerified).length;
   const cardsCount = schemes.filter(s => s.isVerified && s.hasCards).length;
   const noCardsCount = schemes.filter(s => s.isVerified && !s.hasCards).length;
+  const smallDepositCount = schemes.filter(s => s.isVerified && s.isSmallDeposit).length;
 
   const handleSchemeClick = (scheme: VerifiedScheme) => {
     setSelectedScheme(scheme);
@@ -208,13 +213,20 @@ export const VerifiedSchemesTab = ({ exchanges, selectedCrypto }: VerifiedScheme
 
           {schemes.length > 0 && (
             <>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                 <div className="p-4 rounded-lg bg-green-500/10 border border-green-500/30">
                   <div className="flex items-center gap-2 mb-1">
                     <Icon name="CheckCircle2" size={20} className="text-green-500" />
                     <span className="text-sm text-muted-foreground">Проверено связок</span>
                   </div>
                   <div className="text-2xl font-bold text-green-500">{verifiedCount}</div>
+                </div>
+                <div className="p-4 rounded-lg bg-amber-500/10 border border-amber-500/30">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Icon name="DollarSign" size={20} className="text-amber-500" />
+                    <span className="text-sm text-muted-foreground">Малый депозит</span>
+                  </div>
+                  <div className="text-2xl font-bold text-amber-500">{smallDepositCount}</div>
                 </div>
                 <div className="p-4 rounded-lg bg-blue-500/10 border border-blue-500/30">
                   <div className="flex items-center gap-2 mb-1">
@@ -273,6 +285,12 @@ export const VerifiedSchemesTab = ({ exchanges, selectedCrypto }: VerifiedScheme
                                   <Badge className="bg-green-500/20 text-green-500 border-green-500">
                                     <Icon name="Shield" size={12} className="mr-1" />
                                     Проверено
+                                  </Badge>
+                                )}
+                                {scheme.isSmallDeposit && (
+                                  <Badge variant="outline" className="bg-amber-500/10 text-amber-500 border-amber-500">
+                                    <Icon name="DollarSign" size={12} className="mr-1" />
+                                    Для малого депозита
                                   </Badge>
                                 )}
                               </div>
