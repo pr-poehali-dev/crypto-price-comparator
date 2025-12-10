@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { CardContent } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 import { SchemeDetailModal } from './SchemeDetailModal';
+import { VerifiedSchemesHeader } from './verified/VerifiedSchemesHeader';
+import { VerifiedSchemesStats } from './verified/VerifiedSchemesStats';
+import { VerifiedSchemeCard, VerifiedScheme } from './verified/VerifiedSchemeCard';
 
 interface Exchange {
   name: string;
@@ -14,26 +15,6 @@ interface Exchange {
   url?: string;
   dataSource?: string;
   paymentMethod?: string;
-}
-
-interface VerifiedScheme {
-  id: string;
-  buyFrom: string;
-  buyPrice: number;
-  buyFee: number;
-  sellTo: string;
-  sellPrice: number;
-  sellFee: number;
-  spreadValue: number;
-  netProfit: number;
-  netProfitPercent: number;
-  buyUrl?: string;
-  sellUrl?: string;
-  hasCards: boolean;
-  isVerified: boolean;
-  verificationStatus: 'testing' | 'verified' | 'failed';
-  lastChecked: Date;
-  isSmallDeposit?: boolean;
 }
 
 interface VerifiedSchemesTabProps {
@@ -280,238 +261,62 @@ export const VerifiedSchemesTab = ({ exchanges, selectedCrypto }: VerifiedScheme
 
   return (
     <>
-      <Card className="bg-card/50 backdrop-blur border-border">
-        <CardHeader>
-          <div className="flex items-center justify-between flex-wrap gap-3">
-            <div>
-              <CardTitle className="flex items-center gap-2 text-xl">
-                <Icon name="CheckCircle2" size={24} className="text-green-500" />
-                Проверенные связки
-              </CardTitle>
-              <CardDescription>Автоматически протестированные арбитражные схемы</CardDescription>
-            </div>
-            <div className="flex items-center gap-2">
-              {verifiedCount > 0 && (
-                <Badge className="bg-green-500/20 text-green-500 border-green-500">
-                  <Icon name="Shield" size={12} className="mr-1" />
-                  {verifiedCount} проверено
-                </Badge>
-              )}
-              <Button 
-                onClick={runAutoTest} 
-                disabled={isTesting || exchanges.length === 0}
-                size="sm"
-              >
-                {isTesting ? (
-                  <>
-                    <Icon name="Loader2" size={16} className="mr-2 animate-spin" />
-                    Тестирую...
-                  </>
-                ) : (
-                  <>
-                    <Icon name="RotateCw" size={16} className="mr-2" />
-                    Перепроверить
-                  </>
-                )}
-              </Button>
-            </div>
+      <VerifiedSchemesHeader
+        verifiedCount={verifiedCount}
+        isTesting={isTesting}
+        testProgress={testProgress}
+        onRetest={runAutoTest}
+        exchangesLength={exchanges.length}
+      />
+
+      <CardContent className="pt-6">
+        {exchanges.length === 0 && !isTesting && (
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <Icon name="RefreshCw" size={48} className="text-muted-foreground mb-4 animate-spin" />
+            <p className="text-lg font-semibold mb-2">Загрузка данных...</p>
+            <p className="text-sm text-muted-foreground">Получаем актуальные цены с бирж</p>
           </div>
-        </CardHeader>
-        <CardContent>
-          {isTesting && (
-            <div className="mb-6">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-muted-foreground">Проверка связок...</span>
-                <span className="text-sm font-semibold">{Math.round(testProgress)}%</span>
-              </div>
-              <div className="w-full bg-secondary rounded-full h-2">
-                <div 
-                  className="bg-primary h-2 rounded-full transition-all duration-300"
-                  style={{ width: `${testProgress}%` }}
-                />
-              </div>
-            </div>
-          )}
+        )}
 
-          {exchanges.length === 0 && !isTesting && (
-            <div className="flex flex-col items-center justify-center py-12 text-center">
-              <Icon name="RefreshCw" size={48} className="text-muted-foreground mb-4 animate-spin" />
-              <p className="text-lg font-semibold mb-2">Загрузка данных...</p>
-              <p className="text-sm text-muted-foreground">Получаем актуальные цены с бирж</p>
-            </div>
-          )}
-
-          {!isTesting && schemes.length === 0 && exchanges.length > 0 && (
-            <div className="flex flex-col items-center justify-center py-12 text-center">
-              <Icon name="SearchX" size={48} className="text-muted-foreground mb-4 opacity-50" />
-              <p className="text-lg font-semibold mb-2">Проверенных связок пока нет</p>
-              <p className="text-sm text-muted-foreground">Нажмите "Перепроверить" для запуска тестирования</p>
-            </div>
-          )}
-
-          {schemes.length > 0 && (
-            <>
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                <div className="p-4 rounded-lg bg-green-500/10 border border-green-500/30">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Icon name="CheckCircle2" size={20} className="text-green-500" />
-                    <span className="text-sm text-muted-foreground">Проверено связок</span>
-                  </div>
-                  <div className="text-2xl font-bold text-green-500">{verifiedCount}</div>
-                </div>
-                <div className="p-4 rounded-lg bg-amber-500/10 border border-amber-500/30">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Icon name="DollarSign" size={20} className="text-amber-500" />
-                    <span className="text-sm text-muted-foreground">Малый депозит</span>
-                  </div>
-                  <div className="text-2xl font-bold text-amber-500">{smallDepositCount}</div>
-                </div>
-                <div className="p-4 rounded-lg bg-blue-500/10 border border-blue-500/30">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Icon name="CreditCard" size={20} className="text-blue-500" />
-                    <span className="text-sm text-muted-foreground">С картами</span>
-                  </div>
-                  <div className="text-2xl font-bold text-blue-500">{cardsCount}</div>
-                </div>
-                <div className="p-4 rounded-lg bg-purple-500/10 border border-purple-500/30">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Icon name="Wallet" size={20} className="text-purple-500" />
-                    <span className="text-sm text-muted-foreground">Без карт</span>
-                  </div>
-                  <div className="text-2xl font-bold text-purple-500">{noCardsCount}</div>
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                {schemes
-                  .filter(s => s.verificationStatus !== 'failed')
-                  .sort((a, b) => b.netProfitPercent - a.netProfitPercent)
-                  .map((scheme, index) => (
-                    <Card 
-                      key={scheme.id}
-                      className={`${
-                        scheme.isVerified 
-                          ? 'bg-green-500/5 border-green-500/30 hover:bg-green-500/10' 
-                          : 'bg-card/50'
-                      } transition-all cursor-pointer`}
-                      onClick={() => handleSchemeClick(scheme)}
-                    >
-                      <CardContent className="pt-4">
-                        <div className="flex items-center justify-between gap-4">
-                          <div className="flex items-center gap-3 flex-1">
-                            {scheme.isVerified && (
-                              <div className="flex-shrink-0">
-                                <Icon name="CheckCircle2" size={32} className="text-green-500" />
-                              </div>
-                            )}
-                            {scheme.verificationStatus === 'testing' && (
-                              <div className="flex-shrink-0">
-                                <Icon name="Loader2" size={32} className="text-blue-500 animate-spin" />
-                              </div>
-                            )}
-                            
-                            <div className="flex-1 space-y-2">
-                              <div className="flex items-center gap-2 flex-wrap">
-                                <span className="font-semibold text-lg">#{index + 1}</span>
-                                {scheme.hasCards && (
-                                  <Badge variant="outline" className="bg-blue-500/10 text-blue-500 border-blue-500">
-                                    <Icon name="CreditCard" size={12} className="mr-1" />
-                                    Карты
-                                  </Badge>
-                                )}
-                                {scheme.isVerified && (
-                                  <Badge className="bg-green-500/20 text-green-500 border-green-500">
-                                    <Icon name="Shield" size={12} className="mr-1" />
-                                    Проверено
-                                  </Badge>
-                                )}
-                                {scheme.isSmallDeposit && (
-                                  <Badge variant="outline" className="bg-amber-500/10 text-amber-500 border-amber-500">
-                                    <Icon name="DollarSign" size={12} className="mr-1" />
-                                    Для малого депозита
-                                  </Badge>
-                                )}
-                              </div>
-                              
-                              <div className="flex items-center gap-2 text-sm">
-                                <Icon name="ShoppingCart" size={16} className="text-blue-500" />
-                                <span className="font-medium">{scheme.buyFrom}</span>
-                                <Badge variant="outline" className="text-xs">
-                                  ${scheme.buyPrice.toFixed(2)}
-                                </Badge>
-                                <Icon name="ArrowRight" size={16} className="text-muted-foreground" />
-                                <Icon name="TrendingUp" size={16} className="text-green-500" />
-                                <span className="font-medium">{scheme.sellTo}</span>
-                                <Badge variant="outline" className="text-xs">
-                                  ${scheme.sellPrice.toFixed(2)}
-                                </Badge>
-                              </div>
-
-                              <div className="text-xs text-muted-foreground">
-                                Последняя проверка: {scheme.lastChecked.toLocaleTimeString('ru-RU')}
-                              </div>
-                            </div>
-                          </div>
-                          
-                          <div className="flex flex-col items-end gap-2">
-                            <div className="text-2xl font-bold text-green-500">
-                              +{scheme.netProfitPercent.toFixed(2)}%
-                            </div>
-                            <div className="text-sm text-muted-foreground">
-                              ${scheme.netProfit.toFixed(2)} / {selectedCrypto}
-                            </div>
-                            <Button size="sm" variant="outline">
-                              <Icon name="ExternalLink" size={14} className="mr-2" />
-                              Открыть
-                            </Button>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-              </div>
-
-              {schemes.every(s => s.verificationStatus === 'failed') && (
-                <div className="flex flex-col items-center justify-center py-12 text-center">
-                  <Icon name="AlertCircle" size={48} className="text-yellow-500 mb-4" />
-                  <p className="text-lg font-semibold mb-2">Все связки не прошли проверку</p>
-                  <p className="text-sm text-muted-foreground mb-4">Попробуйте другую криптовалюту или обновите данные позже</p>
-                  <Button onClick={runAutoTest} disabled={isTesting}>
-                    <Icon name="RotateCw" size={16} className="mr-2" />
-                    Попробовать снова
-                  </Button>
-                </div>
-              )}
-            </>
-          )}
-
-          <div className="mt-6 p-4 rounded-lg bg-blue-500/5 border-blue-500/20">
-            <div className="flex items-start gap-3">
-              <Icon name="Info" size={20} className="text-blue-500 mt-0.5 flex-shrink-0" />
-              <div className="space-y-2 text-sm">
-                <p className="font-semibold">Как работает автоматическая проверка:</p>
-                <ul className="list-disc list-inside space-y-1 text-muted-foreground ml-2">
-                  <li>Система находит все возможные арбитражные связки</li>
-                  <li>Проверяет доступность бирж и актуальность цен</li>
-                  <li>Валидирует спреды и комиссии для реальной прибыли</li>
-                  <li>Тестирует стабильность ценового разрыва</li>
-                  <li>Показывает только проверенные связки с галочкой ✓</li>
-                  <li>Автоматически обновляется каждую минуту вместе с ценами</li>
-                </ul>
-              </div>
-            </div>
+        {!isTesting && schemes.length === 0 && exchanges.length > 0 && (
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <Icon name="SearchX" size={48} className="text-muted-foreground mb-4 opacity-50" />
+            <p className="text-lg font-semibold mb-2">Проверенных связок пока нет</p>
+            <p className="text-sm text-muted-foreground">Нажмите "Перепроверить" для запуска тестирования</p>
           </div>
-        </CardContent>
-      </Card>
+        )}
 
-      {selectedScheme && (
-        <SchemeDetailModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          scheme={selectedScheme}
-          crypto={selectedCrypto}
-        />
-      )}
+        {schemes.length > 0 && (
+          <>
+            <VerifiedSchemesStats
+              verifiedCount={verifiedCount}
+              smallDepositCount={smallDepositCount}
+              cardsCount={cardsCount}
+              noCardsCount={noCardsCount}
+            />
+
+            <div className="space-y-3">
+              {schemes
+                .filter(s => s.verificationStatus !== 'failed')
+                .sort((a, b) => b.netProfitPercent - a.netProfitPercent)
+                .map((scheme, index) => (
+                  <VerifiedSchemeCard
+                    key={scheme.id}
+                    scheme={scheme}
+                    index={index}
+                    onClick={() => handleSchemeClick(scheme)}
+                  />
+                ))}
+            </div>
+          </>
+        )}
+      </CardContent>
+
+      <SchemeDetailModal 
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        scheme={selectedScheme}
+      />
     </>
   );
 };
