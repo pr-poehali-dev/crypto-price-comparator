@@ -1,0 +1,37 @@
+{
+  "tests": [
+    {
+      "name": "Create account without auth",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "login": "testuser",
+        "password": "testpass"
+      },
+      "expectedStatus": 403,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Create account with auth",
+      "method": "POST",
+      "path": "/",
+      "headers": {
+        "X-Admin-Auth": "magome:28122007"
+      },
+      "body": {
+        "login": "maga",
+        "password": "1234"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true,
+        "login": "string",
+        "message": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
