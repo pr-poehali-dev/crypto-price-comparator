@@ -18,6 +18,7 @@ import { VerifiedSchemesTab } from '@/components/arbitrage/VerifiedSchemesTab';
 import { SpreadVisualization } from '@/components/arbitrage/SpreadVisualization';
 import { BestSchemeCard } from '@/components/arbitrage/BestSchemeCard';
 import { LoginPage } from '@/components/auth/LoginPage';
+import { initSession } from '@/lib/analytics';
 
 interface Exchange {
   name: string;
@@ -58,6 +59,10 @@ const Index = () => {
     { time: '+8ч', value: 95950 },
     { time: '+12ч', value: 96420 },
   ]);
+
+  useEffect(() => {
+    initSession();
+  }, []);
 
   useEffect(() => {
     const fetchRealPrices = async () => {
