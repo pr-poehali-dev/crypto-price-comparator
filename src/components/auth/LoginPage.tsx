@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import Icon from '@/components/ui/icon';
+import ChatAssistant from '@/components/ChatAssistant';
 
 interface LoginPageProps {
   onLogin: () => void;
@@ -105,6 +106,7 @@ export const LoginPage = ({ onLogin }: LoginPageProps) => {
           </form>
         </CardContent>
       </Card>
+      <ChatAssistant />
     </div>
   );
 };

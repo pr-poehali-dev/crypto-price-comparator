@@ -4,11 +4,8 @@
       "name": "Test AI assistant response",
       "method": "POST",
       "path": "/",
-      "headers": {
-        "X-Admin-Auth": "magome:28122007"
-      },
       "body": {
-        "message": "Как создать токен?",
+        "message": "Привет! Как дела?",
         "history": []
       },
       "expectedStatus": 200,
@@ -21,18 +18,6 @@
         }
       },
       "bodyMatcher": "partial"
-    },
-    {
-      "name": "Test unauthorized access",
-      "method": "POST",
-      "path": "/",
-      "body": {
-        "message": "test"
-      },
-      "expectedStatus": 401,
-      "expectedBody": {
-        "error": "Unauthorized"
-      }
     }
   ]
 }
