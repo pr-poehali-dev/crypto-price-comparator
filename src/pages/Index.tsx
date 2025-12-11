@@ -39,8 +39,12 @@ const Index = () => {
   const { toast } = useToast();
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [amount, setAmount] = useState<string>('1');
-  const [selectedCrypto, setSelectedCrypto] = useState<string>('BTC');
-  const [selectedCurrency, setSelectedCurrency] = useState<string>('RUB');
+  const [selectedCrypto, setSelectedCrypto] = useState<string>(() => {
+    return localStorage.getItem('selectedCrypto') || 'BTC';
+  });
+  const [selectedCurrency, setSelectedCurrency] = useState<string>(() => {
+    return localStorage.getItem('selectedCurrency') || 'RUB';
+  });
   const [notificationsEnabled, setNotificationsEnabled] = useState<boolean>(false);
   const [minProfitThreshold, setMinProfitThreshold] = useState<string>('0.3');
   const [minProfitFilter, setMinProfitFilter] = useState<string>('0.1');
@@ -213,7 +217,10 @@ const Index = () => {
                 <select
                   id="crypto"
                   value={selectedCrypto}
-                  onChange={(e) => setSelectedCrypto(e.target.value)}
+                  onChange={(e) => {
+                    setSelectedCrypto(e.target.value);
+                    localStorage.setItem('selectedCrypto', e.target.value);
+                  }}
                   className="w-full md:w-auto px-3 md:px-4 py-2 bg-background border border-border rounded-md font-semibold text-sm md:text-base text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                 >
                   <option value="BTC">Bitcoin (BTC)</option>
@@ -252,7 +259,10 @@ const Index = () => {
                 <select
                   id="currency"
                   value={selectedCurrency}
-                  onChange={(e) => setSelectedCurrency(e.target.value)}
+                  onChange={(e) => {
+                    setSelectedCurrency(e.target.value);
+                    localStorage.setItem('selectedCurrency', e.target.value);
+                  }}
                   className="w-full md:w-auto px-3 md:px-4 py-2 bg-background border border-border rounded-md font-semibold text-sm md:text-base text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                 >
                   <option value="RUB">Рубли (₽)</option>
