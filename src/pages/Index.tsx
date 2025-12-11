@@ -19,6 +19,7 @@ import { SpreadVisualization } from '@/components/arbitrage/SpreadVisualization'
 import { BestSchemeCard } from '@/components/arbitrage/BestSchemeCard';
 import { ProfitCalculator } from '@/components/arbitrage/ProfitCalculator';
 import { ProfitVisualization } from '@/components/arbitrage/ProfitVisualization';
+import { TradingHistory } from '@/components/arbitrage/TradingHistory';
 import { LoginPage } from '@/components/auth/LoginPage';
 import { initSession } from '@/lib/analytics';
 import { startCronScheduler } from '@/lib/cronScheduler';
@@ -275,6 +276,8 @@ const Index = () => {
             </CardContent>
           </Card>
         </div>
+
+        <TradingHistory />
 
         <Tabs defaultValue="arbitrage" className="w-full">
           <TabsList className="grid w-full grid-cols-7 mb-4 md:mb-6 h-auto">
