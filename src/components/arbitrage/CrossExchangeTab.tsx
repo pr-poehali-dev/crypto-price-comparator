@@ -23,6 +23,7 @@ interface Exchange {
 interface Props {
   exchanges: Exchange[];
   selectedCrypto: string;
+  selectedCurrency: string;
 }
 
 interface ArbitrageOpportunity {
@@ -37,7 +38,7 @@ interface ArbitrageOpportunity {
   sellUrl?: string;
 }
 
-export const CrossExchangeTab = ({ exchanges, selectedCrypto }: Props) => {
+export const CrossExchangeTab = ({ exchanges, selectedCrypto, selectedCurrency }: Props) => {
   const [sortBy, setSortBy] = useState<'spread' | 'profit' | 'volume'>('spread');
   const [minSpread, setMinSpread] = useState<number>(2.5);
 
@@ -217,16 +218,16 @@ export const CrossExchangeTab = ({ exchanges, selectedCrypto }: Props) => {
                       
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 md:gap-3 text-xs md:text-sm">
                         <div>
-                          <p className="text-muted-foreground">Цена покупки</p>
-                          <p className="font-semibold">${opp.buyPrice.toLocaleString()}</p>
+                          <p className="text-muted-foreground">Спред</p>
+                          <p className="font-semibold text-green-500">{opp.spread.toFixed(2)}%</p>
                         </div>
                         <div>
-                          <p className="text-muted-foreground">Цена продажи</p>
-                          <p className="font-semibold">${opp.sellPrice.toLocaleString()}</p>
+                          <p className="text-muted-foreground">Прибыль</p>
+                          <p className="font-semibold">{opp.profit.toFixed(2)}%</p>
                         </div>
                         <div className="col-span-2 sm:col-span-1">
                           <p className="text-muted-foreground">Объем</p>
-                          <p className="font-semibold">${(opp.volume / 1000).toFixed(0)}K</p>
+                          <p className="font-semibold">{selectedCurrency === 'RUB' ? '₽' : '$'}{(opp.volume / 1000).toFixed(0)}K</p>
                         </div>
                       </div>
                     </div>

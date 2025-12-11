@@ -40,6 +40,7 @@ const Index = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [amount, setAmount] = useState<string>('1');
   const [selectedCrypto, setSelectedCrypto] = useState<string>('BTC');
+  const [selectedCurrency, setSelectedCurrency] = useState<string>('RUB');
   const [notificationsEnabled, setNotificationsEnabled] = useState<boolean>(false);
   const [minProfitThreshold, setMinProfitThreshold] = useState<string>('0.3');
   const [minProfitFilter, setMinProfitFilter] = useState<string>('0.1');
@@ -217,6 +218,7 @@ const Index = () => {
                 >
                   <option value="BTC">Bitcoin (BTC)</option>
                   <option value="ETH">Ethereum (ETH)</option>
+                  <option value="USDT">Tether (USDT)</option>
                   <option value="SOL">Solana (SOL)</option>
                   <option value="XRP">Ripple (XRP)</option>
                   <option value="BNB">Binance Coin (BNB)</option>
@@ -241,36 +243,21 @@ const Index = () => {
 
           <Card className="bg-card/50 backdrop-blur border-border">
             <CardContent className="pt-4 md:pt-6 px-4 pb-4">
-              <div className="flex flex-col gap-3">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center space-x-3">
-                    <Icon name="Bell" size={20} className="text-primary hidden md:block" />
-                    <div>
-                      <Label htmlFor="notifications" className="text-sm md:text-base font-semibold">Автопоиск схем</Label>
-                      <p className="text-xs md:text-sm text-muted-foreground hidden md:block">Автоматический поиск лучших арбитражных схем</p>
-                    </div>
-                  </div>
-                  <Switch
-                    id="notifications"
-                    checked={notificationsEnabled}
-                    onCheckedChange={setNotificationsEnabled}
-                  />
+              <div className="flex flex-col md:flex-row md:items-center gap-3 md:gap-4">
+                <Icon name="DollarSign" size={20} className="text-primary hidden md:block" />
+                <div className="flex-1">
+                  <Label htmlFor="currency" className="text-sm md:text-base font-semibold">Валюта</Label>
+                  <p className="text-xs md:text-sm text-muted-foreground">Выберите валюту для расчетов</p>
                 </div>
-                {notificationsEnabled && (
-                  <div className="flex items-center gap-2">
-                    <Label htmlFor="threshold" className="text-xs md:text-sm whitespace-nowrap">Мин. прибыль:</Label>
-                    <Input
-                      id="threshold"
-                      type="number"
-                      step="0.1"
-                      value={minProfitThreshold}
-                      onChange={(e) => setMinProfitThreshold(e.target.value)}
-                      className="w-16 md:w-20 text-sm"
-                      inputMode="decimal"
-                    />
-                    <span className="text-xs md:text-sm text-muted-foreground">%</span>
-                  </div>
-                )}
+                <select
+                  id="currency"
+                  value={selectedCurrency}
+                  onChange={(e) => setSelectedCurrency(e.target.value)}
+                  className="w-full md:w-auto px-3 md:px-4 py-2 bg-background border border-border rounded-md font-semibold text-sm md:text-base text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                >
+                  <option value="RUB">Рубли (₽)</option>
+                  <option value="USD">Доллары ($)</option>
+                </select>
               </div>
             </CardContent>
           </Card>
@@ -342,7 +329,7 @@ const Index = () => {
           </TabsContent>
 
           <TabsContent value="cross-exchange" className="space-y-6">
-            <CrossExchangeTab exchanges={exchanges} selectedCrypto={selectedCrypto} />
+            <CrossExchangeTab exchanges={exchanges} selectedCrypto={selectedCrypto} selectedCurrency={selectedCurrency} />
           </TabsContent>
 
           <TabsContent value="verified" className="space-y-6">
