@@ -51,6 +51,7 @@ const Index = () => {
   const [lastNotificationTime, setLastNotificationTime] = useState<number>(0);
   const [exchanges, setExchanges] = useState<Exchange[]>([]);
   const [isLoadingPrices, setIsLoadingPrices] = useState<boolean>(true);
+  const [usdRubRate, setUsdRubRate] = useState<number | null>(null);
 
   const [priceHistory] = useState([
     { time: '00:00', spread: 120, profit: 0.12 },
@@ -78,6 +79,26 @@ const Index = () => {
     if (auth) {
       setIsAuthenticated(true);
     }
+
+    const fetchUsdRubRate = async () => {
+      try {
+        const response = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
+        if (response.ok) {
+          const data = await response.json();
+          setUsdRubRate(data.rates.RUB);
+        }
+      } catch (error) {
+        console.error('Failed to fetch USD/RUB rate:', error);
+        setUsdRubRate(95.0);
+      }
+    };
+
+    fetchUsdRubRate();
+    const rateInterval = setInterval(fetchUsdRubRate, 300000);
+
+    return () => {
+      clearInterval(rateInterval);
+    };
   }, []);
 
   useEffect(() => {
@@ -166,19 +187,27 @@ const Index = () => {
               </h1>
               <p className="text-muted-foreground mt-1 text-xs md:text-base">Мониторинг арбитража в реальном времени</p>
             </div>
-            {isLoadingPrices ? (
-              <Badge variant="outline" className="text-accent border-accent text-xs shrink-0">
-                <Icon name="RefreshCw" size={12} className="mr-1 animate-spin" />
-                <span className="hidden sm:inline">Обновление...</span>
-              </Badge>
-            ) : (
-              <div className="animate-pulse-glow shrink-0">
-                <Badge variant="outline" className="text-primary border-primary text-xs">
-                  <Icon name="Radio" size={12} className="mr-1" />
-                  LIVE
+            <div className="flex items-center gap-2 shrink-0">
+              {selectedCurrency === 'RUB' && usdRubRate && (
+                <Badge variant="outline" className="text-blue-500 border-blue-500/30 bg-blue-500/10 text-xs">
+                  <Icon name="DollarSign" size={12} className="mr-1" />
+                  ${1} = ₽{usdRubRate.toFixed(2)}
                 </Badge>
-              </div>
-            )}
+              )}
+              {isLoadingPrices ? (
+                <Badge variant="outline" className="text-accent border-accent text-xs">
+                  <Icon name="RefreshCw" size={12} className="mr-1 animate-spin" />
+                  <span className="hidden sm:inline">Обновление...</span>
+                </Badge>
+              ) : (
+                <div className="animate-pulse-glow">
+                  <Badge variant="outline" className="text-primary border-primary text-xs">
+                    <Icon name="Radio" size={12} className="mr-1" />
+                    LIVE
+                  </Badge>
+                </div>
+              )}
+            </div>
           </div>
           <div className="flex items-center gap-2 overflow-x-auto -mx-2 px-2 pb-1">
             <Button 
