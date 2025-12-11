@@ -86,3 +86,42 @@
 .animate-shimmer {
   animation: shimmer 2s infinite;
 }
+
+/* Custom scrollbar styles */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: rgba(139, 92, 246, 0.2);
+  border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: rgba(139, 92, 246, 0.4);
+}
+
+.scrollbar-thumb-purple-500\/20::-webkit-scrollbar-thumb {
+  background: rgba(168, 85, 247, 0.2);
+}
+
+.scrollbar-thumb-purple-500\/30::-webkit-scrollbar-thumb {
+  background: rgba(168, 85, 247, 0.3);
+}
+
+.scrollbar-track-transparent::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Line clamp utility */
+.line-clamp-1 {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

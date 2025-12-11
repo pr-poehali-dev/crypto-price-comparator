@@ -199,11 +199,11 @@ export const AIAssistantTab = ({ selectedCurrency }: Props) => {
           </div>
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-3 p-4">
-        <div className="h-[420px] overflow-y-auto space-y-3 p-3 bg-gradient-to-b from-muted/30 to-muted/10 rounded-lg border border-border/50">
+      <CardContent className="space-y-3 p-3 md:p-4">
+        <div className="h-[450px] md:h-[500px] overflow-y-auto space-y-3 p-2 md:p-3 bg-gradient-to-b from-muted/30 to-muted/10 rounded-lg border border-border/50 scrollbar-thin scrollbar-thumb-purple-500/20 scrollbar-track-transparent">
             {messages.map((msg, idx) => (
               <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2 duration-300`}>
-                <div className={`max-w-[90%] ${msg.role === 'user' ? 'bg-gradient-to-br from-primary to-primary/90 text-primary-foreground shadow-lg shadow-primary/20' : 'bg-gradient-to-br from-card to-card/80 border border-purple-500/20 shadow-md'} rounded-2xl p-3 md:p-4`}>
+                <div className={`max-w-[95%] ${msg.role === 'user' ? 'bg-gradient-to-br from-primary to-primary/90 text-primary-foreground shadow-lg shadow-primary/20' : 'bg-gradient-to-br from-card to-card/80 border border-purple-500/20 shadow-md'} rounded-2xl p-2.5 md:p-3`}>
                   <div className="flex items-center gap-2 mb-2">
                     <div className={`p-1.5 rounded-full ${msg.role === 'user' ? 'bg-primary-foreground/20' : 'bg-purple-500/20'}`}>
                       <Icon name={msg.role === 'user' ? 'User' : 'Sparkles'} size={14} className={msg.role === 'user' ? 'text-primary-foreground' : 'text-purple-400'} />
@@ -213,35 +213,34 @@ export const AIAssistantTab = ({ selectedCurrency }: Props) => {
                   <div className="text-xs md:text-sm whitespace-pre-line leading-relaxed">{msg.content}</div>
                   
                   {msg.chains && msg.chains.length > 0 && (
-                    <div className="mt-3 space-y-2">
+                    <div className="mt-2 space-y-1.5 max-h-[300px] overflow-y-auto scrollbar-thin scrollbar-thumb-purple-500/30 scrollbar-track-transparent">
                       {msg.chains.map((chain, i) => (
-                        <div key={i} className="p-2.5 bg-gradient-to-r from-background/80 to-background/60 rounded-lg border border-purple-500/20 hover:border-purple-500/40 transition-colors">
-                          <div className="flex items-center justify-between mb-1.5">
-                            <div className="flex items-center gap-2">
-                              <Badge variant="outline" className="bg-purple-500/20 text-purple-400 border-purple-500/30 text-[10px] px-1.5 py-0.5">
+                        <div key={i} className="p-2 bg-gradient-to-r from-background/80 to-background/60 rounded-lg border border-purple-500/20 hover:border-purple-500/40 transition-colors">
+                          <div className="flex items-center justify-between mb-1">
+                            <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                              <Badge variant="outline" className="bg-purple-500/20 text-purple-400 border-purple-500/30 text-[9px] px-1 py-0">
                                 #{i + 1}
                               </Badge>
-                              <div className="flex items-center gap-1 text-[10px]">
+                              <div className="flex items-center gap-0.5 text-[9px] flex-wrap">
                                 {chain.chain.map((crypto, j) => (
                                   <span key={j} className="flex items-center gap-0.5">
                                     <span className="font-bold text-purple-300">{crypto}</span>
-                                    {j < chain.chain.length - 1 && <Icon name="MoveRight" size={10} className="text-purple-400" />}
+                                    {j < chain.chain.length - 1 && <Icon name="MoveRight" size={8} className="text-purple-400" />}
                                   </span>
                                 ))}
                               </div>
                             </div>
-                            <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white text-[10px] px-2 py-0.5 shadow-sm">
+                            <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white text-[9px] px-1.5 py-0 shadow-sm shrink-0 ml-1">
                               +{chain.profitPercent.toFixed(2)}%
                             </Badge>
                           </div>
-                          <div className="text-[10px] text-muted-foreground mb-1.5 italic">{chain.description}</div>
-                          <div className="flex items-center gap-1.5 text-[10px] mb-1.5">
-                            <Icon name="Building2" size={10} className="text-purple-400" />
-                            <span className="text-muted-foreground">{chain.exchanges.join(' → ')}</span>
-                          </div>
-                          <div className="pt-1.5 border-t border-border/30 text-[10px] flex justify-between items-center">
-                            <span className="text-muted-foreground">С {currencySymbol}1000:</span>
-                            <span className="font-bold text-green-400">+{currencySymbol}{(1000 * multiplier * chain.profitPercent / 100).toFixed(2)}</span>
+                          <div className="text-[9px] text-muted-foreground mb-1 line-clamp-1">{chain.description}</div>
+                          <div className="flex items-center justify-between text-[9px]">
+                            <div className="flex items-center gap-1 flex-1 min-w-0">
+                              <Icon name="Building2" size={8} className="text-purple-400 shrink-0" />
+                              <span className="text-muted-foreground truncate">{chain.exchanges.join(' → ')}</span>
+                            </div>
+                            <span className="font-bold text-green-400 shrink-0 ml-2">+{currencySymbol}{(1000 * multiplier * chain.profitPercent / 100).toFixed(0)}</span>
                           </div>
                         </div>
                       ))}
@@ -278,17 +277,17 @@ export const AIAssistantTab = ({ selectedCurrency }: Props) => {
                   handleSend();
                 }
               }}
-              placeholder="Задай вопрос или опиши, какие связки ищешь..."
-              className="resize-none min-h-[50px] text-xs md:text-sm border-purple-500/20 focus-visible:ring-purple-500/50 bg-background/50"
+              placeholder="Задай вопрос или опиши связки..."
+              className="resize-none min-h-[45px] text-xs border-purple-500/20 focus-visible:ring-purple-500/50 bg-background/50"
               disabled={isLoading}
             />
             <Button 
               onClick={handleSend} 
               disabled={!input.trim() || isLoading}
-              className="shrink-0 px-4 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 shadow-lg shadow-purple-500/30"
+              className="shrink-0 px-3 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 shadow-lg shadow-purple-500/30"
               size="sm"
             >
-              <Icon name="Send" size={16} />
+              <Icon name="Send" size={14} />
             </Button>
           </div>
 

@@ -178,56 +178,58 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background p-3 md:p-8">
-      <div className="max-w-7xl mx-auto space-y-4 md:space-y-6">
-        <header className="space-y-3 pb-4 border-b border-border mb-4 md:mb-6">
+    <div className="min-h-screen bg-gradient-to-b from-background via-background to-background/95 p-2 md:p-6">
+      <div className="max-w-[1600px] mx-auto space-y-3 md:space-y-5">
+        <header className="space-y-2 pb-3 border-b border-border/50 mb-3 md:mb-5 bg-gradient-to-r from-card/30 to-transparent rounded-lg p-3 md:p-4">
           <div className="flex items-start justify-between gap-2">
             <div className="flex-1 min-w-0">
-              <h1 className="text-xl md:text-4xl font-bold text-foreground flex items-center gap-2">
-                <Icon name="TrendingUp" size={24} className="text-primary shrink-0 md:w-9 md:h-9" />
+              <h1 className="text-lg md:text-3xl font-bold text-foreground flex items-center gap-2">
+                <div className="p-1.5 md:p-2 bg-primary/20 rounded-lg">
+                  <Icon name="TrendingUp" size={20} className="text-primary shrink-0 md:w-7 md:h-7" />
+                </div>
                 <span className="truncate">CryptoArbitrage Pro</span>
               </h1>
-              <p className="text-muted-foreground mt-1 text-xs md:text-base">Мониторинг арбитража в реальном времени</p>
+              <p className="text-muted-foreground mt-1 text-[10px] md:text-sm">Умный поиск арбитражных возможностей в реальном времени</p>
             </div>
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex flex-col items-end gap-1 shrink-0">
               {selectedCurrency === 'RUB' && usdRubRate && (
-                <Badge variant="outline" className="text-blue-500 border-blue-500/30 bg-blue-500/10 text-xs">
-                  <Icon name="DollarSign" size={12} className="mr-1" />
+                <Badge variant="outline" className="text-blue-400 border-blue-500/30 bg-blue-500/10 text-[10px] md:text-xs">
+                  <Icon name="DollarSign" size={10} className="mr-0.5" />
                   ${1} = ₽{usdRubRate.toFixed(2)}
                 </Badge>
               )}
               {isLoadingPrices ? (
-                <Badge variant="outline" className="text-accent border-accent text-xs">
-                  <Icon name="RefreshCw" size={12} className="mr-1 animate-spin" />
-                  <span className="hidden sm:inline">Обновление...</span>
+                <Badge variant="outline" className="text-accent border-accent/50 bg-accent/10 text-[10px] md:text-xs">
+                  <Icon name="RefreshCw" size={10} className="mr-0.5 animate-spin" />
+                  <span className="hidden sm:inline">Обновление</span>
                 </Badge>
               ) : (
                 <div className="animate-pulse-glow">
-                  <Badge variant="outline" className="text-primary border-primary text-xs">
-                    <Icon name="Radio" size={12} className="mr-1" />
+                  <Badge variant="outline" className="text-primary border-primary/50 bg-primary/10 text-[10px] md:text-xs shadow-sm shadow-primary/20">
+                    <Icon name="Radio" size={10} className="mr-0.5" />
                     LIVE
                   </Badge>
                 </div>
               )}
             </div>
           </div>
-          <div className="flex items-center gap-2 overflow-x-auto -mx-2 px-2 pb-1">
+          <div className="flex items-center gap-1.5 overflow-x-auto -mx-2 px-2 pb-1">
             <Button 
               variant="outline" 
               size="sm"
-              className="shrink-0 h-8 text-xs px-3"
+              className="shrink-0 h-7 text-[10px] md:text-xs px-2 md:px-3 border-border/50 hover:bg-card/50"
               onClick={() => {
                 localStorage.removeItem('platformAuth');
                 setIsAuthenticated(false);
                 toast({ title: 'Вы вышли из аккаунта' });
               }}
             >
-              <Icon name="LogOut" size={14} className="mr-1.5" />
+              <Icon name="LogOut" size={12} className="mr-1" />
               Выход
             </Button>
             <Link to="/login" className="shrink-0">
-              <Button variant="outline" size="sm" className="h-8 text-xs px-3">
-                <Icon name="Settings" size={14} className="mr-1.5" />
+              <Button variant="outline" size="sm" className="h-7 text-[10px] md:text-xs px-2 md:px-3 border-border/50 hover:bg-card/50">
+                <Icon name="Settings" size={12} className="mr-1" />
                 Админ
               </Button>
             </Link>
@@ -236,8 +238,8 @@ const Index = () => {
 
         <BestSchemeCard exchanges={exchanges} selectedCrypto={selectedCrypto} selectedCurrency={selectedCurrency} />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
-          <Card className="bg-card/50 backdrop-blur border-border">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3">
+          <Card className="bg-card/40 backdrop-blur border-border/50 hover:border-border transition-colors">
             <CardContent className="pt-4 md:pt-6 px-4 pb-4">
               <div className="flex flex-col md:flex-row md:items-center gap-3 md:gap-4">
                 <Icon name="Coins" size={20} className="text-primary hidden md:block" />
@@ -279,7 +281,7 @@ const Index = () => {
             </CardContent>
           </Card>
 
-          <Card className="bg-card/50 backdrop-blur border-border">
+          <Card className="bg-card/40 backdrop-blur border-border/50 hover:border-border transition-colors">
             <CardContent className="pt-4 md:pt-6 px-4 pb-4">
               <div className="flex flex-col md:flex-row md:items-center gap-3 md:gap-4">
                 <Icon name="DollarSign" size={20} className="text-primary hidden md:block" />
@@ -305,7 +307,7 @@ const Index = () => {
         </div>
 
         <Tabs defaultValue="arbitrage" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 md:grid-cols-7 mb-4 md:mb-6 h-auto gap-1">
+          <TabsList className="grid w-full grid-cols-4 md:grid-cols-7 mb-3 md:mb-4 h-auto gap-1 bg-card/30 p-1">
             <TabsTrigger value="arbitrage" className="flex-col md:flex-row gap-1 md:gap-2 py-2 md:py-2.5 text-xs md:text-sm">
               <Icon name="ArrowLeftRight" size={14} className="md:mr-0" />
               <span className="hidden md:inline">Арбитраж</span>
@@ -340,8 +342,8 @@ const Index = () => {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="arbitrage" className="space-y-4 md:space-y-6">
-            <Card className="bg-card/50 backdrop-blur border-border">
+          <TabsContent value="arbitrage" className="space-y-3 md:space-y-4">
+            <Card className="bg-card/40 backdrop-blur border-border/50">
               <CardContent className="pt-4 md:pt-6 px-4 pb-4">
                 <div className="flex flex-col md:flex-row md:items-center gap-3 md:gap-4">
                   <Icon name="Filter" size={20} className="text-accent hidden md:block" />
@@ -369,31 +371,31 @@ const Index = () => {
             <ArbitrageTab exchanges={exchanges} selectedCrypto={selectedCrypto} minProfitFilter={parseFloat(minProfitFilter) || 3.0} selectedCurrency={selectedCurrency} />
           </TabsContent>
 
-          <TabsContent value="cross-exchange" className="space-y-6">
+          <TabsContent value="cross-exchange" className="space-y-3 md:space-y-4">
             <CrossExchangeTab exchanges={exchanges} selectedCrypto={selectedCrypto} selectedCurrency={selectedCurrency} />
           </TabsContent>
 
-          <TabsContent value="crypto-chains" className="space-y-6">
+          <TabsContent value="crypto-chains" className="space-y-3 md:space-y-4">
             <CryptoChainsTab selectedCurrency={selectedCurrency} />
           </TabsContent>
 
-          <TabsContent value="verified" className="space-y-6">
+          <TabsContent value="verified" className="space-y-3 md:space-y-4">
             <VerifiedSchemesTab exchanges={exchanges} selectedCrypto={selectedCrypto} />
           </TabsContent>
 
-          <TabsContent value="no-cards" className="space-y-6">
+          <TabsContent value="no-cards" className="space-y-3 md:space-y-4">
             <NoCardsTab exchanges={exchanges} selectedCrypto={selectedCrypto} />
           </TabsContent>
 
-          <TabsContent value="spreads" className="space-y-6">
+          <TabsContent value="spreads" className="space-y-3 md:space-y-4">
             <SpreadVisualization exchanges={exchanges} selectedCrypto={selectedCrypto} />
           </TabsContent>
 
-          <TabsContent value="analytics" className="space-y-6">
+          <TabsContent value="analytics" className="space-y-3 md:space-y-4">
             <AnalyticsTab priceHistory={priceHistory} />
           </TabsContent>
 
-          <TabsContent value="ai" className="space-y-4 md:space-y-6">
+          <TabsContent value="ai" className="space-y-3 md:space-y-4">
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-3 md:gap-4 items-start">
               <AIPredictionTab 
                 aiPrediction={aiPrediction} 
