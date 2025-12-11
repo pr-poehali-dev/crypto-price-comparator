@@ -11,7 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import Icon from '@/components/ui/icon';
 import { ArbitrageTab } from '@/components/arbitrage/ArbitrageTab';
 import { NoCardsTab } from '@/components/arbitrage/NoCardsTab';
-import { CalculatorTab } from '@/components/arbitrage/CalculatorTab';
+
 import { AnalyticsTab } from '@/components/arbitrage/AnalyticsTab';
 import { AIPredictionTab } from '@/components/arbitrage/AIPredictionTab';
 import { VerifiedSchemesTab } from '@/components/arbitrage/VerifiedSchemesTab';
@@ -305,7 +305,7 @@ const Index = () => {
         </div>
 
         <Tabs defaultValue="arbitrage" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 md:grid-cols-9 mb-4 md:mb-6 h-auto gap-1">
+          <TabsList className="grid w-full grid-cols-4 md:grid-cols-7 mb-4 md:mb-6 h-auto gap-1">
             <TabsTrigger value="arbitrage" className="flex-col md:flex-row gap-1 md:gap-2 py-2 md:py-2.5 text-xs md:text-sm">
               <Icon name="ArrowLeftRight" size={14} className="md:mr-0" />
               <span className="hidden md:inline">Арбитраж</span>
@@ -330,19 +330,11 @@ const Index = () => {
               <Icon name="BarChart3" size={14} className="md:mr-0" />
               <span className="hidden md:inline">Схемы</span>
             </TabsTrigger>
-            <TabsTrigger value="calculator" className="flex-col md:flex-row gap-1 md:gap-2 py-2 md:py-2.5 text-xs md:text-sm">
-              <Icon name="Calculator" size={14} className="md:mr-0" />
-              <span className="hidden md:inline">Калькулятор</span>
-            </TabsTrigger>
             <TabsTrigger value="analytics" className="flex-col md:flex-row gap-1 md:gap-2 py-2 md:py-2.5 text-xs md:text-sm">
               <Icon name="LineChart" size={14} className="md:mr-0" />
               <span className="hidden md:inline">Аналитика</span>
             </TabsTrigger>
             <TabsTrigger value="ai" className="flex-col md:flex-row gap-1 md:gap-2 py-2 md:py-2.5 text-xs md:text-sm">
-              <Icon name="Brain" size={14} className="md:mr-0" />
-              <span className="hidden md:inline">AI Прогноз</span>
-            </TabsTrigger>
-            <TabsTrigger value="ai-assistant" className="flex-col md:flex-row gap-1 md:gap-2 py-2 md:py-2.5 text-xs md:text-sm">
               <Icon name="Bot" size={14} className="md:mr-0" />
               <span className="hidden md:inline">AI Помощник</span>
             </TabsTrigger>
@@ -397,29 +389,23 @@ const Index = () => {
             <SpreadVisualization exchanges={exchanges} selectedCrypto={selectedCrypto} />
           </TabsContent>
 
-          <TabsContent value="calculator" className="space-y-6">
-            <CalculatorTab 
-              exchanges={exchanges} 
-              selectedCrypto={selectedCrypto}
-              amount={amount}
-              setAmount={setAmount}
-            />
-          </TabsContent>
-
           <TabsContent value="analytics" className="space-y-6">
             <AnalyticsTab priceHistory={priceHistory} />
           </TabsContent>
 
           <TabsContent value="ai" className="space-y-6">
-            <AIPredictionTab 
-              aiPrediction={aiPrediction} 
-              exchanges={exchanges}
-              selectedCrypto={selectedCrypto}
-            />
-          </TabsContent>
-
-          <TabsContent value="ai-assistant" className="space-y-6">
-            <AIAssistantTab selectedCurrency={selectedCurrency} />
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 md:gap-6">
+              <div>
+                <AIPredictionTab 
+                  aiPrediction={aiPrediction} 
+                  exchanges={exchanges}
+                  selectedCrypto={selectedCrypto}
+                />
+              </div>
+              <div>
+                <AIAssistantTab selectedCurrency={selectedCurrency} />
+              </div>
+            </div>
           </TabsContent>
         </Tabs>
 
