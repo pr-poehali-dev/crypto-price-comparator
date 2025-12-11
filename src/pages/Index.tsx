@@ -80,7 +80,7 @@ const Index = () => {
     const fetchRealPrices = async () => {
       setIsLoadingPrices(true);
       try {
-        const response = await fetch(`https://functions.poehali.dev/ac977fcc-5718-4e2b-b050-2421e770d97e?crypto=${selectedCrypto}`, {
+        const response = await fetch(`https://functions.poehali.dev/ac977fcc-5718-4e2b-b050-2421e770d97e?crypto=${selectedCrypto}&currency=${selectedCurrency}`, {
           headers: {
             'Cache-Control': 'no-cache, no-store, must-revalidate',
             'Pragma': 'no-cache'
@@ -90,7 +90,7 @@ const Index = () => {
           const data = await response.json();
           if (data.exchanges && data.exchanges.length > 0) {
             setExchanges(data.exchanges);
-            console.log(`✅ Загружено ${data.exchanges.length} бирж для ${selectedCrypto}`);
+            console.log(`✅ Загружено ${data.exchanges.length} бирж для ${selectedCrypto} в ${selectedCurrency}`);
           }
         } else {
           console.error('API response error:', response.status);
@@ -108,7 +108,7 @@ const Index = () => {
     return () => {
       clearInterval(priceInterval);
     };
-  }, [selectedCrypto]);
+  }, [selectedCrypto, selectedCurrency]);
 
   useEffect(() => {
     if (!notificationsEnabled || exchanges.length === 0) return;
@@ -199,7 +199,7 @@ const Index = () => {
           </div>
         </header>
 
-        <BestSchemeCard exchanges={exchanges} selectedCrypto={selectedCrypto} />
+        <BestSchemeCard exchanges={exchanges} selectedCrypto={selectedCrypto} selectedCurrency={selectedCurrency} />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
           <Card className="bg-card/50 backdrop-blur border-border">
@@ -325,7 +325,7 @@ const Index = () => {
                 </div>
               </CardContent>
             </Card>
-            <ArbitrageTab exchanges={exchanges} selectedCrypto={selectedCrypto} minProfitFilter={parseFloat(minProfitFilter) || 3.0} />
+            <ArbitrageTab exchanges={exchanges} selectedCrypto={selectedCrypto} minProfitFilter={parseFloat(minProfitFilter) || 3.0} selectedCurrency={selectedCurrency} />
           </TabsContent>
 
           <TabsContent value="cross-exchange" className="space-y-6">

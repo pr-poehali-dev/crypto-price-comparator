@@ -17,6 +17,7 @@ interface Exchange {
 interface BestSchemeCardProps {
   exchanges: Exchange[];
   selectedCrypto: string;
+  selectedCurrency: string;
 }
 
 interface BestScheme {
@@ -31,7 +32,7 @@ interface BestScheme {
   sellPrice: number;
 }
 
-export const BestSchemeCard = ({ exchanges, selectedCrypto }: BestSchemeCardProps) => {
+export const BestSchemeCard = ({ exchanges, selectedCrypto, selectedCurrency }: BestSchemeCardProps) => {
   const [bestScheme, setBestScheme] = useState<BestScheme | null>(null);
   const [isNew, setIsNew] = useState(false);
   const [schemeModalOpen, setSchemeModalOpen] = useState(false);
@@ -126,7 +127,7 @@ export const BestSchemeCard = ({ exchanges, selectedCrypto }: BestSchemeCardProp
             <div className="text-xs text-muted-foreground mb-1">1. Купить на</div>
             <div className="text-lg md:text-xl font-bold text-accent">{bestScheme.buyFrom}</div>
             <div className="text-xs md:text-sm text-muted-foreground mt-1">
-              ${bestScheme.buyPrice.toFixed(2)}
+              {selectedCurrency === 'RUB' ? '₽' : '$'}{bestScheme.buyPrice.toFixed(2)}
             </div>
           </div>
 
@@ -136,7 +137,7 @@ export const BestSchemeCard = ({ exchanges, selectedCrypto }: BestSchemeCardProp
               <Icon name="ArrowDown" size={32} className="text-primary mx-auto mb-1 md:hidden" />
               <div className="text-xs md:text-sm text-muted-foreground">Спред</div>
               <div className="text-lg md:text-xl font-bold text-primary">
-                ${bestScheme.spread.toFixed(2)}
+                {selectedCurrency === 'RUB' ? '₽' : '$'}{bestScheme.spread.toFixed(2)}
               </div>
             </div>
           </div>
@@ -145,7 +146,7 @@ export const BestSchemeCard = ({ exchanges, selectedCrypto }: BestSchemeCardProp
             <div className="text-xs text-muted-foreground mb-1">2. Продать на</div>
             <div className="text-lg md:text-xl font-bold text-destructive">{bestScheme.sellTo}</div>
             <div className="text-xs md:text-sm text-muted-foreground mt-1">
-              ${bestScheme.sellPrice.toFixed(2)}
+              {selectedCurrency === 'RUB' ? '₽' : '$'}{bestScheme.sellPrice.toFixed(2)}
             </div>
           </div>
         </div>
@@ -155,13 +156,13 @@ export const BestSchemeCard = ({ exchanges, selectedCrypto }: BestSchemeCardProp
             <div>
               <div className="text-xs text-muted-foreground">Чистая прибыль на 1 {selectedCrypto}</div>
               <div className="text-xl md:text-2xl font-bold text-primary">
-                ${bestScheme.netProfit.toFixed(2)}
+                {selectedCurrency === 'RUB' ? '₽' : '$'}{bestScheme.netProfit.toFixed(2)}
               </div>
             </div>
             <div className="text-right">
-              <div className="text-xs text-muted-foreground">На $1000</div>
+              <div className="text-xs text-muted-foreground">На {selectedCurrency === 'RUB' ? '₽' : '$'}1000</div>
               <div className="text-xl md:text-2xl font-bold text-primary">
-                ${(bestScheme.netProfitPercent * 10).toFixed(2)}
+                {selectedCurrency === 'RUB' ? '₽' : '$'}{(bestScheme.netProfitPercent * 10).toFixed(2)}
               </div>
             </div>
           </div>

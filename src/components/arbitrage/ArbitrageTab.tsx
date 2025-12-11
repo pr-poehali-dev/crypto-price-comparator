@@ -18,9 +18,10 @@ interface ArbitrageTabProps {
   exchanges: Exchange[];
   selectedCrypto: string;
   minProfitFilter: number;
+  selectedCurrency: string;
 }
 
-export const ArbitrageTab = ({ exchanges, selectedCrypto, minProfitFilter }: ArbitrageTabProps) => {
+export const ArbitrageTab = ({ exchanges, selectedCrypto, minProfitFilter, selectedCurrency }: ArbitrageTabProps) => {
   const [buyModalOpen, setBuyModalOpen] = useState(false);
   const [selectedExchange, setSelectedExchange] = useState<Exchange | null>(null);
 
@@ -75,7 +76,7 @@ export const ArbitrageTab = ({ exchanges, selectedCrypto, minProfitFilter }: Arb
           <div className="p-4 rounded-lg bg-accent/10 border border-accent/20">
             <div className="text-xs md:text-sm text-muted-foreground mb-1">Купить на</div>
             <div className="text-xl md:text-2xl font-bold text-accent">{minPrice.name}</div>
-            <div className="text-base md:text-lg mt-2">${minPrice.price.toFixed(2)}</div>
+            <div className="text-base md:text-lg mt-2">{selectedCurrency === 'RUB' ? '₽' : '$'}{minPrice.price.toFixed(2)}</div>
             <div className="text-xs text-muted-foreground mt-1">Комиссия: {minPrice.fee}%</div>
           </div>
           
@@ -83,14 +84,14 @@ export const ArbitrageTab = ({ exchanges, selectedCrypto, minProfitFilter }: Arb
             <Icon name="ArrowRight" size={28} className="text-primary mb-2 md:block hidden" />
             <Icon name="ArrowDown" size={28} className="text-primary mb-2 md:hidden" />
             <div className="text-xs md:text-sm text-muted-foreground">Спред</div>
-            <div className="text-2xl md:text-3xl font-bold text-primary">${spread.toFixed(2)}</div>
+            <div className="text-2xl md:text-3xl font-bold text-primary">{selectedCurrency === 'RUB' ? '₽' : '$'}{spread.toFixed(2)}</div>
             <div className="text-xs md:text-sm text-primary/70 mt-1">{((spread / minPrice.price) * 100).toFixed(2)}%</div>
           </div>
 
           <div className="p-4 rounded-lg bg-destructive/10 border border-destructive/20">
             <div className="text-xs md:text-sm text-muted-foreground mb-1">Продать на</div>
             <div className="text-xl md:text-2xl font-bold text-destructive">{maxPrice.name}</div>
-            <div className="text-base md:text-lg mt-2">${maxPrice.price.toFixed(2)}</div>
+            <div className="text-base md:text-lg mt-2">{selectedCurrency === 'RUB' ? '₽' : '$'}{maxPrice.price.toFixed(2)}</div>
             <div className="text-xs text-muted-foreground mt-1">Комиссия: {maxPrice.fee}%</div>
           </div>
         </div>
@@ -131,11 +132,11 @@ export const ArbitrageTab = ({ exchanges, selectedCrypto, minProfitFilter }: Arb
                         {exchange.name}
                       </a>
                     </td>
-                    <td className="text-right py-3 px-4 font-mono">${exchange.price.toFixed(2)}</td>
+                    <td className="text-right py-3 px-4 font-mono">{selectedCurrency === 'RUB' ? '₽' : '$'}{exchange.price.toFixed(2)}</td>
                     <td className={`text-right py-3 px-4 ${exchange.change24h > 0 ? 'text-accent' : 'text-destructive'}`}>
                       {exchange.change24h > 0 ? '+' : ''}{exchange.change24h.toFixed(2)}%
                     </td>
-                    <td className="text-right py-3 px-4 text-muted-foreground">${exchange.volume}M</td>
+                    <td className="text-right py-3 px-4 text-muted-foreground">{selectedCurrency === 'RUB' ? '₽' : '$'}{exchange.volume}M</td>
                     <td className="text-right py-3 px-4 text-muted-foreground">{exchange.fee}%</td>
                     <td className="text-right py-3 px-4 font-bold text-accent">
                       +{potentialProfit.toFixed(2)}%
@@ -181,7 +182,7 @@ export const ArbitrageTab = ({ exchanges, selectedCrypto, minProfitFilter }: Arb
                     >
                       {exchange.name}
                     </a>
-                    <div className="text-lg font-mono font-bold mt-1">${exchange.price.toFixed(2)}</div>
+                    <div className="text-lg font-mono font-bold mt-1">{selectedCurrency === 'RUB' ? '₽' : '$'}{exchange.price.toFixed(2)}</div>
                     <div className="text-xs text-muted-foreground mt-1">{exchange.dataSource || 'N/A'}</div>
                   </div>
                   <div className="text-right">
@@ -198,7 +199,7 @@ export const ArbitrageTab = ({ exchanges, selectedCrypto, minProfitFilter }: Arb
                   </div>
                   <div>
                     <div className="text-muted-foreground">Объем</div>
-                    <div className="font-medium">${exchange.volume}M</div>
+                    <div className="font-medium">{selectedCurrency === 'RUB' ? '₽' : '$'}{exchange.volume}M</div>
                   </div>
                   <div>
                     <div className="text-muted-foreground">Комиссия</div>
