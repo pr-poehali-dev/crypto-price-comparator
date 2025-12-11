@@ -20,6 +20,7 @@ import { BestSchemeCard } from '@/components/arbitrage/BestSchemeCard';
 import { ProfitCalculator } from '@/components/arbitrage/ProfitCalculator';
 import { ProfitVisualization } from '@/components/arbitrage/ProfitVisualization';
 import { TradingHistory } from '@/components/arbitrage/TradingHistory';
+import { CrossExchangeTab } from '@/components/arbitrage/CrossExchangeTab';
 import { LoginPage } from '@/components/auth/LoginPage';
 import { initSession } from '@/lib/analytics';
 import { startCronScheduler } from '@/lib/cronScheduler';
@@ -151,46 +152,49 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background p-3 md:p-8">
       <div className="max-w-7xl mx-auto space-y-4 md:space-y-6">
-        <header className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 md:gap-4">
-          <div>
-            <h1 className="text-2xl md:text-4xl font-bold text-foreground flex items-center gap-2 md:gap-3">
-              <Icon name="TrendingUp" size={28} className="text-primary md:w-9 md:h-9" />
-              CryptoArbitrage Pro
-            </h1>
-            <p className="text-muted-foreground mt-1 text-sm md:text-base">Мониторинг арбитражных возможностей в реальном времени</p>
+        <header className="space-y-3 pb-4 border-b border-border mb-4 md:mb-6">
+          <div className="flex items-start justify-between gap-2">
+            <div className="flex-1 min-w-0">
+              <h1 className="text-xl md:text-4xl font-bold text-foreground flex items-center gap-2">
+                <Icon name="TrendingUp" size={24} className="text-primary shrink-0 md:w-9 md:h-9" />
+                <span className="truncate">CryptoArbitrage Pro</span>
+              </h1>
+              <p className="text-muted-foreground mt-1 text-xs md:text-base">Мониторинг арбитража в реальном времени</p>
+            </div>
+            {isLoadingPrices ? (
+              <Badge variant="outline" className="text-accent border-accent text-xs shrink-0">
+                <Icon name="RefreshCw" size={12} className="mr-1 animate-spin" />
+                <span className="hidden sm:inline">Обновление...</span>
+              </Badge>
+            ) : (
+              <div className="animate-pulse-glow shrink-0">
+                <Badge variant="outline" className="text-primary border-primary text-xs">
+                  <Icon name="Radio" size={12} className="mr-1" />
+                  LIVE
+                </Badge>
+              </div>
+            )}
           </div>
-          <div className="flex items-center gap-2 md:gap-4">
+          <div className="flex items-center gap-2 overflow-x-auto -mx-2 px-2 pb-1">
             <Button 
               variant="outline" 
               size="sm"
+              className="shrink-0 h-8 text-xs px-3"
               onClick={() => {
                 localStorage.removeItem('platformAuth');
                 setIsAuthenticated(false);
                 toast({ title: 'Вы вышли из аккаунта' });
               }}
             >
-              <Icon name="LogOut" size={16} className="mr-2" />
+              <Icon name="LogOut" size={14} className="mr-1.5" />
               Выход
             </Button>
-            <Link to="/login">
-              <Button variant="outline" size="sm">
-                <Icon name="Settings" size={16} className="mr-2" />
+            <Link to="/login" className="shrink-0">
+              <Button variant="outline" size="sm" className="h-8 text-xs px-3">
+                <Icon name="Settings" size={14} className="mr-1.5" />
                 Админ
               </Button>
             </Link>
-            {isLoadingPrices ? (
-              <Badge variant="outline" className="text-accent border-accent text-xs md:text-sm">
-                <Icon name="RefreshCw" size={12} className="mr-1 animate-spin" />
-                Обновление...
-              </Badge>
-            ) : (
-              <div className="animate-pulse-glow">
-                <Badge variant="outline" className="text-primary border-primary text-xs md:text-sm">
-                  <Icon name="Radio" size={12} className="mr-1" />
-                  LIVE
-                </Badge>
-              </div>
-            )}
           </div>
         </header>
 
@@ -273,10 +277,14 @@ const Index = () => {
         </div>
 
         <Tabs defaultValue="arbitrage" className="w-full">
-          <TabsList className="grid w-full grid-cols-7 mb-4 md:mb-6 h-auto">
+          <TabsList className="grid w-full grid-cols-4 md:grid-cols-8 mb-4 md:mb-6 h-auto gap-1">
             <TabsTrigger value="arbitrage" className="flex-col md:flex-row gap-1 md:gap-2 py-2 md:py-2.5 text-xs md:text-sm">
               <Icon name="ArrowLeftRight" size={14} className="md:mr-0" />
               <span className="hidden md:inline">Арбитраж</span>
+            </TabsTrigger>
+            <TabsTrigger value="cross-exchange" className="flex-col md:flex-row gap-1 md:gap-2 py-2 md:py-2.5 text-xs md:text-sm">
+              <Icon name="Repeat" size={14} className="md:mr-0" />
+              <span className="hidden md:inline">Межбиржевой</span>
             </TabsTrigger>
             <TabsTrigger value="verified" className="flex-col md:flex-row gap-1 md:gap-2 py-2 md:py-2.5 text-xs md:text-sm">
               <Icon name="CheckCircle2" size={14} className="md:mr-0" />
@@ -331,6 +339,10 @@ const Index = () => {
               </CardContent>
             </Card>
             <ArbitrageTab exchanges={exchanges} selectedCrypto={selectedCrypto} minProfitFilter={parseFloat(minProfitFilter) || 3.0} />
+          </TabsContent>
+
+          <TabsContent value="cross-exchange" className="space-y-6">
+            <CrossExchangeTab exchanges={exchanges} selectedCrypto={selectedCrypto} />
           </TabsContent>
 
           <TabsContent value="verified" className="space-y-6">
