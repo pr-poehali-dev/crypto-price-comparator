@@ -21,6 +21,7 @@ import { ProfitCalculator } from '@/components/arbitrage/ProfitCalculator';
 import { ProfitVisualization } from '@/components/arbitrage/ProfitVisualization';
 import { TradingHistory } from '@/components/arbitrage/TradingHistory';
 import { CrossExchangeTab } from '@/components/arbitrage/CrossExchangeTab';
+import { CryptoChainsTab } from '@/components/arbitrage/CryptoChainsTab';
 import { LoginPage } from '@/components/auth/LoginPage';
 import { initSession } from '@/lib/analytics';
 import { startCronScheduler } from '@/lib/cronScheduler';
@@ -312,6 +313,10 @@ const Index = () => {
               <Icon name="Repeat" size={14} className="md:mr-0" />
               <span className="hidden md:inline">Межбиржевой</span>
             </TabsTrigger>
+            <TabsTrigger value="crypto-chains" className="flex-col md:flex-row gap-1 md:gap-2 py-2 md:py-2.5 text-xs md:text-sm">
+              <Icon name="GitBranch" size={14} className="md:mr-0" />
+              <span className="hidden md:inline">Связки крипты</span>
+            </TabsTrigger>
             <TabsTrigger value="verified" className="flex-col md:flex-row gap-1 md:gap-2 py-2 md:py-2.5 text-xs md:text-sm">
               <Icon name="CheckCircle2" size={14} className="md:mr-0" />
               <span className="hidden md:inline">Проверенные</span>
@@ -369,6 +374,10 @@ const Index = () => {
 
           <TabsContent value="cross-exchange" className="space-y-6">
             <CrossExchangeTab exchanges={exchanges} selectedCrypto={selectedCrypto} selectedCurrency={selectedCurrency} />
+          </TabsContent>
+
+          <TabsContent value="crypto-chains" className="space-y-6">
+            <CryptoChainsTab selectedCurrency={selectedCurrency} />
           </TabsContent>
 
           <TabsContent value="verified" className="space-y-6">

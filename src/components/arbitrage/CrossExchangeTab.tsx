@@ -40,7 +40,7 @@ interface ArbitrageOpportunity {
 
 export const CrossExchangeTab = ({ exchanges, selectedCrypto, selectedCurrency }: Props) => {
   const [sortBy, setSortBy] = useState<'spread' | 'profit' | 'volume'>('spread');
-  const [minSpread, setMinSpread] = useState<number>(2.5);
+  const [minSpread, setMinSpread] = useState<number>(3.0);
 
   const opportunities = useMemo(() => {
     const result: ArbitrageOpportunity[] = [];
@@ -146,11 +146,11 @@ export const CrossExchangeTab = ({ exchanges, selectedCrypto, selectedCurrency }
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="2.5">2.5%</SelectItem>
                     <SelectItem value="3.0">3.0%</SelectItem>
                     <SelectItem value="5.0">5.0%</SelectItem>
                     <SelectItem value="7.0">7.0%</SelectItem>
                     <SelectItem value="10.0">10.0%</SelectItem>
+                    <SelectItem value="15.0">15.0%</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
