@@ -196,11 +196,6 @@ const Index = () => {
 
         <BestSchemeCard exchanges={exchanges} selectedCrypto={selectedCrypto} />
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <ProfitCalculator exchanges={exchanges} selectedCrypto={selectedCrypto} />
-          <ProfitVisualization exchanges={exchanges} investmentAmount={1000} />
-        </div>
-
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
           <Card className="bg-card/50 backdrop-blur border-border">
             <CardContent className="pt-4 md:pt-6 px-4 pb-4">
@@ -276,8 +271,6 @@ const Index = () => {
             </CardContent>
           </Card>
         </div>
-
-        <TradingHistory />
 
         <Tabs defaultValue="arbitrage" className="w-full">
           <TabsList className="grid w-full grid-cols-7 mb-4 md:mb-6 h-auto">
@@ -373,6 +366,13 @@ const Index = () => {
             />
           </TabsContent>
         </Tabs>
+
+        <TradingHistory />
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <ProfitCalculator exchanges={exchanges} selectedCrypto={selectedCrypto} />
+          <ProfitVisualization exchanges={exchanges} investmentAmount={1000} />
+        </div>
       </div>
     </div>
   );
