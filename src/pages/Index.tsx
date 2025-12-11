@@ -393,18 +393,14 @@ const Index = () => {
             <AnalyticsTab priceHistory={priceHistory} />
           </TabsContent>
 
-          <TabsContent value="ai" className="space-y-6">
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 md:gap-6">
-              <div>
-                <AIPredictionTab 
-                  aiPrediction={aiPrediction} 
-                  exchanges={exchanges}
-                  selectedCrypto={selectedCrypto}
-                />
-              </div>
-              <div>
-                <AIAssistantTab selectedCurrency={selectedCurrency} />
-              </div>
+          <TabsContent value="ai" className="space-y-4 md:space-y-6">
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-3 md:gap-4 items-start">
+              <AIPredictionTab 
+                aiPrediction={aiPrediction} 
+                exchanges={exchanges}
+                selectedCrypto={selectedCrypto}
+              />
+              <AIAssistantTab selectedCurrency={selectedCurrency} />
             </div>
           </TabsContent>
         </Tabs>
