@@ -17,6 +17,8 @@ import { AIPredictionTab } from '@/components/arbitrage/AIPredictionTab';
 import { VerifiedSchemesTab } from '@/components/arbitrage/VerifiedSchemesTab';
 import { SpreadVisualization } from '@/components/arbitrage/SpreadVisualization';
 import { BestSchemeCard } from '@/components/arbitrage/BestSchemeCard';
+import { ProfitCalculator } from '@/components/arbitrage/ProfitCalculator';
+import { ProfitVisualization } from '@/components/arbitrage/ProfitVisualization';
 import { LoginPage } from '@/components/auth/LoginPage';
 import { initSession } from '@/lib/analytics';
 import { startCronScheduler } from '@/lib/cronScheduler';
@@ -192,6 +194,11 @@ const Index = () => {
         </header>
 
         <BestSchemeCard exchanges={exchanges} selectedCrypto={selectedCrypto} />
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <ProfitCalculator exchanges={exchanges} selectedCrypto={selectedCrypto} />
+          <ProfitVisualization exchanges={exchanges} investmentAmount={1000} />
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
           <Card className="bg-card/50 backdrop-blur border-border">
