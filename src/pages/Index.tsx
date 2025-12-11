@@ -22,6 +22,7 @@ import { ProfitVisualization } from '@/components/arbitrage/ProfitVisualization'
 import { TradingHistory } from '@/components/arbitrage/TradingHistory';
 import { CrossExchangeTab } from '@/components/arbitrage/CrossExchangeTab';
 import { CryptoChainsTab } from '@/components/arbitrage/CryptoChainsTab';
+import { AIAssistantTab } from '@/components/arbitrage/AIAssistantTab';
 import { LoginPage } from '@/components/auth/LoginPage';
 import { initSession } from '@/lib/analytics';
 import { startCronScheduler } from '@/lib/cronScheduler';
@@ -304,7 +305,7 @@ const Index = () => {
         </div>
 
         <Tabs defaultValue="arbitrage" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 md:grid-cols-8 mb-4 md:mb-6 h-auto gap-1">
+          <TabsList className="grid w-full grid-cols-4 md:grid-cols-9 mb-4 md:mb-6 h-auto gap-1">
             <TabsTrigger value="arbitrage" className="flex-col md:flex-row gap-1 md:gap-2 py-2 md:py-2.5 text-xs md:text-sm">
               <Icon name="ArrowLeftRight" size={14} className="md:mr-0" />
               <span className="hidden md:inline">Арбитраж</span>
@@ -340,6 +341,10 @@ const Index = () => {
             <TabsTrigger value="ai" className="flex-col md:flex-row gap-1 md:gap-2 py-2 md:py-2.5 text-xs md:text-sm">
               <Icon name="Brain" size={14} className="md:mr-0" />
               <span className="hidden md:inline">AI Прогноз</span>
+            </TabsTrigger>
+            <TabsTrigger value="ai-assistant" className="flex-col md:flex-row gap-1 md:gap-2 py-2 md:py-2.5 text-xs md:text-sm">
+              <Icon name="Bot" size={14} className="md:mr-0" />
+              <span className="hidden md:inline">AI Помощник</span>
             </TabsTrigger>
           </TabsList>
 
@@ -411,6 +416,10 @@ const Index = () => {
               exchanges={exchanges}
               selectedCrypto={selectedCrypto}
             />
+          </TabsContent>
+
+          <TabsContent value="ai-assistant" className="space-y-6">
+            <AIAssistantTab selectedCurrency={selectedCurrency} />
           </TabsContent>
         </Tabs>
 
