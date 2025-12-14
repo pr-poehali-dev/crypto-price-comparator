@@ -23,6 +23,7 @@ import { TradingHistory } from '@/components/arbitrage/TradingHistory';
 import { CrossExchangeTab } from '@/components/arbitrage/CrossExchangeTab';
 import { CryptoChainsTab } from '@/components/arbitrage/CryptoChainsTab';
 import { AIAssistantTab } from '@/components/arbitrage/AIAssistantTab';
+import { P2PFiatTab } from '@/components/arbitrage/P2PFiatTab';
 import { LoginPage } from '@/components/auth/LoginPage';
 import { initSession } from '@/lib/analytics';
 import { startCronScheduler } from '@/lib/cronScheduler';
@@ -178,13 +179,14 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background via-background to-background/95 p-2 md:p-6">
-      <div className="max-w-[1600px] mx-auto space-y-3 md:space-y-5">
-        <header className="space-y-2 pb-3 border-b border-border/50 mb-3 md:mb-5 bg-gradient-to-r from-card/30 to-transparent rounded-lg p-3 md:p-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-2 md:p-6 relative overflow-hidden">
+      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjAzKSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-50"></div>
+      <div className="max-w-[1600px] mx-auto space-y-3 md:space-y-5 relative z-10">
+        <header className="space-y-2 pb-3 border-b border-border/50 mb-3 md:mb-5 bg-gradient-to-r from-primary/5 via-purple-500/5 to-transparent rounded-lg p-3 md:p-4 backdrop-blur-sm shadow-lg shadow-primary/5 animate-slide-up">
           <div className="flex items-start justify-between gap-2">
             <div className="flex-1 min-w-0">
-              <h1 className="text-lg md:text-3xl font-bold text-foreground flex items-center gap-2">
-                <div className="p-1.5 md:p-2 bg-primary/20 rounded-lg">
+              <h1 className="text-lg md:text-3xl font-bold bg-gradient-to-r from-primary via-blue-400 to-purple-500 bg-clip-text text-transparent flex items-center gap-2">
+                <div className="p-1.5 md:p-2 bg-gradient-to-br from-primary/20 to-purple-500/20 rounded-xl animate-glow">
                   <Icon name="TrendingUp" size={20} className="text-primary shrink-0 md:w-7 md:h-7" />
                 </div>
                 <span className="truncate">CryptoArbitrage Pro</span>
@@ -227,12 +229,7 @@ const Index = () => {
               <Icon name="LogOut" size={12} className="mr-1" />
               Выход
             </Button>
-            <Link to="/login" className="shrink-0">
-              <Button variant="outline" size="sm" className="h-7 text-[10px] md:text-xs px-2 md:px-3 border-border/50 hover:bg-card/50">
-                <Icon name="Settings" size={12} className="mr-1" />
-                Админ
-              </Button>
-            </Link>
+
           </div>
         </header>
 
@@ -328,6 +325,10 @@ const Index = () => {
               <Icon name="Wallet" size={14} className="md:mr-0" />
               <span className="hidden md:inline">Без карт</span>
             </TabsTrigger>
+            <TabsTrigger value="p2p-fiat" className="flex-col md:flex-row gap-1 md:gap-2 py-2 md:py-2.5 text-xs md:text-sm">
+              <Icon name="Repeat2" size={14} className="md:mr-0" />
+              <span className="hidden md:inline">P2P Фиат</span>
+            </TabsTrigger>
             <TabsTrigger value="spreads" className="flex-col md:flex-row gap-1 md:gap-2 py-2 md:py-2.5 text-xs md:text-sm">
               <Icon name="BarChart3" size={14} className="md:mr-0" />
               <span className="hidden md:inline">Схемы</span>
@@ -385,6 +386,10 @@ const Index = () => {
 
           <TabsContent value="no-cards" className="space-y-3 md:space-y-4">
             <NoCardsTab exchanges={exchanges} selectedCrypto={selectedCrypto} />
+          </TabsContent>
+
+          <TabsContent value="p2p-fiat" className="space-y-3 md:space-y-4">
+            <P2PFiatTab />
           </TabsContent>
 
           <TabsContent value="spreads" className="space-y-3 md:space-y-4">

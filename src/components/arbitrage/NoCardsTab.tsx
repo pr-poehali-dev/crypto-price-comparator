@@ -47,7 +47,10 @@ export const NoCardsTab = ({ exchanges, selectedCrypto }: NoCardsTabProps) => {
     setIsModalOpen(true);
   };
   const cryptoExchanges = exchanges.filter(ex => 
-    ex.name !== 'BestChange P2P' && (!ex.paymentMethod || !ex.paymentMethod.includes('Карт'))
+    !ex.name.includes('P2P') && 
+    !ex.name.includes('BestChange') && 
+    !ex.name.includes('Cryptomus') &&
+    (!ex.paymentMethod || !ex.paymentMethod.includes('Карт'))
   );
 
   const sortedByPrice = [...cryptoExchanges].sort((a, b) => a.price - b.price);
@@ -98,7 +101,7 @@ export const NoCardsTab = ({ exchanges, selectedCrypto }: NoCardsTabProps) => {
             <CardTitle className="text-lg">Связки без банковских карт</CardTitle>
           </div>
           <p className="text-sm text-muted-foreground">
-            Арбитраж через криптокошельки: биржа → биржа, P2P-переводы
+            Арбитраж через криптокошельки: только биржа → биржа
           </p>
         </CardHeader>
         <CardContent>
@@ -113,7 +116,7 @@ export const NoCardsTab = ({ exchanges, selectedCrypto }: NoCardsTabProps) => {
             </div>
             <div className="flex items-center gap-2 text-sm">
               <Icon name="Zap" size={16} className="text-green-500" />
-              <span>Быстрый вывод через P2P на СБП/наличные</span>
+              <span>Быстрые транзакции между биржами</span>
             </div>
           </div>
         </CardContent>

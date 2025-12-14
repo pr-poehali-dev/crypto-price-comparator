@@ -1,0 +1,21 @@
+{
+  "tests": [
+    {
+      "name": "Get P2P fiat opportunities",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "timestamp": "string",
+        "testMode": true
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Handle OPTIONS for CORS",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    }
+  ]
+}

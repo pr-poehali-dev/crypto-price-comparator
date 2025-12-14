@@ -151,7 +151,7 @@ export const BestSchemeCard = ({ exchanges, selectedCrypto, selectedCurrency }: 
   }
 
   return (
-    <Card className={`bg-gradient-to-br from-primary/20 via-accent/20 to-primary/20 backdrop-blur border-2 transition-all duration-500 ${isNew ? 'border-primary shadow-lg shadow-primary/50 scale-[1.02]' : 'border-primary/50'}`}>
+    <Card className={`bg-gradient-to-br from-primary/10 via-purple-500/10 to-accent/10 backdrop-blur-xl border-2 transition-all duration-500 shadow-2xl ${isNew ? 'border-primary shadow-lg shadow-primary/50 scale-[1.02] animate-gradient' : 'border-primary/30 shadow-primary/20'}`}>
       <CardContent className="pt-4 md:pt-6 px-4 pb-4">
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-2">
