@@ -23,49 +23,50 @@ export const CrossExchangeOpportunityCard = ({
   const getDetailedInstructions = (opp: ArbitrageOpportunity): InstructionStep[] => {
     const exampleAmount = 10000 * multiplier;
     const netProfit = (exampleAmount * opp.spread / 100);
+    const cryptoAmount = (exampleAmount / (opp.buyPrice * multiplier)).toFixed(6);
 
     return [
       {
         step: 1,
-        title: 'Регистрация и верификация',
-        description: `Зарегистрируйтесь на биржах ${opp.buyExchange} и ${opp.sellExchange}. Пройдите KYC верификацию (обычно 15-30 минут).`,
+        title: 'Регистрация и верификация на биржах',
+        description: `ПОДРОБНО: Зайдите на официальные сайты ${opp.buyExchange} и ${opp.sellExchange}. Нажмите кнопку "Регистрация" (обычно в правом верхнем углу). Заполните форму: email, пароль (минимум 8 символов, с цифрами и буквами). Подтвердите email через письмо. Затем пройдите KYC: загрузите фото паспорта (разворот с фото), селфи с паспортом, и заполните адрес проживания. Проверка занимает 15-30 минут. После одобрения получите уведомление на email. ВАЖНО: Используйте только официальные сайты бирж, проверяйте SSL-сертификат (замок в адресной строке).`,
         icon: 'UserPlus',
         time: '30 мин'
       },
       {
         step: 2,
-        title: 'Пополнение счета',
-        description: `Пополните счет на ${opp.buyExchange} на сумму ${currencySymbol}${exampleAmount.toFixed(0)}. Рекомендуется банковская карта или P2P для быстрого зачисления.`,
+        title: 'Пополнение счета первой биржи',
+        description: `ПОДРОБНО: Войдите в личный кабинет ${opp.buyExchange}. Найдите раздел "Кошелек" или "Активы" → "Пополнить". Выберите способ пополнения: для РФ рекомендуется P2P (перевод на карту другому пользователю) или банковская карта Visa/MasterCard. Для P2P: выберите продавца с высоким рейтингом (>98%), укажите сумму ${currencySymbol}${exampleAmount.toFixed(0)}, переведите деньги на указанную карту через СБП или банковское приложение, подтвердите оплату в системе биржи. Деньги зачисляются за 5-15 минут. СОВЕТ: Начните с малой суммы (${currencySymbol}${(exampleAmount * 0.1).toFixed(0)}) для первого теста связки.`,
         icon: 'Wallet',
         time: '5-15 мин'
       },
       {
         step: 3,
-        title: `Покупка ${selectedCrypto}`,
-        description: `Перейдите в раздел Spot Trading на ${opp.buyExchange}. Купите ${selectedCrypto} по цене ≈${currencySymbol}${(opp.buyPrice * multiplier).toFixed(2)}. Используйте Market Order для быстрой покупки.`,
+        title: `Покупка ${selectedCrypto} на ${opp.buyExchange}`,
+        description: `ПОДРОБНО: В личном кабинете ${opp.buyExchange} найдите раздел "Торговля" → "Spot" или "Спот-торговля". В поисковой строке введите "${selectedCrypto}/USDT". Откроется торговый интерфейс. Справа найдите блок "Купить ${selectedCrypto}". Выберите тип ордера "Market" (рыночный ордер) для мгновенной покупки. Введите сумму в USDT (весь доступный баланс) или укажите количество ${selectedCrypto}. Текущая цена: ≈${currencySymbol}${(opp.buyPrice * multiplier).toFixed(2)} за 1 ${selectedCrypto}. Вы получите примерно ${cryptoAmount} ${selectedCrypto}. Нажмите "Купить ${selectedCrypto}" → Подтвердите операцию. Исполнение за 1-2 секунды. ВАЖНО: Проверьте, что у вас достаточно средств с учетом комиссии биржи (~0.1%).`,
         icon: 'ShoppingCart',
         time: '1-2 мин',
         url: opp.buyDirectUrl
       },
       {
         step: 4,
-        title: `Перевод на ${opp.sellExchange}`,
-        description: `Выведите ${selectedCrypto} с ${opp.buyExchange} на депозит ${opp.sellExchange}. Скопируйте адрес кошелька ${selectedCrypto} на ${opp.sellExchange}, укажите правильную сеть (обычно ERC-20 для ETH, BTC для Bitcoin, TRC-20 для USDT).`,
+        title: `Перевод ${selectedCrypto} на ${opp.sellExchange}`,
+        description: `ПОДРОБНО: ШАГ 1 (на ${opp.sellExchange}): Войдите в кошелек → "Пополнить" → Найдите ${selectedCrypto} → Нажмите "Депозит". Выберите сеть перевода: для BTC используйте BTC (Bitcoin Network), для ETH - ERC-20 (Ethereum), для USDT - TRC-20 (Tron, самая дешевая, комиссия ~$1). СКОПИРУЙТЕ адрес кошелька (строка из 30-40 символов). ШАГ 2 (на ${opp.buyExchange}): Перейдите в кошелек → Найдите ${selectedCrypto} → "Вывести". Вставьте скопированный адрес ${opp.sellExchange}. КРИТИЧНО: Выберите ТУ ЖЕ СЕТЬ, что и при получении адреса (иначе деньги пропадут!). Укажите количество: ${cryptoAmount} ${selectedCrypto}. Проверьте комиссию сети (обычно 0.0005 BTC для Bitcoin, 0.005 ETH для Ethereum, 1 USDT для TRC-20). Введите код подтверждения из email или SMS. Нажмите "Подтвердить вывод". Транзакция обрабатывается: BTC - 30-60 мин (6 подтверждений), ETH - 10-20 мин (12 подтверждений), USDT TRC-20 - 3-5 мин. Отслеживайте статус в разделе "История переводов". СОВЕТ: Сначала сделайте тестовый перевод малой суммы (10-20 USDT) для проверки адреса и сети.`,
         icon: 'ArrowRightLeft',
         time: '10-60 мин'
       },
       {
         step: 5,
-        title: `Продажа ${selectedCrypto}`,
-        description: `После зачисления ${selectedCrypto} на ${opp.sellExchange}, продайте по цене ≈${currencySymbol}${(opp.sellPrice * multiplier).toFixed(2)}. Используйте Market Order для быстрой продажи.`,
+        title: `Продажа ${selectedCrypto} на ${opp.sellExchange}`,
+        description: `ПОДРОБНО: Дождитесь зачисления ${selectedCrypto} на ${opp.sellExchange} (проверьте в разделе "Кошелек" → "Спот-кошелек"). Когда появится баланс ${cryptoAmount} ${selectedCrypto}, перейдите в "Торговля" → "Spot". Найдите пару "${selectedCrypto}/USDT". Слева найдите блок "Продать ${selectedCrypto}". Выберите "Market Order" (рыночный ордер). Введите количество ${selectedCrypto}: ${cryptoAmount} или нажмите "100%" для продажи всего объема. Текущая цена продажи: ≈${currencySymbol}${(opp.sellPrice * multiplier).toFixed(2)} за 1 ${selectedCrypto}. Вы получите примерно ${currencySymbol}${(exampleAmount + netProfit).toFixed(2)} USDT. Нажмите "Продать ${selectedCrypto}" → Подтвердите. Сделка исполнится мгновенно. Проверьте баланс USDT в кошельке - должно появиться ${currencySymbol}${(exampleAmount + netProfit).toFixed(2)}. Ваша прибыль: ${currencySymbol}${netProfit.toFixed(2)} (${opp.spread.toFixed(2)}%).`,
         icon: 'DollarSign',
         time: '1-2 мин',
         url: opp.sellDirectUrl
       },
       {
         step: 6,
-        title: 'Фиксация прибыли',
-        description: `Выведите прибыль ${currencySymbol}${netProfit.toFixed(2)} (${opp.spread.toFixed(2)}%) с ${opp.sellExchange} на карту или реинвестируйте в новую связку. Чистая прибыль с учетом комиссий: ~${(opp.spread - 0.5).toFixed(2)}%.`,
+        title: 'Фиксация и вывод прибыли',
+        description: `ПОДРОБНО: У вас на балансе ${opp.sellExchange} теперь ${currencySymbol}${(exampleAmount + netProfit).toFixed(2)} USDT. ВАРИАНТ 1 (Вывод прибыли): Перейдите в "Кошелек" → "Вывод". Выберите USDT и метод вывода: для РФ используйте P2P (продайте USDT покупателю с высоким рейтингом >98%, получите рубли на карту за 5-10 минут). Комиссия P2P: 0-1%. ВАРИАНТ 2 (Реинвестирование): Оставьте ${currencySymbol}${(exampleAmount + netProfit).toFixed(2)} на бирже и найдите следующую прибыльную связку. Повторяйте процесс 2-3 раза в день для максимизации прибыли. ВАРИАНТ 3 (Циклический арбитраж): Если обратная связка ${opp.sellExchange} → ${opp.buyExchange} тоже прибыльна, переведите USDT обратно и повторите цикл. ИТОГО: Чистая прибыль с учетом всех комиссий (торговые 0.1% + вывод 0.1-0.5% + перевод между биржами): примерно ${(opp.spread - 0.7).toFixed(2)}% или ${currencySymbol}${(netProfit * 0.93).toFixed(2)}. СОВЕТ: Заведите таблицу Excel для отслеживания всех операций: дата, биржи, суммы, комиссии, чистая прибыль. Это поможет анализировать эффективность разных связок.`,
         icon: 'TrendingUp',
         time: '5-30 мин'
       }
@@ -123,7 +124,13 @@ export const CrossExchangeOpportunityCard = ({
               </div>
             </div>
 
-            <div className="text-right shrink-0">
+            <div className="text-right shrink-0 flex flex-col gap-2 items-end">
+              {opportunity.spread >= 5 && (
+                <Badge className="bg-green-500/20 text-green-500 border-green-500/50 text-xs">
+                  <Icon name="CheckCircle2" size={12} className="mr-1" />
+                  Проверено
+                </Badge>
+              )}
               <Badge 
                 className={`text-sm md:text-lg font-bold px-3 py-1 ${
                   opportunity.spread >= 5 

@@ -36,9 +36,59 @@ export const BestSchemeCard = ({ exchanges, selectedCrypto, selectedCurrency }: 
   const [bestScheme, setBestScheme] = useState<BestScheme | null>(null);
   const [isNew, setIsNew] = useState(false);
   const [schemeModalOpen, setSchemeModalOpen] = useState(false);
+  const [isVerified, setIsVerified] = useState(false);
+  const [verifiedOpportunity, setVerifiedOpportunity] = useState<any>(null);
 
   useEffect(() => {
-    if (exchanges.length === 0) return;
+    const fetchVerifiedOpportunity = async () => {
+      try {
+        const response = await fetch(`https://functions.poehali.dev/ffd86091-8051-490f-a729-97f9ee3d7b21?crypto=${selectedCrypto}`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data.opportunity && data.opportunity.spread > 5) {
+            setVerifiedOpportunity(data.opportunity);
+            setIsVerified(true);
+            
+            const newScheme = {
+              buyFrom: data.opportunity.buyExchange,
+              sellTo: data.opportunity.sellExchange,
+              spread: data.opportunity.spread,
+              netProfit: data.opportunity.buyPrice * (data.opportunity.spread / 100),
+              netProfitPercent: data.opportunity.spread,
+              buyUrl: data.opportunity.buyUrl,
+              sellUrl: data.opportunity.sellUrl,
+              buyPrice: data.opportunity.buyPrice,
+              sellPrice: data.opportunity.sellPrice,
+            };
+            
+            const isNewScheme = !bestScheme || 
+              bestScheme.buyFrom !== newScheme.buyFrom || 
+              bestScheme.sellTo !== newScheme.sellTo;
+            
+            if (isNewScheme) {
+              setIsNew(true);
+              setTimeout(() => setIsNew(false), 3000);
+            }
+            
+            setBestScheme(newScheme);
+            return;
+          }
+        }
+      } catch (error) {
+        console.log('Failed to fetch verified opportunity, using regular calculation');
+      }
+      
+      setIsVerified(false);
+    };
+
+    fetchVerifiedOpportunity();
+    
+    const verifiedInterval = setInterval(fetchVerifiedOpportunity, 3600000);
+
+    if (exchanges.length === 0) {
+      clearInterval(verifiedInterval);
+      return;
+    }
 
     const filteredExchanges = exchanges.filter(ex => ex.name !== 'BestChange P2P');
     const sortedExchanges = [...filteredExchanges].sort((a, b) => a.price - b.price);
@@ -64,7 +114,7 @@ export const BestSchemeCard = ({ exchanges, selectedCrypto, selectedCurrency }: 
       });
     }).flat().sort((a, b) => b.netProfitPercent - a.netProfitPercent)[0];
 
-    if (topSpreads) {
+    if (topSpreads && !verifiedOpportunity) {
       const isNewScheme = !bestScheme || 
         bestScheme.buyFrom !== topSpreads.buyFrom || 
         bestScheme.sellTo !== topSpreads.sellTo;
@@ -76,7 +126,11 @@ export const BestSchemeCard = ({ exchanges, selectedCrypto, selectedCurrency }: 
       
       setBestScheme(topSpreads);
     }
-  }, [exchanges, bestScheme]);
+    
+    return () => {
+      clearInterval(verifiedInterval);
+    };
+  }, [exchanges, bestScheme, selectedCrypto, verifiedOpportunity]);
 
   if (exchanges.length === 0) {
     return (
@@ -107,10 +161,11 @@ export const BestSchemeCard = ({ exchanges, selectedCrypto, selectedCurrency }: 
             <div>
               <h3 className="text-base md:text-lg font-bold text-foreground">
                 {isNew && <span className="text-primary mr-2">🔥 НОВАЯ!</span>}
+                {isVerified && <span className="text-green-500 mr-2">✓ ПРОВЕРЕНО</span>}
                 Лучшая схема сейчас
               </h3>
               <p className="text-xs md:text-sm text-muted-foreground">
-                Обновляется автоматически каждую минуту
+                {isVerified ? 'Проверено через 7 независимых API. Обновление каждый час' : 'Обновляется автоматически каждую минуту'}
               </p>
             </div>
           </div>

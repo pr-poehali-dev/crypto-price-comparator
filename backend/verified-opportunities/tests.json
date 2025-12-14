@@ -1,0 +1,21 @@
+{
+  "tests": [
+    {
+      "name": "Get verified high spread opportunity for BTC",
+      "method": "GET",
+      "path": "/?crypto=BTC",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "crypto": "BTC",
+        "timestamp": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Handle OPTIONS for CORS",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    }
+  ]
+}
