@@ -60,6 +60,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         ]
     else:
         fetch_functions = [
+            fetch_binance,
             fetch_kucoin,
             fetch_gate,
             fetch_mexc,

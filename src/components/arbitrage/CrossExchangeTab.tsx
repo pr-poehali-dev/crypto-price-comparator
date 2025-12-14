@@ -15,106 +15,16 @@ interface Props {
 
 export const CrossExchangeTab = ({ exchanges, selectedCrypto, selectedCurrency }: Props) => {
   const [sortBy, setSortBy] = useState<'spread' | 'profit' | 'volume'>('spread');
-  const [minSpread, setMinSpread] = useState<number>(3.0);
-  const [minSpreadInput, setMinSpreadInput] = useState<string>('3.0');
+  const [minSpread, setMinSpread] = useState<number>(0.1);
+  const [minSpreadInput, setMinSpreadInput] = useState<string>('0.1');
 
   const opportunities = useMemo(() => {
     const result: ArbitrageOpportunity[] = [];
     const cryptoUrls = getCryptoUrls(selectedCrypto);
     
-    const syntheticOpps: ArbitrageOpportunity[] = [
-      { 
-        buyExchange: 'Exmo', 
-        sellExchange: 'Binance', 
-        buyPrice: 95100, 
-        sellPrice: 101250, 
-        spread: 6.47, 
-        profit: 6.47, 
-        volume: 8500, 
-        buyUrl: 'https://exmo.com', 
-        sellUrl: 'https://www.binance.com',
-        buyDirectUrl: cryptoUrls['Exmo']?.buy,
-        sellDirectUrl: cryptoUrls['Binance']?.sell
-      },
-      { 
-        buyExchange: 'HTX', 
-        sellExchange: 'OKX', 
-        buyPrice: 94800, 
-        sellPrice: 99650, 
-        spread: 5.12, 
-        profit: 5.12, 
-        volume: 12000, 
-        buyUrl: 'https://www.htx.com', 
-        sellUrl: 'https://www.okx.com',
-        buyDirectUrl: cryptoUrls['HTX']?.buy,
-        sellDirectUrl: cryptoUrls['OKX']?.sell
-      },
-      { 
-        buyExchange: 'KuCoin', 
-        sellExchange: 'Gate.io', 
-        buyPrice: 95300, 
-        sellPrice: 99420, 
-        spread: 4.32, 
-        profit: 4.32, 
-        volume: 15200, 
-        buyUrl: 'https://www.kucoin.com', 
-        sellUrl: 'https://www.gate.io',
-        buyDirectUrl: cryptoUrls['KuCoin']?.buy,
-        sellDirectUrl: cryptoUrls['Gate.io']?.sell
-      },
-      { 
-        buyExchange: 'MEXC', 
-        sellExchange: 'Bybit', 
-        buyPrice: 94950, 
-        sellPrice: 101850, 
-        spread: 7.27, 
-        profit: 7.27, 
-        volume: 9800, 
-        buyUrl: 'https://www.mexc.com', 
-        sellUrl: 'https://www.bybit.com',
-        buyDirectUrl: cryptoUrls['MEXC']?.buy,
-        sellDirectUrl: cryptoUrls['Bybit']?.sell
-      },
-      { 
-        buyExchange: 'Gate.io', 
-        sellExchange: 'HTX', 
-        buyPrice: 95650, 
-        sellPrice: 99980, 
-        spread: 4.53, 
-        profit: 4.53, 
-        volume: 11500, 
-        buyUrl: 'https://www.gate.io', 
-        sellUrl: 'https://www.htx.com',
-        buyDirectUrl: cryptoUrls['Gate.io']?.buy,
-        sellDirectUrl: cryptoUrls['HTX']?.sell
-      },
-      { 
-        buyExchange: 'Bybit', 
-        sellExchange: 'KuCoin', 
-        buyPrice: 95200, 
-        sellPrice: 100120, 
-        spread: 5.17, 
-        profit: 5.17, 
-        volume: 18000, 
-        buyUrl: 'https://www.bybit.com', 
-        sellUrl: 'https://www.kucoin.com',
-        buyDirectUrl: cryptoUrls['Bybit']?.buy,
-        sellDirectUrl: cryptoUrls['KuCoin']?.sell
-      },
-      { 
-        buyExchange: 'OKX', 
-        sellExchange: 'MEXC', 
-        buyPrice: 95450, 
-        sellPrice: 99235, 
-        spread: 3.97, 
-        profit: 3.97, 
-        volume: 13800, 
-        buyUrl: 'https://www.okx.com', 
-        sellUrl: 'https://www.mexc.com',
-        buyDirectUrl: cryptoUrls['OKX']?.buy,
-        sellDirectUrl: cryptoUrls['MEXC']?.sell
-      },
-    ];
+    if (exchanges.length === 0) {
+      return result;
+    }
     
     for (let i = 0; i < exchanges.length; i++) {
       for (let j = 0; j < exchanges.length; j++) {
@@ -122,9 +32,13 @@ export const CrossExchangeTab = ({ exchanges, selectedCrypto, selectedCurrency }
           const buyEx = exchanges[i];
           const sellEx = exchanges[j];
           
-          const buyPrice = buyEx.price * (1 + buyEx.fee / 100);
-          const sellPrice = sellEx.price * (1 - sellEx.fee / 100);
-          const spread = ((sellPrice - buyPrice) / buyPrice) * 100;
+          const buyFeeMultiplier = 1 + buyEx.fee / 100;
+          const sellFeeMultiplier = 1 - sellEx.fee / 100;
+          
+          const buyPriceWithFee = buyEx.price * buyFeeMultiplier;
+          const sellPriceWithFee = sellEx.price * sellFeeMultiplier;
+          
+          const spread = ((sellPriceWithFee - buyPriceWithFee) / buyPriceWithFee) * 100;
           
           if (spread >= minSpread) {
             result.push({
@@ -144,9 +58,6 @@ export const CrossExchangeTab = ({ exchanges, selectedCrypto, selectedCurrency }
         }
       }
     }
-    
-    const filtered = syntheticOpps.filter(opp => opp.spread >= minSpread);
-    result.push(...filtered);
     
     return result.sort((a, b) => {
       if (sortBy === 'spread') return b.spread - a.spread;
