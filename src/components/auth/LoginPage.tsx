@@ -10,39 +10,20 @@ interface LoginPageProps {
   onLogin: () => void;
 }
 
-const AUTH_API = 'https://functions.poehali.dev/719314e7-b764-4fa8-89d5-5948ad68c288';
-
 export const LoginPage = ({ onLogin }: LoginPageProps) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    setLoading(true);
 
-    try {
-      const response = await fetch(AUTH_API, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ login: username, password })
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        localStorage.setItem('platformAuth', JSON.stringify(data.user));
-        onLogin();
-      } else {
-        setError(data.error || 'Неверный логин или пароль');
-      }
-    } catch (error) {
-      console.error('Login failed:', error);
-      setError('Ошибка сети. Попробуйте позже.');
-    } finally {
-      setLoading(false);
+    if (username === 'mmm' && password === '1234') {
+      localStorage.setItem('isAuthenticated', 'true');
+      onLogin();
+    } else {
+      setError('Неверный логин или пароль. Используйте mmm / 1234');
     }
   };
 
@@ -56,7 +37,7 @@ export const LoginPage = ({ onLogin }: LoginPageProps) => {
             </div>
           </div>
           <CardTitle className="text-2xl md:text-3xl">CryptoArbitrage Pro</CardTitle>
-          <CardDescription>Войдите для доступа к платформе</CardDescription>
+          <CardDescription>Логин: mmm / Пароль: 1234</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -90,18 +71,9 @@ export const LoginPage = ({ onLogin }: LoginPageProps) => {
                 <span className="text-sm text-destructive">{error}</span>
               </div>
             )}
-            <Button type="submit" className="w-full" size="lg" disabled={loading}>
-              {loading ? (
-                <>
-                  <Icon name="RefreshCw" size={20} className="mr-2 animate-spin" />
-                  Вход...
-                </>
-              ) : (
-                <>
-                  <Icon name="LogIn" size={20} className="mr-2" />
-                  Войти
-                </>
-              )}
+            <Button type="submit" className="w-full" size="lg">
+              <Icon name="LogIn" size={20} className="mr-2" />
+              Войти
             </Button>
           </form>
         </CardContent>
