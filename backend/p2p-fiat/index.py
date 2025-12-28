@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
     Получает реальные P2P фиат-криптовалютные связки со спредом >4%.
-    Использует официальные P2P API Binance и Bybit для RUB/USDT пар.
+    Использует официальные P2P API Binance и Bybit.
     ТЕСТОВЫЙ РЕЖИМ: данные проверяются на актуальность.
     '''
     method: str = event.get('httpMethod', 'GET')

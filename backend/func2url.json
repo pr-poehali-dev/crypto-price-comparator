@@ -1,16 +1,5 @@
 {
   "p2p-fiat": "https://functions.poehali.dev/e246ae66-caf5-49da-a672-7d1c231eacb5",
   "verified-opportunities": "https://functions.poehali.dev/ffd86091-8051-490f-a729-97f9ee3d7b21",
-  "ai-assistant": "https://functions.poehali.dev/a589151a-8a53-4072-91d0-a343be6b1394",
-  "accounts-list": "https://functions.poehali.dev/08158565-7845-44d8-94d7-96ac866ccb45",
-  "create-account": "https://functions.poehali.dev/76822941-3815-4621-940e-c15a704b8226",
-  "auth-login": "https://functions.poehali.dev/719314e7-b764-4fa8-89d5-5948ad68c288",
-  "cron-update-schemes": "https://functions.poehali.dev/8f458e25-5c18-45c7-bb0f-00be10d4213b",
-  "token-management": "https://functions.poehali.dev/ce69afd3-021e-4761-9e5b-df896ff09470",
-  "update-schemes": "https://functions.poehali.dev/e6aad3a0-ee00-44a7-b76a-abd8dccde072",
-  "register-user": "https://functions.poehali.dev/02e7a4df-5d7e-4fec-b1ec-db8dfbc2264c",
-  "auth": "https://functions.poehali.dev/6d6d395c-ce79-4019-a7e4-409eb5297447",
-  "sessions": "https://functions.poehali.dev/ca8a9e5c-1c6d-4b11-88e4-c740f3f6c840",
-  "users": "https://functions.poehali.dev/c7982c7b-49dd-47aa-8acf-96814a731b34",
-  "crypto-prices": "https://functions.poehali.dev/ac977fcc-5718-4e2b-b050-2421e770d97e"
+  "cron-update-schemes": "https://functions.poehali.dev/8f458e25-5c18-45c7-bb0f-00be10d4213b"
 }

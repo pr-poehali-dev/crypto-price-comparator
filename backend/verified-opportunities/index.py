@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
     Ищет и проверяет 100% рабочие арбитражные связки со спредом выше 5%.
-    Проверяет актуальность данных через несколько независимых API.
+    Проверяет актуальность через несколько независимых API.
     Возвращает только подтвержденные связки с реальным спредом >5%.
     '''
     method: str = event.get('httpMethod', 'GET')
