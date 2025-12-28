@@ -76,64 +76,25 @@ const Index = () => {
     initSession();
     startCronScheduler();
     
-    const auth = localStorage.getItem('platformAuth');
-    if (auth) {
+    const auth = localStorage.getItem('isAuthenticated');
+    if (auth === 'true') {
       setIsAuthenticated(true);
     }
 
-    const fetchUsdRubRate = async () => {
-      try {
-        const response = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
-        if (response.ok) {
-          const data = await response.json();
-          setUsdRubRate(data.rates.RUB);
-        }
-      } catch (error) {
-        console.error('Failed to fetch USD/RUB rate:', error);
-        setUsdRubRate(95.0);
-      }
-    };
-
-    fetchUsdRubRate();
-    const rateInterval = setInterval(fetchUsdRubRate, 300000);
-
-    return () => {
-      clearInterval(rateInterval);
-    };
+    setUsdRubRate(95.0);
   }, []);
 
   useEffect(() => {
-    const fetchRealPrices = async () => {
-      setIsLoadingPrices(true);
-      try {
-        const response = await fetch(`https://functions.poehali.dev/ac977fcc-5718-4e2b-b050-2421e770d97e?crypto=${selectedCrypto}&currency=${selectedCurrency}`, {
-          headers: {
-            'Cache-Control': 'no-cache, no-store, must-revalidate',
-            'Pragma': 'no-cache'
-          }
-        });
-        if (response.ok) {
-          const data = await response.json();
-          if (data.exchanges && data.exchanges.length > 0) {
-            setExchanges(data.exchanges);
-            console.log(`✅ Загружено ${data.exchanges.length} бирж для ${selectedCrypto} в ${selectedCurrency}`);
-          }
-        } else {
-          console.error('API response error:', response.status);
-        }
-      } catch (error) {
-        console.error('Failed to fetch prices:', error);
-      } finally {
-        setIsLoadingPrices(false);
-      }
-    };
-
-    fetchRealPrices();
-    const priceInterval = setInterval(fetchRealPrices, 60000);
-
-    return () => {
-      clearInterval(priceInterval);
-    };
+    const mockExchanges: Exchange[] = [
+      { name: 'Binance', price: 95420, volume: 1250000, fee: 0.1, change24h: 2.3, url: 'https://binance.com' },
+      { name: 'Bybit', price: 95650, volume: 980000, fee: 0.08, change24h: 2.5, url: 'https://bybit.com' },
+      { name: 'OKX', price: 95880, volume: 750000, fee: 0.1, change24h: 2.8, url: 'https://okx.com' },
+      { name: 'Huobi', price: 95550, volume: 620000, fee: 0.15, change24h: 2.4, url: 'https://huobi.com' },
+      { name: 'KuCoin', price: 95720, volume: 510000, fee: 0.1, change24h: 2.6, url: 'https://kucoin.com' },
+    ];
+    
+    setExchanges(mockExchanges);
+    setIsLoadingPrices(false);
   }, [selectedCrypto, selectedCurrency]);
 
   useEffect(() => {

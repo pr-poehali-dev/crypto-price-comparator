@@ -6,40 +6,21 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Icon from '@/components/ui/icon';
 
-const AUTH_API = 'https://functions.poehali.dev/6d6d395c-ce79-4019-a7e4-409eb5297447';
-
 export default function Login() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
+  const [login, setLogin] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    setLoading(true);
 
-    try {
-      const response = await fetch(AUTH_API, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, action: 'login' })
-      });
-
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        localStorage.setItem('sessionToken', data.sessionToken);
-        localStorage.setItem('user', JSON.stringify(data.user));
-        navigate('/admin');
-      } else {
-        setError(data.error || 'Ошибка входа');
-      }
-    } catch (err) {
-      setError('Ошибка подключения к серверу');
-    } finally {
-      setLoading(false);
+    if (login === 'mmm' && password === '1234') {
+      localStorage.setItem('isAuthenticated', 'true');
+      navigate('/');
+    } else {
+      setError('Неверный логин или пароль');
     }
   };
 
@@ -53,20 +34,19 @@ export default function Login() {
             </div>
           </div>
           <CardTitle className="text-2xl">Вход в систему</CardTitle>
-          <CardDescription>Введите email и пароль для доступа</CardDescription>
+          <CardDescription>Логин: mmm / Пароль: 1234</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="login">Логин</Label>
               <Input
-                id="email"
-                type="email"
-                placeholder="admin@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                id="login"
+                type="text"
+                placeholder="mmm"
+                value={login}
+                onChange={(e) => setLogin(e.target.value)}
                 required
-                disabled={loading}
               />
             </div>
             <div>
@@ -74,11 +54,10 @@ export default function Login() {
               <Input
                 id="password"
                 type="password"
-                placeholder="••••••••"
+                placeholder="1234"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                disabled={loading}
               />
             </div>
             {error && (
@@ -87,18 +66,9 @@ export default function Login() {
                 {error}
               </div>
             )}
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? (
-                <>
-                  <Icon name="RefreshCw" size={16} className="mr-2 animate-spin" />
-                  Вход...
-                </>
-              ) : (
-                <>
-                  <Icon name="LogIn" size={16} className="mr-2" />
-                  Войти
-                </>
-              )}
+            <Button type="submit" className="w-full">
+              <Icon name="LogIn" size={16} className="mr-2" />
+              Войти
             </Button>
           </form>
         </CardContent>

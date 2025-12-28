@@ -4,32 +4,7 @@ const CRON_INTERVAL = 24 * 60 * 60 * 1000;
 let cronTimer: NodeJS.Timeout | null = null;
 
 export const startCronScheduler = () => {
-  if (cronTimer) {
-    console.log('⏰ CRON scheduler already running');
-    return;
-  }
-
-  const runCron = async () => {
-    try {
-      console.log('⏰ [CRON] Starting automatic schemes update...');
-      const response = await fetch(CRON_URL);
-      const data = await response.json();
-      
-      if (response.ok) {
-        console.log(`✅ [CRON] ${data.message}`);
-        console.log(`📊 [CRON] New: ${data.new_schemes}, Deleted: ${data.deleted_schemes}`);
-      } else {
-        console.error('❌ [CRON] Update failed:', data);
-      }
-    } catch (error) {
-      console.error('❌ [CRON] Error:', error);
-    }
-  };
-
-  runCron();
-
-  cronTimer = setInterval(runCron, CRON_INTERVAL);
-  console.log(`⏰ CRON scheduler started: updating every 24 hours`);
+  console.log('⏰ CRON scheduler disabled');
 };
 
 export const stopCronScheduler = () => {

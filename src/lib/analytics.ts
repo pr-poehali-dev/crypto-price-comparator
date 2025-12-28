@@ -47,25 +47,6 @@ export const getIPAddress = async (): Promise<string> => {
 export const initSession = async (): Promise<string> => {
   const sessionId = localStorage.getItem('session_id') || `session_${Date.now()}_${Math.random()}`;
   localStorage.setItem('session_id', sessionId);
-  
-  const deviceInfo = getDeviceInfo();
-  const ip = await getIPAddress();
-  
-  const session: UserSession = {
-    id: sessionId,
-    ip,
-    ...deviceInfo,
-    lastActive: new Date(),
-    joinedAt: new Date()
-  };
-  
-  updateSession(session);
-  
-  setInterval(() => {
-    const updatedSession = { ...session, lastActive: new Date() };
-    updateSession(updatedSession);
-  }, 30000);
-  
   return sessionId;
 };
 
