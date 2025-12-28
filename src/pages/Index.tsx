@@ -87,10 +87,17 @@ const Index = () => {
   useEffect(() => {
     const mockExchanges: Exchange[] = [
       { name: 'Binance', price: 95420, volume: 1250000, fee: 0.1, change24h: 2.3, url: 'https://binance.com' },
-      { name: 'Bybit', price: 95650, volume: 980000, fee: 0.08, change24h: 2.5, url: 'https://bybit.com' },
-      { name: 'OKX', price: 95880, volume: 750000, fee: 0.1, change24h: 2.8, url: 'https://okx.com' },
-      { name: 'Huobi', price: 95550, volume: 620000, fee: 0.15, change24h: 2.4, url: 'https://huobi.com' },
-      { name: 'KuCoin', price: 95720, volume: 510000, fee: 0.1, change24h: 2.6, url: 'https://kucoin.com' },
+      { name: 'Bybit', price: 98650, volume: 980000, fee: 0.08, change24h: 2.5, url: 'https://bybit.com' },
+      { name: 'OKX', price: 99880, volume: 750000, fee: 0.1, change24h: 2.8, url: 'https://okx.com' },
+      { name: 'Huobi', price: 94550, volume: 620000, fee: 0.15, change24h: 2.4, url: 'https://huobi.com' },
+      { name: 'KuCoin', price: 97720, volume: 510000, fee: 0.1, change24h: 2.6, url: 'https://kucoin.com' },
+      { name: 'Gate.io', price: 93200, volume: 450000, fee: 0.12, change24h: 1.9, url: 'https://gate.io' },
+      { name: 'Kraken', price: 100200, volume: 890000, fee: 0.16, change24h: 3.1, url: 'https://kraken.com' },
+      { name: 'Bitfinex', price: 96100, volume: 720000, fee: 0.2, change24h: 2.2, url: 'https://bitfinex.com' },
+      { name: 'Coinbase', price: 99500, volume: 1100000, fee: 0.25, change24h: 2.7, url: 'https://coinbase.com' },
+      { name: 'Gemini', price: 94800, volume: 580000, fee: 0.18, change24h: 2.1, url: 'https://gemini.com' },
+      { name: 'MEXC', price: 92500, volume: 670000, fee: 0.08, change24h: 1.8, url: 'https://mexc.com' },
+      { name: 'HTX', price: 101200, volume: 540000, fee: 0.15, change24h: 3.4, url: 'https://htx.com' },
     ];
     
     setExchanges(mockExchanges);

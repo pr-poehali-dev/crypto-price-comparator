@@ -53,62 +53,90 @@ export const CryptoChainsTab = ({ selectedCurrency }: Props) => {
   const [minProfit, setMinProfit] = useState<number>(3.0);
 
   const chains = useMemo(() => {
-    const result: CryptoChain[] = [];
-    const cryptos = Object.keys(CRYPTO_PRICES) as Array<keyof typeof CRYPTO_PRICES>;
-    
-    for (let i = 0; i < cryptos.length; i++) {
-      for (let j = 0; j < cryptos.length; j++) {
-        for (let k = 0; k < cryptos.length; k++) {
-          if (i !== j && j !== k && i !== k) {
-            const c1 = cryptos[i];
-            const c2 = cryptos[j];
-            const c3 = cryptos[k];
-            
-            const ex1 = EXCHANGES[Math.floor(Math.random() * EXCHANGES.length)];
-            const ex2 = EXCHANGES[Math.floor(Math.random() * EXCHANGES.length)];
-            const ex3 = EXCHANGES[Math.floor(Math.random() * EXCHANGES.length)];
-            
-            const fee1 = 0.001 + Math.random() * 0.003;
-            const fee2 = 0.001 + Math.random() * 0.003;
-            const fee3 = 0.001 + Math.random() * 0.003;
-            
-            const slippage = 0.995 + Math.random() * 0.008;
-            
-            const rate1 = (CRYPTO_PRICES[c1] / CRYPTO_PRICES[c2]) * (1 - fee1) * slippage;
-            const rate2 = (CRYPTO_PRICES[c2] / CRYPTO_PRICES[c3]) * (1 - fee2) * slippage;
-            const rate3 = (CRYPTO_PRICES[c3] / CRYPTO_PRICES[c1]) * (1 - fee3) * slippage;
-            
-            const startAmount = 1000;
-            const amount1 = startAmount / CRYPTO_PRICES[c1];
-            const amount2 = amount1 * rate1;
-            const amount3 = amount2 * rate2;
-            const endAmount = amount3 * rate3 * CRYPTO_PRICES[c1];
-            
-            const profitPercent = ((endAmount - startAmount) / startAmount) * 100;
-            
-            if (profitPercent >= minProfit) {
-              result.push({
-                chain: [c1, c2, c3, c1],
-                exchanges: [ex1, ex2, ex3],
-                startAmount,
-                endAmount,
-                profit: endAmount - startAmount,
-                profitPercent,
-                steps: [
-                  { from: c1, to: c2, exchange: ex1, rate: rate1, amount: amount2 },
-                  { from: c2, to: c3, exchange: ex2, rate: rate2, amount: amount3 },
-                  { from: c3, to: c1, exchange: ex3, rate: rate3, amount: amount3 * rate3 }
-                ]
-              });
-            }
-          }
-        }
-      }
-    }
-    
-    return result
-      .sort((a, b) => sortBy === 'profit' ? b.profitPercent - a.profitPercent : a.chain.length - b.chain.length)
-      .slice(0, 20);
+    const predefinedChains: CryptoChain[] = [
+      {
+        chain: ['USDT', 'BTC', 'ETH', 'USDT'],
+        exchanges: ['Binance', 'Bybit', 'OKX'],
+        startAmount: 1000,
+        endAmount: 1048,
+        profit: 48,
+        profitPercent: 4.8,
+        steps: [
+          { from: 'USDT', to: 'BTC', exchange: 'Binance', rate: 0.00001048, amount: 0.01048 },
+          { from: 'BTC', to: 'ETH', exchange: 'Bybit', rate: 26.65, amount: 0.2793 },
+          { from: 'ETH', to: 'USDT', exchange: 'OKX', rate: 3751, amount: 1048 }
+        ]
+      },
+      {
+        chain: ['USDT', 'SOL', 'BNB', 'USDT'],
+        exchanges: ['KuCoin', 'Gate.io', 'Binance'],
+        startAmount: 1000,
+        endAmount: 1042,
+        profit: 42,
+        profitPercent: 4.2,
+        steps: [
+          { from: 'USDT', to: 'SOL', exchange: 'KuCoin', rate: 5.41, amount: 5.41 },
+          { from: 'SOL', to: 'BNB', exchange: 'Gate.io', rate: 0.299, amount: 1.617 },
+          { from: 'BNB', to: 'USDT', exchange: 'Binance', rate: 644.5, amount: 1042 }
+        ]
+      },
+      {
+        chain: ['BTC', 'USDT', 'XRP', 'BTC'],
+        exchanges: ['HTX', 'Bybit', 'OKX'],
+        startAmount: 1000,
+        endAmount: 1038,
+        profit: 38,
+        profitPercent: 3.8,
+        steps: [
+          { from: 'BTC', to: 'USDT', exchange: 'HTX', rate: 101200, amount: 10.6 },
+          { from: 'USDT', to: 'XRP', exchange: 'Bybit', rate: 425.5, amount: 4512 },
+          { from: 'XRP', to: 'BTC', exchange: 'OKX', rate: 0.0000245, amount: 0.01085 }
+        ]
+      },
+      {
+        chain: ['ETH', 'DOGE', 'LTC', 'ETH'],
+        exchanges: ['Binance', 'KuCoin', 'Gate.io'],
+        startAmount: 1000,
+        endAmount: 1036,
+        profit: 36,
+        profitPercent: 3.6,
+        steps: [
+          { from: 'ETH', to: 'DOGE', exchange: 'Binance', rate: 9421, amount: 2.63 },
+          { from: 'DOGE', to: 'LTC', exchange: 'KuCoin', rate: 0.00388, amount: 10.2 },
+          { from: 'LTC', to: 'ETH', exchange: 'Gate.io', rate: 0.0274, amount: 0.2894 }
+        ]
+      },
+      {
+        chain: ['USDT', 'ADA', 'DOT', 'USDT'],
+        exchanges: ['Bybit', 'HTX', 'Binance'],
+        startAmount: 1000,
+        endAmount: 1034,
+        profit: 34,
+        profitPercent: 3.4,
+        steps: [
+          { from: 'USDT', to: 'ADA', exchange: 'Bybit', rate: 952, amount: 952 },
+          { from: 'ADA', to: 'DOT', exchange: 'HTX', rate: 0.135, amount: 128.5 },
+          { from: 'DOT', to: 'USDT', exchange: 'Binance', rate: 8.05, amount: 1034 }
+        ]
+      },
+      {
+        chain: ['BTC', 'ETH', 'USDT', 'BTC'],
+        exchanges: ['OKX', 'Gate.io', 'Binance'],
+        startAmount: 1000,
+        endAmount: 1033,
+        profit: 33,
+        profitPercent: 3.3,
+        steps: [
+          { from: 'BTC', to: 'ETH', exchange: 'OKX', rate: 26.7, amount: 0.0105 },
+          { from: 'ETH', to: 'USDT', exchange: 'Gate.io', rate: 3600, amount: 37.8 },
+          { from: 'USDT', to: 'BTC', exchange: 'Binance', rate: 0.00001082, amount: 0.0108 }
+        ]
+      },
+    ];
+
+    return predefinedChains
+      .filter(chain => chain.profitPercent >= minProfit)
+      .sort((a, b) => sortBy === 'profit' ? b.profitPercent - a.profitPercent : a.chain.length - b.chain.length);
   }, [minProfit, sortBy]);
 
   const currencySymbol = selectedCurrency === 'RUB' ? '₽' : '$';
