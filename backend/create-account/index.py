@@ -18,6 +18,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'Access-Control-Allow-Headers': 'Content-Type, X-Admin-Auth',
                 'Access-Control-Max-Age': '86400'
             },
+            'isBase64Encoded': False,
             'body': ''
         }
     
@@ -58,8 +59,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     try:
         cur.execute(
-            "INSERT INTO t_p37207906_crypto_price_compara.platform_users (login, password, is_active) VALUES (%s, %s, TRUE)",
-            (login, password)
+            f"INSERT INTO t_p37207906_crypto_price_compara.platform_users (login, password, is_active) VALUES ('{login}', '{password}', TRUE)"
         )
         conn.commit()
         
@@ -87,4 +87,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
             'isBase64Encoded': False,
             'body': json.dumps({'error': 'User already exists'})
+        }
+    except Exception as e:
+        conn.rollback()
+        cur.close()
+        conn.close()
+        return {
+            'statusCode': 500,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'isBase64Encoded': False,
+            'body': json.dumps({'error': str(e)})
         }
