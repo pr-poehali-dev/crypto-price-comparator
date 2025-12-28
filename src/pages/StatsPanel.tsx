@@ -58,7 +58,7 @@ export default function StatsPanel() {
 
   useEffect(() => {
     const auth = localStorage.getItem('statsAuth');
-    if (auth === 'maga:magamaga1010') {
+    if (auth === 'magome:28122007') {
       setIsAuthenticated(true);
       loadData();
     }
@@ -73,8 +73,8 @@ export default function StatsPanel() {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (loginForm.login === 'maga' && loginForm.password === 'magamaga1010') {
-      localStorage.setItem('statsAuth', 'maga:magamaga1010');
+    if (loginForm.login === 'magome' && loginForm.password === '28122007') {
+      localStorage.setItem('statsAuth', 'magome:28122007');
       setIsAuthenticated(true);
       loadData();
     } else {
@@ -101,7 +101,7 @@ export default function StatsPanel() {
   const loadTokens = async () => {
     try {
       const response = await fetch(TOKEN_API, {
-        headers: { 'X-Admin-Auth': 'maga:magamaga1010' }
+        headers: { 'X-Admin-Auth': 'magome:28122007' }
       });
       const data = await response.json();
       setTokens(data.tokens || []);
@@ -123,7 +123,7 @@ export default function StatsPanel() {
   const loadAccounts = async () => {
     try {
       const response = await fetch(ACCOUNTS_API, {
-        headers: { 'X-Admin-Auth': 'maga:magamaga1010' }
+        headers: { 'X-Admin-Auth': 'magome:28122007' }
       });
       const data = await response.json();
       setAccounts(data.accounts || []);
@@ -138,7 +138,7 @@ export default function StatsPanel() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-Admin-Auth': 'maga:magamaga1010'
+          'X-Admin-Auth': 'magome:28122007'
         },
         body: JSON.stringify(newToken)
       });
@@ -174,7 +174,7 @@ export default function StatsPanel() {
     try {
       const response = await fetch(`${TOKEN_API}?token=${token}`, {
         method: 'DELETE',
-        headers: { 'X-Admin-Auth': 'maga:magamaga1010' }
+        headers: { 'X-Admin-Auth': 'magome:28122007' }
       });
       
       if (response.ok) {
@@ -214,7 +214,7 @@ export default function StatsPanel() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-Admin-Auth': 'maga:magamaga1010'
+          'X-Admin-Auth': 'magome:28122007'
         },
         body: JSON.stringify({ login, password })
       });
@@ -249,7 +249,7 @@ export default function StatsPanel() {
       const response = await fetch(`${ACCOUNTS_API}?id=${accountId}`, {
         method: 'DELETE',
         headers: {
-          'X-Admin-Auth': 'maga:magamaga1010'
+          'X-Admin-Auth': 'magome:28122007'
         }
       });
 
@@ -283,7 +283,7 @@ export default function StatsPanel() {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'X-Admin-Auth': 'maga:magamaga1010'
+          'X-Admin-Auth': 'magome:28122007'
         },
         body: JSON.stringify({ id: accountId, password: newPassword })
       });

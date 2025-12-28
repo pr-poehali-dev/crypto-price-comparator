@@ -3,7 +3,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
-import { ChainGraph } from './ChainGraph';
 import {
   Select,
   SelectContent,
@@ -49,36 +48,67 @@ const CRYPTO_PRICES = {
 
 const EXCHANGES = ['Binance', 'Bybit', 'OKX', 'KuCoin', 'Gate.io', 'HTX'];
 
-const PROFITABLE_CHAINS: Omit<CryptoChain, 'startAmount' | 'endAmount' | 'profit'>[] = [
-  { chain: ['BTC', 'ETH', 'USDT', 'BTC'], exchanges: ['Binance', 'Bybit', 'KuCoin'], profitPercent: 6.85, steps: [{from: 'BTC', to: 'ETH', exchange: 'Binance', rate: 26.65, amount: 26.65}, {from: 'ETH', to: 'USDT', exchange: 'Bybit', rate: 3598.5, amount: 95875}, {from: 'USDT', to: 'BTC', exchange: 'KuCoin', rate: 0.0000106, amount: 1.0685}] },
-  { chain: ['ETH', 'BTC', 'SOL', 'ETH'], exchanges: ['OKX', 'Gate.io', 'Binance'], profitPercent: 5.42, steps: [{from: 'ETH', to: 'BTC', exchange: 'OKX', rate: 0.0375, amount: 0.0375}, {from: 'BTC', to: 'SOL', exchange: 'Gate.io', rate: 516.8, amount: 19.38}, {from: 'SOL', to: 'ETH', exchange: 'Binance', rate: 0.0517, amount: 1.0542}] },
-  { chain: ['SOL', 'USDT', 'XRP', 'SOL'], exchanges: ['Bybit', 'HTX', 'OKX'], profitPercent: 4.73, steps: [{from: 'SOL', to: 'USDT', exchange: 'Bybit', rate: 186.2, amount: 186.2}, {from: 'USDT', to: 'XRP', exchange: 'HTX', rate: 0.425, amount: 79.21}, {from: 'XRP', to: 'SOL', exchange: 'OKX', rate: 0.0132, amount: 1.0473}] },
-  { chain: ['BNB', 'ETH', 'BTC', 'BNB'], exchanges: ['Binance', 'KuCoin', 'Bybit'], profitPercent: 6.12, steps: [{from: 'BNB', to: 'ETH', exchange: 'Binance', rate: 0.173, amount: 0.173}, {from: 'ETH', to: 'BTC', exchange: 'KuCoin', rate: 0.0375, amount: 0.00649}, {from: 'BTC', to: 'BNB', exchange: 'Bybit', rate: 163.5, amount: 1.0612}] },
-  { chain: ['XRP', 'DOGE', 'LTC', 'XRP'], exchanges: ['Gate.io', 'Binance', 'OKX'], profitPercent: 5.88, steps: [{from: 'XRP', to: 'DOGE', exchange: 'Gate.io', rate: 6.18, amount: 6.18}, {from: 'DOGE', to: 'LTC', exchange: 'Binance', rate: 0.00388, amount: 0.024}, {from: 'LTC', to: 'XRP', exchange: 'OKX', rate: 44.2, amount: 1.0588}] },
-  { chain: ['USDT', 'BTC', 'ETH', 'USDT'], exchanges: ['Bybit', 'OKX', 'Gate.io'], profitPercent: 4.25, steps: [{from: 'USDT', to: 'BTC', exchange: 'Bybit', rate: 0.0000105, amount: 0.0000105}, {from: 'BTC', to: 'ETH', exchange: 'OKX', rate: 26.7, amount: 0.00028}, {from: 'ETH', to: 'USDT', exchange: 'Gate.io', rate: 3585, amount: 1.0425}] },
-  { chain: ['ADA', 'SOL', 'MATIC', 'ADA'], exchanges: ['KuCoin', 'HTX', 'Binance'], profitPercent: 6.95, steps: [{from: 'ADA', to: 'SOL', exchange: 'KuCoin', rate: 0.00567, amount: 0.00567}, {from: 'SOL', to: 'MATIC', exchange: 'HTX', rate: 195.8, amount: 1.11}, {from: 'MATIC', to: 'ADA', exchange: 'Binance', rate: 0.96, amount: 1.0695}] },
-  { chain: ['DOT', 'AVAX', 'BNB', 'DOT'], exchanges: ['Bybit', 'Binance', 'Gate.io'], profitPercent: 5.15, steps: [{from: 'DOT', to: 'AVAX', exchange: 'Bybit', rate: 0.186, amount: 0.186}, {from: 'AVAX', to: 'BNB', exchange: 'Binance', rate: 0.0677, amount: 0.0126}, {from: 'BNB', to: 'DOT', exchange: 'Gate.io', rate: 83.5, amount: 1.0515}] },
-  { chain: ['LTC', 'DOGE', 'XRP', 'LTC'], exchanges: ['OKX', 'KuCoin', 'HTX'], profitPercent: 4.58, steps: [{from: 'LTC', to: 'DOGE', exchange: 'OKX', rate: 258, amount: 258}, {from: 'DOGE', to: 'XRP', exchange: 'KuCoin', rate: 0.162, amount: 41.8}, {from: 'XRP', to: 'LTC', exchange: 'HTX', rate: 0.0245, amount: 1.0458}] },
-  { chain: ['MATIC', 'ADA', 'DOT', 'MATIC'], exchanges: ['Gate.io', 'Bybit', 'OKX'], profitPercent: 6.38, steps: [{from: 'MATIC', to: 'ADA', exchange: 'Gate.io', rate: 0.905, amount: 0.905}, {from: 'ADA', to: 'DOT', exchange: 'Bybit', rate: 0.135, amount: 0.122}, {from: 'DOT', to: 'MATIC', exchange: 'OKX', rate: 8.75, amount: 1.0638}] },
-];
-
 export const CryptoChainsTab = ({ selectedCurrency }: Props) => {
   const [sortBy, setSortBy] = useState<'profit' | 'steps'>('profit');
   const [minProfit, setMinProfit] = useState<number>(3.0);
-  const [minProfitInput, setMinProfitInput] = useState<string>('3.0');
 
   const chains = useMemo(() => {
-    const result: CryptoChain[] = PROFITABLE_CHAINS
-      .filter(chain => chain.profitPercent >= minProfit)
-      .map(chain => ({
-        ...chain,
-        startAmount: 1000,
-        endAmount: 1000 * (1 + chain.profitPercent / 100),
-        profit: 1000 * (chain.profitPercent / 100)
-      }));
+    const result: CryptoChain[] = [];
+    const cryptos = Object.keys(CRYPTO_PRICES) as Array<keyof typeof CRYPTO_PRICES>;
+    
+    for (let i = 0; i < cryptos.length; i++) {
+      for (let j = 0; j < cryptos.length; j++) {
+        for (let k = 0; k < cryptos.length; k++) {
+          if (i !== j && j !== k && i !== k) {
+            const c1 = cryptos[i];
+            const c2 = cryptos[j];
+            const c3 = cryptos[k];
+            
+            const ex1 = EXCHANGES[Math.floor(Math.random() * EXCHANGES.length)];
+            const ex2 = EXCHANGES[Math.floor(Math.random() * EXCHANGES.length)];
+            const ex3 = EXCHANGES[Math.floor(Math.random() * EXCHANGES.length)];
+            
+            const fee1 = 0.001 + Math.random() * 0.003;
+            const fee2 = 0.001 + Math.random() * 0.003;
+            const fee3 = 0.001 + Math.random() * 0.003;
+            
+            const slippage = 0.995 + Math.random() * 0.008;
+            
+            const rate1 = (CRYPTO_PRICES[c1] / CRYPTO_PRICES[c2]) * (1 - fee1) * slippage;
+            const rate2 = (CRYPTO_PRICES[c2] / CRYPTO_PRICES[c3]) * (1 - fee2) * slippage;
+            const rate3 = (CRYPTO_PRICES[c3] / CRYPTO_PRICES[c1]) * (1 - fee3) * slippage;
+            
+            const startAmount = 1000;
+            const amount1 = startAmount / CRYPTO_PRICES[c1];
+            const amount2 = amount1 * rate1;
+            const amount3 = amount2 * rate2;
+            const endAmount = amount3 * rate3 * CRYPTO_PRICES[c1];
+            
+            const profitPercent = ((endAmount - startAmount) / startAmount) * 100;
+            
+            if (profitPercent >= minProfit) {
+              result.push({
+                chain: [c1, c2, c3, c1],
+                exchanges: [ex1, ex2, ex3],
+                startAmount,
+                endAmount,
+                profit: endAmount - startAmount,
+                profitPercent,
+                steps: [
+                  { from: c1, to: c2, exchange: ex1, rate: rate1, amount: amount2 },
+                  { from: c2, to: c3, exchange: ex2, rate: rate2, amount: amount3 },
+                  { from: c3, to: c1, exchange: ex3, rate: rate3, amount: amount3 * rate3 }
+                ]
+              });
+            }
+          }
+        }
+      }
+    }
     
     return result
-      .sort((a, b) => sortBy === 'profit' ? b.profitPercent - a.profitPercent : a.chain.length - b.chain.length);
+      .sort((a, b) => sortBy === 'profit' ? b.profitPercent - a.profitPercent : a.chain.length - b.chain.length)
+      .slice(0, 20);
   }, [minProfit, sortBy]);
 
   const currencySymbol = selectedCurrency === 'RUB' ? '₽' : '$';
@@ -146,22 +176,18 @@ export const CryptoChainsTab = ({ selectedCurrency }: Props) => {
             <div className="flex flex-col sm:flex-row gap-2 md:gap-3">
               <div className="flex items-center gap-2">
                 <span className="text-xs md:text-sm text-muted-foreground whitespace-nowrap">Мин. прибыль:</span>
-                <input
-                  type="number"
-                  step="0.1"
-                  min="0"
-                  max="50"
-                  value={minProfitInput}
-                  onChange={(e) => {
-                    setMinProfitInput(e.target.value);
-                    const val = parseFloat(e.target.value);
-                    if (!isNaN(val) && val >= 0) {
-                      setMinProfit(val);
-                    }
-                  }}
-                  className="w-[80px] md:w-[100px] h-8 md:h-10 px-2 md:px-3 text-xs md:text-sm bg-background border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                />
-                <span className="text-xs md:text-sm text-muted-foreground">%</span>
+                <Select value={minProfit.toString()} onValueChange={(v) => setMinProfit(parseFloat(v))}>
+                  <SelectTrigger className="w-[100px] md:w-[120px] h-8 md:h-10 text-xs md:text-sm">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="3.0">3.0%</SelectItem>
+                    <SelectItem value="5.0">5.0%</SelectItem>
+                    <SelectItem value="7.0">7.0%</SelectItem>
+                    <SelectItem value="10.0">10.0%</SelectItem>
+                    <SelectItem value="15.0">15.0%</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-xs md:text-sm text-muted-foreground whitespace-nowrap">Сортировка:</span>
@@ -246,37 +272,29 @@ export const CryptoChainsTab = ({ selectedCurrency }: Props) => {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="grid grid-cols-2 gap-3 p-3 md:p-4 rounded-lg bg-muted/30 border border-border">
-                      <div>
-                        <p className="text-xs text-muted-foreground mb-1">Старт</p>
-                        <p className="text-sm md:text-base font-bold">
-                          {currencySymbol}{(chain.startAmount * multiplier).toFixed(2)}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground mb-1">Финал</p>
-                        <p className="text-sm md:text-base font-bold text-green-500">
-                          {currencySymbol}{(chain.endAmount * multiplier).toFixed(2)}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground mb-1">Прибыль</p>
-                        <p className="text-sm md:text-base font-bold text-primary">
-                          +{currencySymbol}{(chain.profit * multiplier).toFixed(2)}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground mb-1">Шагов</p>
-                        <p className="text-sm md:text-base font-bold">{chain.steps.length}</p>
-                      </div>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 p-3 md:p-4 rounded-lg bg-muted/30 border border-border">
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">Старт</p>
+                      <p className="text-sm md:text-base font-bold">
+                        {currencySymbol}{(chain.startAmount * multiplier).toFixed(2)}
+                      </p>
                     </div>
-                    
-                    <ChainGraph 
-                      chain={chain.chain.slice(0, -1)} 
-                      exchanges={chain.exchanges} 
-                      profitPercent={chain.profitPercent} 
-                    />
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">Финал</p>
+                      <p className="text-sm md:text-base font-bold text-green-500">
+                        {currencySymbol}{(chain.endAmount * multiplier).toFixed(2)}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">Прибыль</p>
+                      <p className="text-sm md:text-base font-bold text-primary">
+                        +{currencySymbol}{(chain.profit * multiplier).toFixed(2)}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">Шагов</p>
+                      <p className="text-sm md:text-base font-bold">{chain.steps.length}</p>
+                    </div>
                   </div>
 
                   <details className="group">

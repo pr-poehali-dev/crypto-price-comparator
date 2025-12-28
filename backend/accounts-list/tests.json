@@ -15,7 +15,7 @@
       "method": "GET",
       "path": "/",
       "headers": {
-        "X-Admin-Auth": "maga:magamaga1010"
+        "X-Admin-Auth": "magome:28122007"
       },
       "expectedStatus": 200,
       "expectedBody": {

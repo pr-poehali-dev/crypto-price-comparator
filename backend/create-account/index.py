@@ -18,7 +18,6 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'Access-Control-Allow-Headers': 'Content-Type, X-Admin-Auth',
                 'Access-Control-Max-Age': '86400'
             },
-            'isBase64Encoded': False,
             'body': ''
         }
     
@@ -33,7 +32,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     headers = event.get('headers', {})
     admin_auth = headers.get('x-admin-auth') or headers.get('X-Admin-Auth')
     
-    if admin_auth != 'maga:magamaga1010':
+    if admin_auth != 'magome:28122007':
         return {
             'statusCode': 403,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
@@ -53,13 +52,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'body': json.dumps({'error': 'Login and password required'})
         }
     
+    dsn = os.environ.get('DATABASE_URL')
+    conn = psycopg2.connect(dsn)
+    cur = conn.cursor()
+    
     try:
-        dsn = os.environ.get('DATABASE_URL')
-        conn = psycopg2.connect(dsn)
-        cur = conn.cursor()
-        
         cur.execute(
-            f"INSERT INTO t_p37207906_crypto_price_compara.platform_users (login, password, is_active) VALUES ('{login}', '{password}', TRUE)"
+            "INSERT INTO t_p37207906_crypto_price_compara.platform_users (login, password, is_active) VALUES (%s, %s, TRUE)",
+            (login, password)
         )
         conn.commit()
         
@@ -87,15 +87,4 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
             'isBase64Encoded': False,
             'body': json.dumps({'error': 'User already exists'})
-        }
-    except Exception as e:
-        if 'conn' in locals():
-            conn.rollback()
-            cur.close()
-            conn.close()
-        return {
-            'statusCode': 500,
-            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-            'isBase64Encoded': False,
-            'body': json.dumps({'error': str(e)})
         }

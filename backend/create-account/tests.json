@@ -19,11 +19,11 @@
       "method": "POST",
       "path": "/",
       "headers": {
-        "X-Admin-Auth": "maga:magamaga1010"
+        "X-Admin-Auth": "magome:28122007"
       },
       "body": {
-        "login": "testacc_20251229_002200",
-        "password": "testpass999"
+        "login": "maga",
+        "password": "1234"
       },
       "expectedStatus": 200,
       "expectedBody": {

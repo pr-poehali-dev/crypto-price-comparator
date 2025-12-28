@@ -32,7 +32,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     headers = event.get('headers', {})
     admin_auth = headers.get('x-admin-auth') or headers.get('X-Admin-Auth')
     
-    if admin_auth != 'maga:magamaga1010':
+    if admin_auth != 'magome:28122007':
         return {
             'statusCode': 403,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
