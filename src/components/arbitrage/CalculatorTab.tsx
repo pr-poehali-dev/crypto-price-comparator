@@ -24,6 +24,21 @@ export const CalculatorTab = ({ exchanges, selectedCrypto, amount, setAmount }: 
   const minPrice = sortedExchanges[0];
   const maxPrice = sortedExchanges[sortedExchanges.length - 1];
   const amountNum = parseFloat(amount) || 0;
+  
+  if (!minPrice || !maxPrice) {
+    return (
+      <Card className="bg-card/50 backdrop-blur border-border">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-xl md:text-2xl">
+            <Icon name="Calculator" size={24} className="text-primary" />
+            Калькулятор прибыли
+          </CardTitle>
+          <CardDescription className="text-sm">Нет данных о ценах</CardDescription>
+        </CardHeader>
+      </Card>
+    );
+  }
+  
   const buyTotal = minPrice.price * amountNum * (1 + minPrice.fee / 100);
   const sellTotal = maxPrice.price * amountNum * (1 - maxPrice.fee / 100);
   const profit = sellTotal - buyTotal;
