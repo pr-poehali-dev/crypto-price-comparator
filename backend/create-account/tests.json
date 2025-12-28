@@ -22,7 +22,7 @@
         "X-Admin-Auth": "maga:magamaga1010"
       },
       "body": {
-        "login": "testacc_20251228_200000",
+        "login": "testacc_20251229_002200",
         "password": "testpass999"
       },
       "expectedStatus": 200,

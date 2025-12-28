@@ -53,11 +53,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'body': json.dumps({'error': 'Login and password required'})
         }
     
-    dsn = os.environ.get('DATABASE_URL')
-    conn = psycopg2.connect(dsn)
-    cur = conn.cursor()
-    
     try:
+        dsn = os.environ.get('DATABASE_URL')
+        conn = psycopg2.connect(dsn)
+        cur = conn.cursor()
+        
         cur.execute(
             f"INSERT INTO t_p37207906_crypto_price_compara.platform_users (login, password, is_active) VALUES ('{login}', '{password}', TRUE)"
         )
@@ -89,9 +89,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'body': json.dumps({'error': 'User already exists'})
         }
     except Exception as e:
-        conn.rollback()
-        cur.close()
-        conn.close()
+        if 'conn' in locals():
+            conn.rollback()
+            cur.close()
+            conn.close()
         return {
             'statusCode': 500,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
