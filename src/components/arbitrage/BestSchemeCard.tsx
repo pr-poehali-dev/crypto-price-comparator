@@ -38,10 +38,7 @@ export const BestSchemeCard = ({ exchanges, selectedCrypto, selectedCurrency }: 
   const [schemeModalOpen, setSchemeModalOpen] = useState(false);
 
   useEffect(() => {
-
-    if (exchanges.length === 0) {
-      return;
-    }
+    if (exchanges.length === 0) return;
 
     const filteredExchanges = exchanges.filter(ex => ex.name !== 'BestChange P2P');
     const sortedExchanges = [...filteredExchanges].sort((a, b) => a.price - b.price);
@@ -79,7 +76,7 @@ export const BestSchemeCard = ({ exchanges, selectedCrypto, selectedCurrency }: 
       
       setBestScheme(topSpreads);
     }
-  }, [exchanges, bestScheme, selectedCrypto]);
+  }, [exchanges, bestScheme]);
 
   if (exchanges.length === 0) {
     return (
@@ -100,7 +97,7 @@ export const BestSchemeCard = ({ exchanges, selectedCrypto, selectedCurrency }: 
   }
 
   return (
-    <Card className={`bg-gradient-to-br from-primary/10 via-purple-500/10 to-accent/10 backdrop-blur-xl border-2 transition-all duration-500 shadow-2xl ${isNew ? 'border-primary shadow-lg shadow-primary/50 scale-[1.02] animate-gradient' : 'border-primary/30 shadow-primary/20'}`}>
+    <Card className={`bg-gradient-to-br from-primary/20 via-accent/20 to-primary/20 backdrop-blur border-2 transition-all duration-500 ${isNew ? 'border-primary shadow-lg shadow-primary/50 scale-[1.02]' : 'border-primary/50'}`}>
       <CardContent className="pt-4 md:pt-6 px-4 pb-4">
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-2">
@@ -113,7 +110,7 @@ export const BestSchemeCard = ({ exchanges, selectedCrypto, selectedCurrency }: 
                 Лучшая схема сейчас
               </h3>
               <p className="text-xs md:text-sm text-muted-foreground">
-                Обновляется автоматически
+                Обновляется автоматически каждую минуту
               </p>
             </div>
           </div>

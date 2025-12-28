@@ -25,17 +25,6 @@ export const NoCardsTab = ({ exchanges, selectedCrypto }: NoCardsTabProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [countdown, setCountdown] = useState(60);
 
-  const mockExchanges: Exchange[] = [
-    { name: 'HTX', price: 94920, volume: 18000, fee: 0.2, change24h: 1.92, url: 'https://www.htx.com' },
-    { name: 'KuCoin', price: 95050, volume: 28000, fee: 0.1, change24h: 2.08, url: 'https://www.kucoin.com' },
-    { name: 'Bybit', price: 95180, volume: 32000, fee: 0.1, change24h: 2.15, url: 'https://www.bybit.com' },
-    { name: 'Binance', price: 95420, volume: 58000, fee: 0.1, change24h: 2.34, url: 'https://www.binance.com' },
-    { name: 'OKX', price: 95650, volume: 45000, fee: 0.08, change24h: 2.41, url: 'https://www.okx.com' },
-    { name: 'Gate.io', price: 96180, volume: 22000, fee: 0.2, change24h: 2.67, url: 'https://www.gate.io' },
-    { name: 'MEXC', price: 96420, volume: 20000, fee: 0.2, change24h: 2.78, url: 'https://www.mexc.com' },
-    { name: 'Exmo', price: 96850, volume: 8000, fee: 0.4, change24h: 3.12, url: 'https://exmo.com' },
-  ];
-
   useEffect(() => {
     const timer = setInterval(() => {
       setCountdown((prev) => {
@@ -57,15 +46,9 @@ export const NoCardsTab = ({ exchanges, selectedCrypto }: NoCardsTabProps) => {
     setSelectedScheme(scheme);
     setIsModalOpen(true);
   };
-
-  const cryptoExchanges = exchanges.length > 0 
-    ? exchanges.filter(ex => 
-        !ex.name.includes('P2P') && 
-        !ex.name.includes('BestChange') && 
-        !ex.name.includes('Cryptomus') &&
-        (!ex.paymentMethod || !ex.paymentMethod.includes('Карт'))
-      )
-    : mockExchanges;
+  const cryptoExchanges = exchanges.filter(ex => 
+    ex.name !== 'BestChange P2P' && (!ex.paymentMethod || !ex.paymentMethod.includes('Карт'))
+  );
 
   const sortedByPrice = [...cryptoExchanges].sort((a, b) => a.price - b.price);
   
@@ -115,7 +98,7 @@ export const NoCardsTab = ({ exchanges, selectedCrypto }: NoCardsTabProps) => {
             <CardTitle className="text-lg">Связки без банковских карт</CardTitle>
           </div>
           <p className="text-sm text-muted-foreground">
-            Арбитраж через криптокошельки: только биржа → биржа
+            Арбитраж через криптокошельки: биржа → биржа, P2P-переводы
           </p>
         </CardHeader>
         <CardContent>
@@ -130,7 +113,7 @@ export const NoCardsTab = ({ exchanges, selectedCrypto }: NoCardsTabProps) => {
             </div>
             <div className="flex items-center gap-2 text-sm">
               <Icon name="Zap" size={16} className="text-green-500" />
-              <span>Быстрые транзакции между биржами</span>
+              <span>Быстрый вывод через P2P на СБП/наличные</span>
             </div>
           </div>
         </CardContent>
@@ -285,65 +268,16 @@ export const NoCardsTab = ({ exchanges, selectedCrypto }: NoCardsTabProps) => {
 
       <Card className="bg-blue-500/5 border-blue-500/20">
         <CardContent className="pt-4 pb-4">
-          <div className="space-y-3">
-            <div className="flex items-start gap-3">
-              <Icon name="Info" size={20} className="text-blue-500 mt-0.5 shrink-0" />
-              <div className="space-y-2 text-sm">
-                <p className="font-semibold text-base">💡 Как работает схема без карт:</p>
-                <ol className="list-decimal list-inside space-y-2 text-muted-foreground ml-2">
-                  <li><strong>Покупка:</strong> Покупаете криптовалюту на бирже с низкой ценой (например HTX, KuCoin)</li>
-                  <li><strong>Перевод:</strong> Выводите на свой криптокошелек через TRC-20/BEP-20 (комиссия $1-3, время 3-10 мин)</li>
-                  <li><strong>Пополнение:</strong> Пополняете вторую биржу с высокой ценой (Exmo, MEXC, Gate.io)</li>
-                  <li><strong>Продажа:</strong> Продаете через P2P за рубли на СБП/Тинькофф (без банковских карт!)</li>
-                  <li><strong>Профит:</strong> Получаете чистую прибыль 2-3% за цикл 40-90 минут</li>
-                </ol>
-              </div>
-            </div>
-            
-            <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg">
-              <div className="flex items-start gap-2">
-                <Icon name="AlertCircle" size={16} className="text-amber-500 mt-0.5 shrink-0" />
-                <div className="text-xs text-muted-foreground space-y-1">
-                  <p><strong className="text-amber-600">⚠️ Важно для новичков:</strong></p>
-                  <ul className="space-y-1 ml-4 list-disc">
-                    <li>Начните с малой суммы $50-100 для теста</li>
-                    <li>Всегда проверяйте актуальность спреда перед началом</li>
-                    <li>Используйте TRC-20 сеть для USDT (самые низкие комиссии ~$1)</li>
-                    <li>Спред может измениться за 40-60 минут цикла</li>
-                    <li>Выбирайте P2P продавцов/покупателей с рейтингом >98%</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-xs">
-              <div className="p-2 bg-green-500/10 border border-green-500/30 rounded">
-                <p className="text-green-600 font-semibold mb-1">✅ Плюсы:</p>
-                <ul className="text-muted-foreground space-y-0.5 ml-3 list-disc">
-                  <li>Нет KYC для кошелька</li>
-                  <li>Никаких банковских карт</li>
-                  <li>Быстрые переводы</li>
-                  <li>Полный контроль криптой</li>
-                </ul>
-              </div>
-              <div className="p-2 bg-yellow-500/10 border border-yellow-500/30 rounded">
-                <p className="text-yellow-600 font-semibold mb-1">⚡ Время цикла:</p>
-                <ul className="text-muted-foreground space-y-0.5 ml-3 list-disc">
-                  <li>Покупка: 3-10 мин</li>
-                  <li>Вывод на кошелек: 5-15 мин</li>
-                  <li>Перевод на биржу: 5-15 мин</li>
-                  <li>P2P продажа: 10-30 мин</li>
-                </ul>
-              </div>
-              <div className="p-2 bg-purple-500/10 border border-purple-500/30 rounded">
-                <p className="text-purple-600 font-semibold mb-1">💰 Доходность:</p>
-                <ul className="text-muted-foreground space-y-0.5 ml-3 list-disc">
-                  <li>1 цикл: 2-3% прибыли</li>
-                  <li>2-3 цикла/день возможно</li>
-                  <li>С $500: ≈$30-45/день</li>
-                  <li>Месяц: $900-1350+</li>
-                </ul>
-              </div>
+          <div className="flex items-start gap-3">
+            <Icon name="Info" size={20} className="text-blue-500 mt-0.5" />
+            <div className="space-y-1 text-sm">
+              <p className="font-semibold">Как работает схема без карт:</p>
+              <ol className="list-decimal list-inside space-y-1 text-muted-foreground ml-2">
+                <li>Покупаете крипту на бирже с низкой ценой</li>
+                <li>Переводите на кошелек (обычно через TRC20/BEP20 - низкие комиссии)</li>
+                <li>Продаете на площадке с высокой ценой через P2P (СБП/наличные)</li>
+                <li>Получаете прибыль без использования банковских карт</li>
+              </ol>
             </div>
           </div>
         </CardContent>

@@ -7,7 +7,7 @@ import requests
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
-    CRON задача: автообновление арбитражных связок каждые 24 часа
+    CRON задача: автоматическое обновление арбитражных связок каждые 24 часа
     '''
     method: str = event.get('httpMethod', 'GET')
     

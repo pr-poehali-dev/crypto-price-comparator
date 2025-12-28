@@ -11,7 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import Icon from '@/components/ui/icon';
 import { ArbitrageTab } from '@/components/arbitrage/ArbitrageTab';
 import { NoCardsTab } from '@/components/arbitrage/NoCardsTab';
-
+import { CalculatorTab } from '@/components/arbitrage/CalculatorTab';
 import { AnalyticsTab } from '@/components/arbitrage/AnalyticsTab';
 import { AIPredictionTab } from '@/components/arbitrage/AIPredictionTab';
 import { VerifiedSchemesTab } from '@/components/arbitrage/VerifiedSchemesTab';
@@ -22,10 +22,9 @@ import { ProfitVisualization } from '@/components/arbitrage/ProfitVisualization'
 import { TradingHistory } from '@/components/arbitrage/TradingHistory';
 import { CrossExchangeTab } from '@/components/arbitrage/CrossExchangeTab';
 import { CryptoChainsTab } from '@/components/arbitrage/CryptoChainsTab';
-import { AIAssistantTab } from '@/components/arbitrage/AIAssistantTab';
-import { P2PFiatTab } from '@/components/arbitrage/P2PFiatTab';
 import { LoginPage } from '@/components/auth/LoginPage';
 import { initSession } from '@/lib/analytics';
+import { startCronScheduler } from '@/lib/cronScheduler';
 
 interface Exchange {
   name: string;
@@ -51,18 +50,9 @@ const Index = () => {
   const [minProfitThreshold, setMinProfitThreshold] = useState<string>('0.3');
   const [minProfitFilter, setMinProfitFilter] = useState<string>('0.1');
   const [lastNotificationTime, setLastNotificationTime] = useState<number>(0);
-  const [exchanges, setExchanges] = useState<Exchange[]>([
-    { name: 'Binance', price: 95420, volume: 58000, fee: 0.1, change24h: 2.34, url: 'https://www.binance.com', dataSource: 'Live API' },
-    { name: 'Bybit', price: 95180, volume: 32000, fee: 0.1, change24h: 2.15, url: 'https://www.bybit.com', dataSource: 'Live API' },
-    { name: 'OKX', price: 95650, volume: 45000, fee: 0.08, change24h: 2.41, url: 'https://www.okx.com', dataSource: 'Live API' },
-    { name: 'KuCoin', price: 95050, volume: 28000, fee: 0.1, change24h: 2.08, url: 'https://www.kucoin.com', dataSource: 'Live API' },
-    { name: 'Gate.io', price: 96180, volume: 22000, fee: 0.2, change24h: 2.67, url: 'https://www.gate.io', dataSource: 'Live API' },
-    { name: 'HTX', price: 94920, volume: 18000, fee: 0.2, change24h: 1.92, url: 'https://www.htx.com', dataSource: 'Live API' },
-    { name: 'MEXC', price: 96420, volume: 20000, fee: 0.2, change24h: 2.78, url: 'https://www.mexc.com', dataSource: 'Live API' },
-    { name: 'Exmo', price: 96850, volume: 8000, fee: 0.4, change24h: 3.12, url: 'https://exmo.com', dataSource: 'Live API' },
-  ]);
-  const [isLoadingPrices, setIsLoadingPrices] = useState<boolean>(false);
-  const [usdRubRate, setUsdRubRate] = useState<number | null>(95.0);
+  const [exchanges, setExchanges] = useState<Exchange[]>([]);
+  const [isLoadingPrices, setIsLoadingPrices] = useState<boolean>(true);
+  const [usdRubRate, setUsdRubRate] = useState<number | null>(null);
 
   const [priceHistory] = useState([
     { time: '00:00', spread: 120, profit: 0.12 },
@@ -84,17 +74,66 @@ const Index = () => {
 
   useEffect(() => {
     initSession();
+    startCronScheduler();
     
     const auth = localStorage.getItem('platformAuth');
     if (auth) {
       setIsAuthenticated(true);
     }
 
-    setUsdRubRate(95.0);
+    const fetchUsdRubRate = async () => {
+      try {
+        const response = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
+        if (response.ok) {
+          const data = await response.json();
+          setUsdRubRate(data.rates.RUB);
+        }
+      } catch (error) {
+        console.error('Failed to fetch USD/RUB rate:', error);
+        setUsdRubRate(95.0);
+      }
+    };
+
+    fetchUsdRubRate();
+    const rateInterval = setInterval(fetchUsdRubRate, 300000);
+
+    return () => {
+      clearInterval(rateInterval);
+    };
   }, []);
 
   useEffect(() => {
-    setIsLoadingPrices(false);
+    const fetchRealPrices = async () => {
+      setIsLoadingPrices(true);
+      try {
+        const response = await fetch(`https://functions.poehali.dev/ac977fcc-5718-4e2b-b050-2421e770d97e?crypto=${selectedCrypto}&currency=${selectedCurrency}`, {
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache'
+          }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          if (data.exchanges && data.exchanges.length > 0) {
+            setExchanges(data.exchanges);
+            console.log(`✅ Загружено ${data.exchanges.length} бирж для ${selectedCrypto} в ${selectedCurrency}`);
+          }
+        } else {
+          console.error('API response error:', response.status);
+        }
+      } catch (error) {
+        console.error('Failed to fetch prices:', error);
+      } finally {
+        setIsLoadingPrices(false);
+      }
+    };
+
+    fetchRealPrices();
+    const priceInterval = setInterval(fetchRealPrices, 60000);
+
+    return () => {
+      clearInterval(priceInterval);
+    };
   }, [selectedCrypto, selectedCurrency]);
 
   useEffect(() => {
@@ -138,64 +177,66 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-2 md:p-6 relative overflow-hidden">
-      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjAzKSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-50"></div>
-      <div className="max-w-[1600px] mx-auto space-y-3 md:space-y-5 relative z-10">
-        <header className="space-y-2 pb-3 border-b border-border/50 mb-3 md:mb-5 bg-gradient-to-r from-primary/5 via-purple-500/5 to-transparent rounded-lg p-3 md:p-4 backdrop-blur-sm shadow-lg shadow-primary/5 animate-slide-up">
+    <div className="min-h-screen bg-background p-3 md:p-8">
+      <div className="max-w-7xl mx-auto space-y-4 md:space-y-6">
+        <header className="space-y-3 pb-4 border-b border-border mb-4 md:mb-6">
           <div className="flex items-start justify-between gap-2">
             <div className="flex-1 min-w-0">
-              <h1 className="text-lg md:text-3xl font-bold bg-gradient-to-r from-primary via-blue-400 to-purple-500 bg-clip-text text-transparent flex items-center gap-2">
-                <div className="p-1.5 md:p-2 bg-gradient-to-br from-primary/20 to-purple-500/20 rounded-xl animate-glow">
-                  <Icon name="TrendingUp" size={20} className="text-primary shrink-0 md:w-7 md:h-7" />
-                </div>
+              <h1 className="text-xl md:text-4xl font-bold text-foreground flex items-center gap-2">
+                <Icon name="TrendingUp" size={24} className="text-primary shrink-0 md:w-9 md:h-9" />
                 <span className="truncate">CryptoArbitrage Pro</span>
               </h1>
-              <p className="text-muted-foreground mt-1 text-[10px] md:text-sm">Умный поиск арбитражных возможностей в реальном времени</p>
+              <p className="text-muted-foreground mt-1 text-xs md:text-base">Мониторинг арбитража в реальном времени</p>
             </div>
-            <div className="flex flex-col items-end gap-1 shrink-0">
+            <div className="flex items-center gap-2 shrink-0">
               {selectedCurrency === 'RUB' && usdRubRate && (
-                <Badge variant="outline" className="text-blue-400 border-blue-500/30 bg-blue-500/10 text-[10px] md:text-xs">
-                  <Icon name="DollarSign" size={10} className="mr-0.5" />
+                <Badge variant="outline" className="text-blue-500 border-blue-500/30 bg-blue-500/10 text-xs">
+                  <Icon name="DollarSign" size={12} className="mr-1" />
                   ${1} = ₽{usdRubRate.toFixed(2)}
                 </Badge>
               )}
               {isLoadingPrices ? (
-                <Badge variant="outline" className="text-accent border-accent/50 bg-accent/10 text-[10px] md:text-xs">
-                  <Icon name="RefreshCw" size={10} className="mr-0.5 animate-spin" />
-                  <span className="hidden sm:inline">Обновление</span>
+                <Badge variant="outline" className="text-accent border-accent text-xs">
+                  <Icon name="RefreshCw" size={12} className="mr-1 animate-spin" />
+                  <span className="hidden sm:inline">Обновление...</span>
                 </Badge>
               ) : (
                 <div className="animate-pulse-glow">
-                  <Badge variant="outline" className="text-primary border-primary/50 bg-primary/10 text-[10px] md:text-xs shadow-sm shadow-primary/20">
-                    <Icon name="Radio" size={10} className="mr-0.5" />
+                  <Badge variant="outline" className="text-primary border-primary text-xs">
+                    <Icon name="Radio" size={12} className="mr-1" />
                     LIVE
                   </Badge>
                 </div>
               )}
             </div>
           </div>
-          <div className="flex items-center gap-1.5 overflow-x-auto -mx-2 px-2 pb-1">
+          <div className="flex items-center gap-2 overflow-x-auto -mx-2 px-2 pb-1">
             <Button 
               variant="outline" 
               size="sm"
-              className="shrink-0 h-7 text-[10px] md:text-xs px-2 md:px-3 border-border/50 hover:bg-card/50"
+              className="shrink-0 h-8 text-xs px-3"
               onClick={() => {
                 localStorage.removeItem('platformAuth');
                 setIsAuthenticated(false);
                 toast({ title: 'Вы вышли из аккаунта' });
               }}
             >
-              <Icon name="LogOut" size={12} className="mr-1" />
+              <Icon name="LogOut" size={14} className="mr-1.5" />
               Выход
             </Button>
-
+            <Link to="/login" className="shrink-0">
+              <Button variant="outline" size="sm" className="h-8 text-xs px-3">
+                <Icon name="Settings" size={14} className="mr-1.5" />
+                Админ
+              </Button>
+            </Link>
           </div>
         </header>
 
         <BestSchemeCard exchanges={exchanges} selectedCrypto={selectedCrypto} selectedCurrency={selectedCurrency} />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3">
-          <Card className="bg-card/40 backdrop-blur border-border/50 hover:border-border transition-colors">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+          <Card className="bg-card/50 backdrop-blur border-border">
             <CardContent className="pt-4 md:pt-6 px-4 pb-4">
               <div className="flex flex-col md:flex-row md:items-center gap-3 md:gap-4">
                 <Icon name="Coins" size={20} className="text-primary hidden md:block" />
@@ -237,7 +278,7 @@ const Index = () => {
             </CardContent>
           </Card>
 
-          <Card className="bg-card/40 backdrop-blur border-border/50 hover:border-border transition-colors">
+          <Card className="bg-card/50 backdrop-blur border-border">
             <CardContent className="pt-4 md:pt-6 px-4 pb-4">
               <div className="flex flex-col md:flex-row md:items-center gap-3 md:gap-4">
                 <Icon name="DollarSign" size={20} className="text-primary hidden md:block" />
@@ -263,7 +304,7 @@ const Index = () => {
         </div>
 
         <Tabs defaultValue="arbitrage" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 md:grid-cols-7 mb-3 md:mb-4 h-auto gap-1 bg-card/30 p-1">
+          <TabsList className="grid w-full grid-cols-4 md:grid-cols-8 mb-4 md:mb-6 h-auto gap-1">
             <TabsTrigger value="arbitrage" className="flex-col md:flex-row gap-1 md:gap-2 py-2 md:py-2.5 text-xs md:text-sm">
               <Icon name="ArrowLeftRight" size={14} className="md:mr-0" />
               <span className="hidden md:inline">Арбитраж</span>
@@ -284,26 +325,26 @@ const Index = () => {
               <Icon name="Wallet" size={14} className="md:mr-0" />
               <span className="hidden md:inline">Без карт</span>
             </TabsTrigger>
-            <TabsTrigger value="p2p-fiat" className="flex-col md:flex-row gap-1 md:gap-2 py-2 md:py-2.5 text-xs md:text-sm">
-              <Icon name="Repeat2" size={14} className="md:mr-0" />
-              <span className="hidden md:inline">P2P Фиат</span>
-            </TabsTrigger>
             <TabsTrigger value="spreads" className="flex-col md:flex-row gap-1 md:gap-2 py-2 md:py-2.5 text-xs md:text-sm">
               <Icon name="BarChart3" size={14} className="md:mr-0" />
               <span className="hidden md:inline">Схемы</span>
+            </TabsTrigger>
+            <TabsTrigger value="calculator" className="flex-col md:flex-row gap-1 md:gap-2 py-2 md:py-2.5 text-xs md:text-sm">
+              <Icon name="Calculator" size={14} className="md:mr-0" />
+              <span className="hidden md:inline">Калькулятор</span>
             </TabsTrigger>
             <TabsTrigger value="analytics" className="flex-col md:flex-row gap-1 md:gap-2 py-2 md:py-2.5 text-xs md:text-sm">
               <Icon name="LineChart" size={14} className="md:mr-0" />
               <span className="hidden md:inline">Аналитика</span>
             </TabsTrigger>
             <TabsTrigger value="ai" className="flex-col md:flex-row gap-1 md:gap-2 py-2 md:py-2.5 text-xs md:text-sm">
-              <Icon name="Bot" size={14} className="md:mr-0" />
-              <span className="hidden md:inline">AI Помощник</span>
+              <Icon name="Brain" size={14} className="md:mr-0" />
+              <span className="hidden md:inline">AI Прогноз</span>
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="arbitrage" className="space-y-3 md:space-y-4">
-            <Card className="bg-card/40 backdrop-blur border-border/50">
+          <TabsContent value="arbitrage" className="space-y-4 md:space-y-6">
+            <Card className="bg-card/50 backdrop-blur border-border">
               <CardContent className="pt-4 md:pt-6 px-4 pb-4">
                 <div className="flex flex-col md:flex-row md:items-center gap-3 md:gap-4">
                   <Icon name="Filter" size={20} className="text-accent hidden md:block" />
@@ -331,43 +372,45 @@ const Index = () => {
             <ArbitrageTab exchanges={exchanges} selectedCrypto={selectedCrypto} minProfitFilter={parseFloat(minProfitFilter) || 3.0} selectedCurrency={selectedCurrency} />
           </TabsContent>
 
-          <TabsContent value="cross-exchange" className="space-y-3 md:space-y-4">
+          <TabsContent value="cross-exchange" className="space-y-6">
             <CrossExchangeTab exchanges={exchanges} selectedCrypto={selectedCrypto} selectedCurrency={selectedCurrency} />
           </TabsContent>
 
-          <TabsContent value="crypto-chains" className="space-y-3 md:space-y-4">
+          <TabsContent value="crypto-chains" className="space-y-6">
             <CryptoChainsTab selectedCurrency={selectedCurrency} />
           </TabsContent>
 
-          <TabsContent value="verified" className="space-y-3 md:space-y-4">
+          <TabsContent value="verified" className="space-y-6">
             <VerifiedSchemesTab exchanges={exchanges} selectedCrypto={selectedCrypto} />
           </TabsContent>
 
-          <TabsContent value="no-cards" className="space-y-3 md:space-y-4">
+          <TabsContent value="no-cards" className="space-y-6">
             <NoCardsTab exchanges={exchanges} selectedCrypto={selectedCrypto} />
           </TabsContent>
 
-          <TabsContent value="p2p-fiat" className="space-y-3 md:space-y-4">
-            <P2PFiatTab />
-          </TabsContent>
-
-          <TabsContent value="spreads" className="space-y-3 md:space-y-4">
+          <TabsContent value="spreads" className="space-y-6">
             <SpreadVisualization exchanges={exchanges} selectedCrypto={selectedCrypto} />
           </TabsContent>
 
-          <TabsContent value="analytics" className="space-y-3 md:space-y-4">
+          <TabsContent value="calculator" className="space-y-6">
+            <CalculatorTab 
+              exchanges={exchanges} 
+              selectedCrypto={selectedCrypto}
+              amount={amount}
+              setAmount={setAmount}
+            />
+          </TabsContent>
+
+          <TabsContent value="analytics" className="space-y-6">
             <AnalyticsTab priceHistory={priceHistory} />
           </TabsContent>
 
-          <TabsContent value="ai" className="space-y-3 md:space-y-4">
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-3 md:gap-4 items-start">
-              <AIPredictionTab 
-                aiPrediction={aiPrediction} 
-                exchanges={exchanges}
-                selectedCrypto={selectedCrypto}
-              />
-              <AIAssistantTab selectedCurrency={selectedCurrency} />
-            </div>
+          <TabsContent value="ai" className="space-y-6">
+            <AIPredictionTab 
+              aiPrediction={aiPrediction} 
+              exchanges={exchanges}
+              selectedCrypto={selectedCrypto}
+            />
           </TabsContent>
         </Tabs>
 

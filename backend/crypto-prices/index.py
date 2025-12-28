@@ -8,7 +8,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
     Получает актуальные цены криптовалют с различных бирж.
     Поддерживает BTC, ETH, USDT, SOL, XRP и другие монеты.
-    Собирает данные с 15+ бирж через параллельные запросы.
+    Собирает данные с 15 бирж, разрешенных в РФ, через параллельные запросы.
     '''
     method: str = event.get('httpMethod', 'GET')
     
@@ -60,7 +60,6 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         ]
     else:
         fetch_functions = [
-            fetch_binance,
             fetch_kucoin,
             fetch_gate,
             fetch_mexc,
