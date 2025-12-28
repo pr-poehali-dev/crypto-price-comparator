@@ -67,7 +67,7 @@ export const BestSchemeCard = ({ exchanges, selectedCrypto, selectedCurrency }: 
       });
     }).flat().sort((a, b) => b.netProfitPercent - a.netProfitPercent)[0];
 
-    if (topSpreads && !verifiedOpportunity) {
+    if (topSpreads) {
       const isNewScheme = !bestScheme || 
         bestScheme.buyFrom !== topSpreads.buyFrom || 
         bestScheme.sellTo !== topSpreads.sellTo;
@@ -79,11 +79,7 @@ export const BestSchemeCard = ({ exchanges, selectedCrypto, selectedCurrency }: 
       
       setBestScheme(topSpreads);
     }
-    
-    return () => {
-      clearInterval(verifiedInterval);
-    };
-  }, [exchanges, bestScheme, selectedCrypto, verifiedOpportunity]);
+  }, [exchanges, bestScheme, selectedCrypto]);
 
   if (exchanges.length === 0) {
     return (
