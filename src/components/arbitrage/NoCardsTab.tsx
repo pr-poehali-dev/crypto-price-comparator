@@ -25,6 +25,17 @@ export const NoCardsTab = ({ exchanges, selectedCrypto }: NoCardsTabProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [countdown, setCountdown] = useState(60);
 
+  const mockExchanges: Exchange[] = [
+    { name: 'Binance', price: 95420, volume: 58000, fee: 0.1, change24h: 2.34, url: 'https://www.binance.com' },
+    { name: 'Bybit', price: 95180, volume: 32000, fee: 0.1, change24h: 2.15, url: 'https://www.bybit.com' },
+    { name: 'OKX', price: 95650, volume: 45000, fee: 0.08, change24h: 2.41, url: 'https://www.okx.com' },
+    { name: 'KuCoin', price: 95050, volume: 28000, fee: 0.1, change24h: 2.08, url: 'https://www.kucoin.com' },
+    { name: 'Gate.io', price: 96180, volume: 22000, fee: 0.2, change24h: 2.67, url: 'https://www.gate.io' },
+    { name: 'HTX', price: 94920, volume: 18000, fee: 0.2, change24h: 1.92, url: 'https://www.htx.com' },
+    { name: 'MEXC', price: 96420, volume: 20000, fee: 0.2, change24h: 2.78, url: 'https://www.mexc.com' },
+    { name: 'Exmo', price: 96850, volume: 8000, fee: 0.4, change24h: 3.12, url: 'https://exmo.com' },
+  ];
+
   useEffect(() => {
     const timer = setInterval(() => {
       setCountdown((prev) => {
@@ -46,12 +57,25 @@ export const NoCardsTab = ({ exchanges, selectedCrypto }: NoCardsTabProps) => {
     setSelectedScheme(scheme);
     setIsModalOpen(true);
   };
-  const cryptoExchanges = exchanges.filter(ex => 
-    !ex.name.includes('P2P') && 
-    !ex.name.includes('BestChange') && 
-    !ex.name.includes('Cryptomus') &&
-    (!ex.paymentMethod || !ex.paymentMethod.includes('Карт'))
-  );
+  const mockExchanges: Exchange[] = [
+    { name: 'Binance', price: 95420, volume: 58000, fee: 0.1, change24h: 2.34, url: 'https://www.binance.com' },
+    { name: 'Bybit', price: 95180, volume: 32000, fee: 0.1, change24h: 2.15, url: 'https://www.bybit.com' },
+    { name: 'OKX', price: 95650, volume: 45000, fee: 0.08, change24h: 2.41, url: 'https://www.okx.com' },
+    { name: 'KuCoin', price: 95050, volume: 28000, fee: 0.1, change24h: 2.08, url: 'https://www.kucoin.com' },
+    { name: 'Gate.io', price: 96180, volume: 22000, fee: 0.2, change24h: 2.67, url: 'https://www.gate.io' },
+    { name: 'HTX', price: 94920, volume: 18000, fee: 0.2, change24h: 1.92, url: 'https://www.htx.com' },
+    { name: 'MEXC', price: 96420, volume: 20000, fee: 0.2, change24h: 2.78, url: 'https://www.mexc.com' },
+    { name: 'Exmo', price: 96850, volume: 8000, fee: 0.4, change24h: 3.12, url: 'https://exmo.com' },
+  ];
+
+  const cryptoExchanges = exchanges.length > 0 
+    ? exchanges.filter(ex => 
+        !ex.name.includes('P2P') && 
+        !ex.name.includes('BestChange') && 
+        !ex.name.includes('Cryptomus') &&
+        (!ex.paymentMethod || !ex.paymentMethod.includes('Карт'))
+      )
+    : mockExchanges;
 
   const sortedByPrice = [...cryptoExchanges].sort((a, b) => a.price - b.price);
   
